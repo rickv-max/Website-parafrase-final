@@ -1,0 +1,8 @@
+{
+  "name": "proyek-parafrase-netlify",
+  "version": "1.0.0",
+  "description": "Frontend dan API untuk alat parafrase",
+  "dependencies": {
+    "node-fetch": "^2.7.0"
+  }
+}

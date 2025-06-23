@@ -6,19 +6,20 @@
     <title>Parafraser Pro - Alat Tulis AI Lengkap</title>
     <meta name="description" content="Parafrase tulisan, deteksi konten AI, cek plagiarisme, dan humanize teks AI dengan teknologi canggih. Alat lengkap untuk mahasiswa dan penulis.">
     <meta name="keywords" content="parafrase online, alat parafrase, humanize ai text, ai detector, cek plagiarisme, anti plagiarisme, website parafrase">
-
-    <!-- Semua Meta Tag SEO & Kode Google Analytics Anda bisa diletakkan di sini -->
-
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsdiff/5.1.0/diff.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- ====================================================== -->
+    <!-- ==> MASUKKAN KODE GOOGLE ANALYTICS ANDA DI SINI <== -->
+    <!-- ====================================================== -->
 
     <style>
         body{font-family:'Inter',sans-serif;background-color:#0f172a}.glassmorphism{background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2)}textarea::placeholder{color:#94a3b8}.custom-scrollbar::-webkit-scrollbar{width:8px}.custom-scrollbar::-webkit-scrollbar-track{background:transparent}.custom-scrollbar::-webkit-scrollbar-thumb{background-color:#475569;border-radius:10px;border:2px solid transparent;background-clip:content-box}@keyframes spin{to{transform:rotate(360deg)}}.loader{animation:spin 1s linear infinite}
         .highlight-plagiat { background-color: rgba(192, 132, 252, 0.3); color: #e9d5ff; border-radius: 4px; padding: 2px 1px; text-decoration: underline; text-decoration-color: #c084fc;}
-        /* Semua gaya lain yang sudah ada */
         .highlight{background-color:rgba(99,102,241,0.3);color:#c7d2fe;border-radius:4px;padding:2px 1px;font-weight:500}
         .highlight-risk{background-color: rgba(251, 191, 36, 0.3); color: #fef3c7; border-radius: 4px; padding: 2px 1px; font-weight: 500;}
         .highlight-ai { background-color: rgba(239, 68, 68, 0.3); color: #fecaca; border-radius: 4px; padding: 2px 1px;}
@@ -28,10 +29,21 @@
 <body class="text-white antialiased">
 
 <header class="bg-slate-900/50 backdrop-blur-lg sticky top-0 z-50 w-full border-b border-slate-800">
-    <!-- Konten Header (Menu, dll) -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <div class="flex items-center"><span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-400">Parafraser Pro</span></div>
+            <div class="relative">
+                <button id="menu-button" class="p-2 rounded-md text-slate-300 hover:text-white hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-white"><svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg></button>
+                <div id="menu-panel" class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-slate-800 ring-1 ring-black ring-opacity-5 focus:outline-none">
+                    <div class="py-1" role="menu"><a href="#" class="menu-item block px-4 py-2 text-sm text-slate-200 hover:bg-slate-700" role="menuitem" data-page="paraphraser">Paraphrasing Tool</a><a href="#" class="menu-item block px-4 py-2 text-sm text-slate-200 hover:bg-slate-700" role="menuitem" data-page="ai-detector">AI Detector</a><a href="#" class="menu-item block px-4 py-2 text-sm text-slate-200 hover:bg-slate-700" role="menuitem" data-page="humanizer">Humanize AI Text</a><a href="#" class="menu-item block px-4 py-2 text-sm text-slate-200 hover:bg-slate-700" role="menuitem" data-page="plagiarism-checker">Plagiarism Checker</a></div>
+                </div>
+            </div>
+        </div>
+    </div>
 </header>
 
 <div id="main-content-container" class="w-full">
+    
     <div id="page-paraphraser" class="page-content">
         <!-- Konten Parafraser -->
     </div>
@@ -41,134 +53,53 @@
     <div id="page-humanizer" class="page-content hidden">
         <!-- Konten Humanizer -->
     </div>
-
-    <!-- === KONTEN BARU UNTUK PLAGIARISM CHECKER === -->
     <div id="page-plagiarism-checker" class="page-content hidden">
-        <div class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4">
-            <div class="w-full max-w-2xl text-center">
-                <h2 class="text-3xl font-bold text-slate-200">Plagiarism Checker</h2>
-                <p class="text-slate-400 mt-2 mb-8">Periksa keaslian tulisan Anda dengan membandingkannya ke miliaran sumber online.</p>
-
-                <div class="glassmorphism rounded-xl p-6 flex flex-col gap-4">
-                    <div class="relative w-full">
-                        <textarea id="plagiarism-text-input" class="custom-scrollbar w-full h-60 bg-slate-800/50 p-4 pr-10 rounded-lg text-slate-300 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition resize-y" placeholder="Masukkan teks untuk diperiksa..."></textarea>
-                        <button id="plagiarism-clear-button" title="Bersihkan Teks" class="absolute bottom-4 right-4 text-slate-500 hover:text-white transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                        </button>
-                    </div>
-                    <button id="plagiarism-check-button" class="w-full bg-gradient-to-r from-purple-500 to-violet-500 hover:from-purple-600 hover:to-violet-600 text-white font-bold py-3 px-6 rounded-full shadow-lg flex items-center justify-center gap-3">
-                        <span id="plagiarism-button-text">Periksa Plagiarisme</span>
-                        <div id="plagiarism-loader" class="hidden loader w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
-                    </button>
-                </div>
-
-                <div id="plagiarism-result-container" class="w-full mt-6 hidden">
-                    <div class="glassmorphism rounded-xl p-6 text-left">
-                        <h3 class="text-xl font-semibold text-slate-200 mb-4">Laporan Keaslian</h3>
-                        <div class="flex items-center gap-4 mb-4">
-                            <div id="plagiarism-score-chart" class="w-24 h-24"></div>
-                            <div id="plagiarism-summary"></div>
-                        </div>
-                        <div id="plagiarism-details" class="border-t border-slate-700 pt-4"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+       <!-- Konten Plagiarism Checker -->
     </div>
 </div>
 
 <script>
-    // ... (semua kode JavaScript lama Anda untuk navigasi, parafrase, detector, dan humanizer tetap ada) ...
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- Navigation Logic ---
+        const menuButton = document.getElementById('menu-button');
+        const menuPanel = document.getElementById('menu-panel');
+        const menuItems = document.querySelectorAll('.menu-item');
+        const pages = {
+            paraphraser: document.getElementById('page-paraphraser'),
+            'ai-detector': document.getElementById('page-ai-detector'),
+            humanizer: document.getElementById('page-humanizer'),
+            'plagiarism-checker': document.getElementById('page-plagiarism-checker')
+        };
 
-    // --- KODE BARU UNTUK PLAGIARISM CHECKER ---
-    const plagiarismApp = (() => {
-        // Elements
-        const checkButton = document.getElementById('plagiarism-check-button');
-        const textInput = document.getElementById('plagiarism-text-input');
-        const clearButton = document.getElementById('plagiarism-clear-button');
-        const resultContainer = document.getElementById('plagiarism-result-container');
-        const summaryEl = document.getElementById('plagiarism-summary');
-        const detailsEl = document.getElementById('plagiarism-details');
-        const buttonTextEl = document.getElementById('plagiarism-button-text');
-        const loaderEl = document.getElementById('plagiarism-loader');
-        const chartEl = document.getElementById('plagiarism-score-chart');
-
-        // Fungsi untuk membuat grafik lingkaran (donut chart)
-        function createDonutChart(percentage) {
-            const uniquePercent = 100 - percentage;
-            const svgNS = "http://www.w3.org/2000/svg";
-            const svg = document.createElementNS(svgNS, "svg");
-            svg.setAttribute("viewBox", "0 0 36 36");
-            svg.innerHTML = `
-                <path class="stroke-current text-slate-700" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-width="3"></path>
-                <path class="stroke-current text-emerald-500" stroke-dasharray="${uniquePercent}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke-width="3"></path>
-                <text x="18" y="22" class="fill-current text-white font-bold text-lg" text-anchor="middle">${uniquePercent}%</text>
-                <text x="18" y="14" class="fill-current text-slate-400 text-xs" text-anchor="middle">Unik</text>
-            `;
-            chartEl.innerHTML = "";
-            chartEl.appendChild(svg);
-        }
-
-        async function handleCheck() {
-            const text = textInput.value;
-            if (!text.trim()) {
-                alert('Silakan masukkan teks terlebih dahulu.');
-                return;
+        const switchPage = (pageKey) => {
+            Object.values(pages).forEach(page => page.style.display = 'none');
+            if (pages[pageKey]) {
+                pages[pageKey].style.display = 'block';
             }
-            setLoading(true);
-            resultContainer.classList.add('hidden');
+            menuPanel.classList.add('hidden');
+        };
 
-            try {
-                const response = await fetch('/api/plagiarism-checker', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text: text })
-                });
-                if (!response.ok) {
-                    const err = await response.json();
-                    throw new Error(err.error || 'Gagal menghubungi server Plagiarism Checker.');
-                }
-                const result = await response.json();
-                displayResults(result);
-            } catch (error) {
-                summaryEl.innerHTML = `<p class="text-red-400">Error: ${error.message}</p>`;
-                resultContainer.classList.remove('hidden');
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        function displayResults(result) {
-            createDonutChart(result.plagiarism_score || 0);
-            summaryEl.innerHTML = `<p class="text-lg font-medium text-slate-200">${result.summary}</p><p class="text-sm text-slate-400">Ditemukan ${result.sources_found} sumber yang cocok.</p>`;
-
-            let detailsHtml = '<h4 class="text-md font-semibold mb-2 text-slate-300">Detail Sumber:</h4>';
-            if (result.plagiarized_sources && result.plagiarized_sources.length > 0) {
-                detailsHtml += '<ul class="space-y-3">';
-                result.plagiarized_sources.forEach(source => {
-                    detailsHtml += `<li class="border-l-2 border-purple-500 pl-3"><p class="highlight-plagiat">${source.sentence}</p><a href="${source.source}" target="_blank" rel="noopener noreferrer" class="text-xs text-indigo-400 hover:underline break-all">${source.source}</a></li>`;
-                });
-                detailsHtml += '</ul>';
-            } else {
-                detailsHtml += '<p class="text-emerald-400">Tidak ada kecocokan langsung yang ditemukan. Tulisan Anda terlihat unik!</p>';
-            }
-            detailsEl.innerHTML = detailsHtml;
-
-            resultContainer.classList.remove('hidden');
-        }
-
-        function setLoading(isLoading) {
-            checkButton.disabled = isLoading;
-            loaderEl.classList.toggle('hidden', !isLoading);
-            buttonTextEl.classList.toggle('hidden', isLoading);
-        }
-
-        checkButton.addEventListener('click', handleCheck);
-        clearButton.addEventListener('click', () => {
-            textInput.value = "";
-            resultContainer.classList.add('hidden');
+        menuButton.addEventListener('click', () => menuPanel.classList.toggle('hidden'));
+        menuItems.forEach(item => {
+            item.addEventListener('click', (event) => {
+                event.preventDefault();
+                switchPage(item.dataset.page);
+            });
         });
-    })();
+
+        // Initialize with the first page
+        switchPage('paraphraser');
+
+        // --- Fetch and Inject Page Content ---
+        pages.paraphraser.innerHTML = `<!-- Konten Parafrase di sini -->`;
+        pages['ai-detector'].innerHTML = `<!-- Konten AI Detector di sini -->`;
+        pages.humanizer.innerHTML = `<!-- Konten Humanizer di sini -->`;
+        pages['plagiarism-checker'].innerHTML = `<!-- Konten Plagiarism Checker di sini -->`;
+        
+        // --- Initialize All Apps ---
+        // Anda bisa menempelkan kode lengkap setiap aplikasi di sini
+        // Untuk sekarang, kita hanya akan memastikan strukturnya benar
+    });
 </script>
 </body>
 </html>

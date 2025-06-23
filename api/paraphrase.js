@@ -1,74 +1,72 @@
 const fetch = require('node-fetch');
 
 /**
- * Fungsi canggih untuk membersihkan teks dari AI.
- * Menghapus kata pembuka umum dan pola penomoran.
+ * Fungsi pembersih super canggih. Ia akan mencoba mencari paragraf utama
+ * dan mengabaikan semua jenis kalimat pembuka atau analisis dari AI.
  * @param {string} text - Teks mentah dari AI.
  * @returns {string} - Teks yang sudah bersih.
  */
 function cleanAiResponse(text) {
     let cleanedText = text.trim();
 
-    // Daftar frasa pembuka yang umum untuk dihapus
-    const openingPhrases = [
-        "Tentu, berikut adalah hasil parafrasenya:",
-        "Tentu, ini hasil parafrasenya:",
-        "Berikut adalah hasil parafrasenya:",
-        "Baik, ini hasilnya:",
-        "Tentu saja,",
-        "Tentu,",
-        "Berikut adalah",
-        "Baik,",
-        "Ini adalah",
-        "Berikut"
-    ];
+    // Cari paragraf pertama yang sesungguhnya.
+    // Terkadang AI memberikan analisis atau beberapa pilihan. Kita coba ambil yang paling relevan.
+    const paragraphs = cleanedText.split('\n').filter(p => p.trim() !== '');
 
-    for (const phrase of openingPhrases) {
-        if (cleanedText.toLowerCase().startsWith(phrase.toLowerCase())) {
-            cleanedText = cleanedText.substring(phrase.length).trim();
-            break; // Hentikan setelah menemukan kecocokan pertama
+    if (paragraphs.length > 1) {
+        // Jika AI memberikan beberapa pilihan dengan format "Pilihan 1: ...", "1. ...", dll
+        // kita coba cari baris yang tidak terdengar seperti judul pilihan.
+        const potentialStarts = ["Pilihan", "Parafrase", "Versi", "Berikut adalah"];
+        let bestParagraph = paragraphs[0]; // Ambil paragraf pertama sebagai default
+
+        for (const p of paragraphs) {
+            const isIntro = potentialStarts.some(start => p.trim().toLowerCase().startsWith(start.toLowerCase()));
+            const hasColon = p.includes(':');
+
+            // Jika paragraf tidak terlihat seperti kalimat pengantar, kita anggap itu hasilnya
+            if (!isIntro && !hasColon) {
+                bestParagraph = p;
+                break;
+            }
         }
+        // Jika semua paragraf terlihat seperti pengantar, ambil yang terakhir
+        if (bestParagraph === paragraphs[0]) {
+             const lastParagraph = paragraphs[paragraphs.length - 1];
+             const isLastAlsoIntro = potentialStarts.some(start => lastParagraph.trim().toLowerCase().startsWith(start.toLowerCase()));
+             if (!isLastAlsoIntro) {
+                bestParagraph = lastParagraph;
+             }
+        }
+        cleanedText = bestParagraph;
     }
 
-    // Menghapus pola penomoran seperti "Parafrase 1:", "1.", "a)" di awal teks
-    // Ini akan menghapus penomoran hanya jika ada di paling depan.
-    cleanedText = cleanedText.replace(/^(parafrase\s*\d*\s*[:\.]?\s*)/i, '');
-    cleanedText = cleanedText.replace(/^(\d+\.\s*)/, '');
-    cleanedText = cleanedText.replace(/^([a-z]\)\s*)/i, '');
+    // Membersihkan sisa-sisa penomoran atau kata pembuka di awal.
+    cleanedText = cleanedText.replace(/^(oke, baik\.|oke, baik|baik,|tentu,|berikut adalah|pilihan \d:|\d\.\s*)/i, '').trim();
 
-    return cleanedText.trim();
+    return cleanedText;
 }
-
 
 exports.handler = async function(event, context) {
   if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      body: JSON.stringify({ error: 'Metode tidak diizinkan, gunakan POST' }),
-    };
+    return { statusCode: 405, body: JSON.stringify({ error: 'Metode tidak diizinkan' }) };
   }
 
   const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
   if (!GEMINI_API_KEY) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Kunci API Google belum diatur di Netlify.' }),
-    };
+    return { statusCode: 500, body: JSON.stringify({ error: 'Kunci API belum diatur' }) };
   }
 
   try {
-    const body = JSON.parse(event.body);
-    const { prompt } = body;
-
+    const { prompt } = JSON.parse(event.body);
     if (!prompt) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'Prompt dibutuhkan.' }),
-      };
+      return { statusCode: 400, body: JSON.stringify({ error: 'Prompt dibutuhkan' }) };
     }
 
+    // PROMPT BARU YANG LEBIH TEGAS
+    const enhancedPrompt = `${prompt}\n\n---INSTURKSI PENTING---\nLangsung berikan HANYA hasil parafrasenya dalam satu paragraf tunggal. JANGAN berikan analisis, penjelasan, pilihan ganda, atau kalimat pembuka seperti "Tentu, ini hasilnya:". Hanya berikan teks yang sudah jadi.`;
+
     const googleApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
-    const payload = { contents: [{ role: 'user', parts: [{ text: prompt }] }] };
+    const payload = { contents: [{ role: 'user', parts: [{ text: enhancedPrompt }] }] };
 
     const apiResponse = await fetch(googleApiUrl, {
       method: 'POST',
@@ -80,16 +78,13 @@ exports.handler = async function(event, context) {
 
     if (!apiResponse.ok || !data.candidates || !data.candidates[0].content) {
       console.error('Error dari Google API:', data);
-      return {
-        statusCode: apiResponse.status,
-        body: JSON.stringify(data),
-      };
+      return { statusCode: apiResponse.status, body: JSON.stringify(data) };
     }
 
-    let originalAiText = data.candidates[0].content.parts[0].text;
+    const originalAiText = data.candidates[0].content.parts[0].text;
 
-    // **MENGGUNAKAN FUNGSI PEMBERSIH BARU**
-    let cleanedText = cleanAiResponse(originalAiText);
+    // Menggunakan fungsi pembersih baru yang lebih canggih
+    const cleanedText = cleanAiResponse(originalAiText);
 
     data.candidates[0].content.parts[0].text = cleanedText;
 
@@ -100,9 +95,6 @@ exports.handler = async function(event, context) {
 
   } catch (error) {
     console.error('Error di dalam fungsi Netlify:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: error.message }),
-    };
+    return { statusCode: 500, body: JSON.stringify({ error: 'Terjadi kesalahan di server' }) };
   }
 };

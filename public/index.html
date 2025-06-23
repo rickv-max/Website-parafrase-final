@@ -105,11 +105,46 @@
 
     // --- Functions ---
     async function handleParaphrase() {
-        const userInput = originalTextInput.value.trim();
-        if (!userInput) {
-            paraphrasedTextOutput.innerHTML = '<span class="text-yellow-400">Silakan masukkan teks terlebih dahulu.</span>';
-            return;
+    const userInput = originalTextInput.value.trim();
+    if (!userInput) {
+        paraphrasedTextOutput.innerHTML = '<span class="text-yellow-400">Silakan masukkan teks terlebih dahulu.</span>';
+        return;
+    }
+    setLoading(true);
+    paraphrasedTextOutput.innerHTML = '<span class="text-slate-500">Sedang memproses...</span>';
+    authenticityContainer.classList.add('hidden');
+
+    try {
+        const response = await fetch("/api/paraphrase", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            // Ini adalah body yang benar, mengirim mode dan text secara terpisah
+            body: JSON.stringify({ mode: currentMode, text: userInput })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error?.message || `API Error: ${response.status}`);
         }
+
+        const result = await response.json();
+        const generatedText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        if (generatedText) {
+            const cleanedText = cleanAiResponse(generatedText);
+            displayHighlightedDiff(originalTextInput.value.trim(), cleanedText);
+            authenticityContainer.classList.remove('hidden');
+        } else {
+            throw new Error("Tidak ada konten yang dihasilkan oleh AI.");
+        }
+    } catch (error) {
+        console.error("Error during paraphrasing:", error);
+        paraphrasedTextOutput.innerHTML = `<span class="text-red-400">Maaf, terjadi kesalahan. Detail: ${error.message}</span>`;
+    } finally {
+        setLoading(false);
+    }
+}
+
         setLoading(true);
         paraphrasedTextOutput.innerHTML = '<span class="text-slate-500">Sedang memproses...</span>';
         authenticityContainer.classList.add('hidden');

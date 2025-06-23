@@ -1,6 +1,16 @@
 // Impor 'fetch' karena kita akan menggunakannya
 const fetch = require('node-fetch');
 
+// Fungsi baru untuk membersihkan kata pembuka
+function cleanOpeningWords(text) {
+    const commonOpeners = ["Tentu,", "Berikut adalah", "Baik,", "Ini adalah", "Berikut"];
+    const words = text.split(' ');
+    if (commonOpeners.includes(words[0].replace(/,$/, ''))) {
+        return words.slice(1).join(' ').trim();
+    }
+    return text.trim();
+}
+
 // Ini adalah format handler yang benar untuk Netlify
 exports.handler = async function(event, context) {
   // Hanya izinkan request dengan metode POST
@@ -45,13 +55,22 @@ exports.handler = async function(event, context) {
     const data = await apiResponse.json();
 
     // Jika Google mengembalikan error, teruskan errornya
-    if (!apiResponse.ok) {
+    if (!apiResponse.ok || !data.candidates || !data.candidates[0].content) {
       console.error('Error dari Google API:', data);
       return {
         statusCode: apiResponse.status,
         body: JSON.stringify(data),
       };
     }
+
+    // Ambil teks dari AI
+    let originalAiText = data.candidates[0].content.parts[0].text;
+
+    // **BARU:** Bersihkan kata pembuka dari hasil AI
+    let cleanedText = cleanOpeningWords(originalAiText);
+
+    // Modifikasi respons untuk mengirim teks yang sudah bersih
+    data.candidates[0].content.parts[0].text = cleanedText;
 
     // Jika berhasil, kirim hasilnya kembali ke frontend
     return {

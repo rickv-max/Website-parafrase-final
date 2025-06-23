@@ -3,56 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alat Parafrase AI</title>
+    <title>Alat Parafrase Online AI Gratis - Cek Keaslian & Anti Plagiarisme</title>
+    <meta name="description" content="Parafrase tulisan, makalah, atau skripsi Anda secara online dengan teknologi AI canggih. Dapatkan hasil yang unik, bebas plagiarisme, dan gunakan fitur Cek Keaslian untuk menyempurnakan tulisan Anda.">
+    <meta name="keywords" content="parafrase online, alat parafrase, parafrase ai, parafrase gratis, ubah kalimat, cek keaslian, anti plagiarisme, website parafrase">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsdiff/5.1.0/diff.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- ====================================================== -->
+    <!-- ==> MASUKKAN KODE GOOGLE ANALYTICS ANDA DI SINI <== -->
+    <!-- ====================================================== -->
 
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-X2TL6DZQM0"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-X2TL6DZQM0');
-</script>
     <style>
         body{font-family:'Inter',sans-serif;background-color:#0f172a}.glassmorphism{background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2)}textarea::placeholder{color:#94a3b8}.custom-scrollbar::-webkit-scrollbar{width:8px}.custom-scrollbar::-webkit-scrollbar-track{background:transparent}.custom-scrollbar::-webkit-scrollbar-thumb{background-color:#475569;border-radius:10px;border:2px solid transparent;background-clip:content-box}@keyframes spin{to{transform:rotate(360deg)}}.loader{animation:spin 1s linear infinite}.highlight{background-color:rgba(99,102,241,0.3);color:#c7d2fe;border-radius:4px;padding:2px 1px;font-weight:500}
         .highlight-risk{background-color: rgba(251, 191, 36, 0.3); color: #fef3c7; border-radius: 4px; padding: 2px 1px; font-weight: 500;}
-   .suggestion-badge { 
-    position: absolute; 
-    top: -0.5rem; 
-    right: -0.5rem; 
-    font-size: 0.65rem; 
-    font-weight: 600; 
-    color: #10b981; 
-    background-color: rgba(16, 185, 129, 0.1); 
-    padding: 2px 6px; 
-    border-radius: 9999px; 
-    border: 1px solid rgba(16, 185, 129, 0.3); 
-    pointer-events: none; 
-    transform: rotate(15deg); 
-}
-
+        .suggestion-badge { position: absolute; top: -0.5rem; right: -0.5rem; font-size: 0.65rem; font-weight: 600; color: #10b981; background-color: rgba(16, 185, 129, 0.1); padding: 2px 6px; border-radius: 9999px; border: 1px solid rgba(16, 185, 129, 0.3); pointer-events: none; transform: rotate(15deg); }
     </style>
 </head>
 <body class="text-white antialiased">
 <div class="min-h-screen flex flex-col items-center justify-center p-4">
-    <header class="text-center mb-8 w-full max-w-6xl"><h1 class="text-4xl sm:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-400">Parafrase Gratis</h1><p class="text-slate-400 mt-4 text-lg max-w-2xl mx-auto">Formulasikan ulang tulisan Anda menjadi karya yang sepenuhnya baru, akurat, dan bebas plagiarisme.</p></header>
+    <header class="text-center mb-8 w-full max-w-6xl"><h1 class="text-4xl sm:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-400">Parafrase AI</h1><p class="text-slate-400 mt-4 text-lg max-w-2xl mx-auto">Formulasikan ulang tulisan Anda menjadi karya yang sepenuhnya baru, akurat, dan bebas plagiarisme.</p></header>
     <main class="w-full max-w-6xl flex flex-col lg:flex-row items-start gap-6">
         <div class="w-full lg:w-1/2 flex flex-col gap-4">
-            <div class="glassmorphism rounded-xl p-3"><div id="mode-container" class="grid grid-cols-2 sm:grid-cols-3 gap-2"><button class="mode-button relative" data-mode="standard">
-    Standard
-    <span class="suggestion-badge">Saran</span>
-</button>
-<button class="mode-button" data-mode="formal">Formal</button><button class="mode-button" data-mode="creative">Kreatif</button><button class="mode-button" data-mode="simple">Sederhana</button><button class="mode-button col-span-2 sm:col-span-1 relative" data-mode="mahasiswa">
-    Mahasiswa
-    <span class="suggestion-badge">Saran</span>
-</button>
-</div></div>
+            <div class="glassmorphism rounded-xl p-3">
+                <div id="mode-container" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    <button class="mode-button relative" data-mode="standard">Standard <span class="suggestion-badge">Saran</span></button>
+                    <button class="mode-button" data-mode="formal">Formal</button>
+                    <button class="mode-button" data-mode="creative">Kreatif</button>
+                    <button class="mode-button" data-mode="simple">Sederhana</button>
+                    <button class="mode-button col-span-2 sm:col-span-1 relative" data-mode="mahasiswa">Mahasiswa <span class="suggestion-badge">Saran</span></button>
+                </div>
+            </div>
             <div class="glassmorphism rounded-xl p-6 h-full flex-grow flex flex-col">
                 <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-semibold text-slate-200">Teks Asli</h2><button id="clear-button" title="Bersihkan Teks" class="text-slate-400 hover:text-white transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button></div>
                 <textarea id="original-text" class="custom-scrollbar w-full h-64 md:h-80 flex-grow bg-slate-800/50 p-4 rounded-lg text-slate-300 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition resize-none" placeholder="Masukkan atau tempel teks Anda di sini..."></textarea>
@@ -77,199 +61,7 @@
     </main>
 </div>
 <script>
-    // --- Element References ---
-    const originalTextInput = document.getElementById('original-text');
-    const paraphrasedTextOutput = document.getElementById('paraphrased-text');
-    const paraphraseButton = document.getElementById('paraphrase-button');
-    const copyButton = document.getElementById('copy-button');
-    const clearButton = document.getElementById('clear-button');
-    const loader = document.getElementById('loader');
-    const buttonText = document.getElementById('button-text');
-    const copyText = document.getElementById('copy-text');
-    const modeButtons = document.querySelectorAll('.mode-button');
-    const authenticityContainer = document.getElementById('authenticity-container');
-    const checkButton = document.getElementById('check-authenticity-button');
-    const resultDiv = document.getElementById('authenticity-result');
-
-    // --- Config & State ---
-    const activeModeClass = 'bg-indigo-600 text-white font-semibold';
-    const inactiveModeClass = 'bg-slate-700 hover:bg-slate-600 text-slate-300';
-    let currentMode = 'standard';
-
-    const prompts = {
-        standard: "Tugas Anda adalah memparafrase teks berikut. Ubah struktur setiap kalimat secara signifikan, ganti pilihan kata (diksi) dengan sinonim yang relevan, namun pastikan SEMUA makna, detail, dan ide asli tetap utuh. JANGAN meringkas atau menghilangkan informasi. Hasilnya harus unik dan sulit dideteksi sebagai plagiarisme. Langsung berikan teks yang sudah jadi tanpa kalimat pembuka.",
-        formal: "Posisikan diri Anda sebagai editor jurnal akademis. Parafrasekan teks berikut ke dalam gaya bahasa yang sangat formal, objektif, dan terstruktur. Gunakan terminologi yang canggih dan struktur kalimat majemuk yang bervariasi. Prioritaskan keakuratan makna dan pertahankan semua detail informasi. Hindari opini atau bahasa kasual. Hasilnya harus terdengar profesional dan siap untuk publikasi ilmiah. Langsung berikan teksnya tanpa basa-basi.",
-        creative: "Imajinasikan Anda seorang novelis. Ubah teks berikut menjadi narasi yang lebih hidup, deskriptif, dan ekspresif. Gunakan metafora, kiasan, dan kosakata yang kaya untuk menggugah imajinasi pembaca. Jangan ragu untuk sedikit mendramatisir, tetapi inti dan makna utama dari teks asli harus tetap terjaga. JANGAN menghilangkan detail penting. Langsung berikan hasilnya tanpa pengantar.",
-        simple: "Jelaskan kembali teks berikut dengan bahasa yang paling sederhana dan mudah dimengerti, seolah-olah Anda berbicara kepada anak sekolah. Pecah kalimat yang panjang menjadi kalimat-kalimat pendek. Ganti semua kata sulit dengan padanan kata yang umum digunakan sehari-hari. Pastikan semua poin utama dari teks asli tetap tersampaikan dengan jelas. Jangan meringkas, hanya sederhanakan bahasanya. Langsung berikan hasilnya.",
-        mahasiswa: "Anda adalah seorang mahasiswa yang sedang menyusun skripsi. Parafrasekan teks berikut dengan gaya bahasa akademis yang baik. Fokus utama Anda adalah mengubah kalimat asli untuk menghindari plagiarisme. Lakukan ini dengan cara: (1) Mengubah struktur kalimat (misalnya dari aktif ke pasif atau sebaliknya), (2) Menggunakan kata-kata transisi akademis (contoh: 'oleh karena itu', 'di sisi lain', 'selanjutnya'), (3) Mengganti kata kunci dengan sinonim yang tepat dalam konteks akademis. Pastikan semua data, fakta, dan detail dari teks asli tetap ada. Langsung berikan hasilnya tanpa analisis atau pembukaan."
-    };
-
-    // --- Core Functions ---
-    async function handleParaphrase() {
-        const userInput = originalTextInput.value.trim();
-        if (!userInput) {
-            paraphrasedTextOutput.innerHTML = '<span class="text-yellow-400">Silakan masukkan teks terlebih dahulu.</span>';
-            return;
-        }
-        setLoading(true);
-        paraphrasedTextOutput.innerHTML = '<span class="text-slate-500">Sedang memproses...</span>';
-        authenticityContainer.classList.add('hidden');
-
-        try {
-            const response = await fetch("/api/paraphrase", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ mode: currentMode, text: userInput })
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error?.message || `API Error: ${response.status}`);
-            }
-
-            const result = await response.json();
-            const generatedText = result.candidates?.[0]?.content?.parts?.[0]?.text;
-
-            if (generatedText) {
-                const cleanedText = cleanAiResponse(generatedText);
-                displayHighlightedDiff(originalTextInput.value.trim(), cleanedText);
-                authenticityContainer.classList.remove('hidden');
-            } else {
-                throw new Error("Tidak ada konten yang dihasilkan oleh AI.");
-            }
-        } catch (error) {
-            console.error("Error during paraphrasing:", error);
-            paraphrasedTextOutput.innerHTML = `<span class="text-red-400">Maaf, terjadi kesalahan. Detail: ${error.message}</span>`;
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    function cleanAiResponse(text) {
-        let cleanedText = text.trim();
-        const paragraphs = cleanedText.split('\n').filter(p => p.trim() !== '');
-        if (paragraphs.length > 1) {
-            const potentialStarts = ["Pilihan", "Parafrase", "Versi", "Berikut adalah"];
-            let bestParagraph = paragraphs[0];
-            for (const p of paragraphs) {
-                const isIntro = potentialStarts.some(start => p.trim().toLowerCase().startsWith(start.toLowerCase()));
-                const hasColon = p.includes(':');
-                if (!isIntro && !hasColon) {
-                    bestParagraph = p;
-                    break;
-                }
-            }
-            if (bestParagraph === paragraphs[0]) {
-                const lastParagraph = paragraphs[paragraphs.length - 1];
-                const isLastAlsoIntro = potentialStarts.some(start => lastParagraph.trim().toLowerCase().startsWith(start.toLowerCase()));
-                if (!isLastAlsoIntro) {
-                    bestParagraph = lastParagraph;
-                }
-            }
-            cleanedText = bestParagraph;
-        }
-        cleanedText = cleanedText.replace(/^(oke, baik\.|oke, baik|baik,|tentu,|berikut adalah|pilihan \d:|\d\.\s*)/i, '').trim();
-        return cleanedText;
-    }
-
-    function displayHighlightedDiff(original, modified) {
-        const diff = Diff.diffWords(original, modified, { ignoreCase: false });
-        const fragment = document.createDocumentFragment();
-        diff.forEach(part => {
-            let node;
-            if (part.added) {
-                node = document.createElement('span');
-                node.className = 'highlight';
-                node.textContent = part.value;
-            } else if (!part.removed) {
-                node = document.createTextNode(part.value);
-            }
-            if (node) fragment.appendChild(node);
-        });
-        paraphrasedTextOutput.innerHTML = '';
-        paraphrasedTextOutput.appendChild(fragment);
-    }
-
-    async function handleAuthenticityCheck() {
-        const paraphrasedText = paraphrasedTextOutput.innerText;
-        if (!paraphrasedText) return;
-        resultDiv.classList.remove('hidden');
-        resultDiv.innerHTML = '<span class="text-slate-400">Menganalisis keaslian teks...</span>';
-        checkButton.disabled = true;
-        try {
-            const response = await fetch('/api/check-authenticity', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text: paraphrasedText })
-            });
-            if (!response.ok) throw new Error('Gagal menghubungi server analisis.');
-            const result = await response.json();
-            resultDiv.innerHTML = result.summary || 'Analisis selesai.';
-            if (result.risky_sentences && result.risky_sentences.length > 0) {
-                let currentHtml = paraphrasedTextOutput.innerHTML;
-                result.risky_sentences.forEach(sentence => {
-                    const cleanSentence = sentence.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                    const regex = new RegExp(cleanSentence, "gi");
-                    currentHtml = currentHtml.replace(regex, `<span class="highlight-risk">${sentence}</span>`);
-                });
-                paraphrasedTextOutput.innerHTML = currentHtml;
-            }
-        } catch (error) {
-            resultDiv.innerHTML = `<span class="text-red-400">Error: ${error.message}</span>`;
-        } finally {
-            checkButton.disabled = false;
-        }
-    }
-
-    function handleCopy() {
-        const textToCopy = paraphrasedTextOutput.innerText;
-        if (textToCopy && !paraphrasedTextOutput.querySelector('span.text-slate-500')) {
-            const tempTextArea = document.createElement('textarea');
-            tempTextArea.value = textToCopy;
-            document.body.appendChild(tempTextArea);
-            tempTextArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempTextArea);
-            copyText.innerText = 'Tersalin!';
-            setTimeout(() => { copyText.innerText = 'Salin'; }, 2000);
-        }
-    }
-
-    function setLoading(isLoading) {
-        paraphraseButton.disabled = isLoading;
-        loader.classList.toggle('hidden', !isLoading);
-        buttonText.classList.toggle('hidden', isLoading);
-    }
-
-    function updateActiveButton(activeButton) {
-        modeButtons.forEach(button => {
-            button.classList.remove(...activeModeClass.split(' '));
-            button.classList.add(...inactiveModeClass.split(' '));
-        });
-        activeButton.classList.remove(...inactiveModeClass.split(' '));
-        activeButton.classList.add(...activeModeClass.split(' '));
-    }
-
-    function init() {
-        // Attach all event listeners
-        paraphraseButton.addEventListener('click', handleParaphrase);
-        copyButton.addEventListener('click', handleCopy);
-        clearButton.addEventListener('click', () => originalTextInput.value = '');
-        checkButton.addEventListener('click', handleAuthenticityCheck);
-
-        modeButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                currentMode = button.dataset.mode;
-                updateActiveButton(button);
-            });
-        });
-
-        // This single call will correctly set the initial state for all buttons
-        updateActiveButton(document.querySelector(`.mode-button[data-mode="${currentMode}"]`));
-    }
-
-    // Run the app!
-    init();
+    const originalTextInput=document.getElementById("original-text"),paraphrasedTextOutput=document.getElementById("paraphrased-text"),paraphraseButton=document.getElementById("paraphrase-button"),copyButton=document.getElementById("copy-button"),clearButton=document.getElementById("clear-button"),loader=document.getElementById("loader"),buttonText=document.getElementById("button-text"),copyText=document.getElementById("copy-text"),modeButtons=document.querySelectorAll(".mode-button"),authenticityContainer=document.getElementById("authenticity-container"),checkButton=document.getElementById("check-authenticity-button"),resultDiv=document.getElementById("authenticity-result"),activeModeClass="bg-indigo-600 text-white font-semibold",inactiveModeClass="bg-slate-700 hover:bg-slate-600 text-slate-300";let currentMode="standard";const prompts={standard:"Tugas Anda adalah memparafrase teks berikut. Ubah struktur setiap kalimat secara signifikan, ganti pilihan kata (diksi) dengan sinonim yang relevan, namun pastikan SEMUA makna, detail, dan ide asli tetap utuh. JANGAN meringkas atau menghilangkan informasi. Hasilnya harus unik dan sulit dideteksi sebagai plagiarisme. Langsung berikan teks yang sudah jadi tanpa kalimat pembuka.",formal:"Posisikan diri Anda sebagai editor jurnal akademis. Parafrasekan teks berikut ke dalam gaya bahasa yang sangat formal, objektif, dan terstruktur. Gunakan terminologi yang canggih dan struktur kalimat majemuk yang bervariasi. Prioritaskan keakuratan makna dan pertahankan semua detail informasi. Hindari opini atau bahasa kasual. Hasilnya harus terdengar profesional dan siap untuk publikasi ilmiah. Langsung berikan teksnya tanpa basa-basi.",creative:"Imajinasikan Anda seorang novelis. Ubah teks berikut menjadi narasi yang lebih hidup, deskriptif, dan ekspresif. Gunakan metafora, kiasan, dan kosakata yang kaya untuk menggugah imajinasi pembaca. Jangan ragu untuk sedikit mendramatisir, tetapi inti dan makna utama dari teks asli harus tetap terjaga. JANGAN menghilangkan detail penting. Langsung berikan hasilnya tanpa pengantar.",simple:"Jelaskan kembali teks berikut dengan bahasa yang paling sederhana dan mudah dimengerti, seolah-olah Anda berbicara kepada anak sekolah. Pecah kalimat yang panjang menjadi kalimat-kalimat pendek. Ganti semua kata sulit dengan padanan kata yang umum digunakan sehari-hari. Pastikan semua poin utama dari teks asli tetap tersampaikan dengan jelas. Jangan meringkas, hanya sederhanakan bahasanya. Langsung berikan hasilnya.",mahasiswa:"Anda adalah seorang mahasiswa yang sedang menyusun skripsi. Parafrasekan teks berikut dengan gaya bahasa akademis yang baik. Fokus utama Anda adalah mengubah kalimat asli untuk menghindari plagiarisme. Lakukan ini dengan cara: (1) Mengubah struktur kalimat (misalnya dari aktif ke pasif atau sebaliknya), (2) Menggunakan kata-kata transisi akademis (contoh: 'oleh karena itu', 'di sisi lain', 'selanjutnya'), (3) Mengganti kata kunci dengan sinonim yang tepat dalam konteks akademis. Pastikan semua data, fakta, dan detail dari teks asli tetap ada. Langsung berikan hasilnya tanpa analisis atau pembukaan."};async function handleParaphrase(){const e=originalTextInput.value.trim();if(!e)return void(paraphrasedTextOutput.innerHTML='<span class="text-yellow-400">Silakan masukkan teks terlebih dahulu.</span>');setLoading(!0),paraphrasedTextOutput.innerHTML='<span class="text-slate-500">Sedang memproses...</span>',authenticityContainer.classList.add("hidden");try{const t=await fetch("/api/paraphrase",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({mode:currentMode,text:e})});if(!t.ok){const e=await t.json();throw new Error(e.error?.message||`API Error: ${t.status}`)}const n=await t.json(),o=n.candidates?.[0]?.content?.parts?.[0]?.text;if(o){const e=cleanAiResponse(o);displayHighlightedDiff(originalTextInput.value.trim(),e),authenticityContainer.classList.remove("hidden")}else throw new Error("Tidak ada konten yang dihasilkan oleh AI.")}catch(e){console.error("Error during paraphrasing:",e),paraphrasedTextOutput.innerHTML=`<span class="text-red-400">Maaf, terjadi kesalahan. Detail: ${e.message}</span>`}finally{setLoading(!1)}}function cleanAiResponse(e){let t=e.trim();return t.replace(/^(oke, baik\.|baik, |tentu, |berikut adalah.*?:\s*|pilihan \d:|\d\.\s*|`{3}json|`{3})/i,"").trim()}function displayHighlightedDiff(e,t){const n=Diff.diffWords(e,t,{ignoreCase:!1}),o=document.createDocumentFragment();n.forEach(e=>{let t;e.added?(t=document.createElement("span"),t.className="highlight",t.textContent=e.value):e.removed||(t=document.createTextNode(e.value)),t&&o.appendChild(t)}),paraphrasedTextOutput.innerHTML="",paraphrasedTextOutput.appendChild(o)}async function handleAuthenticityCheck(){const e=paraphrasedTextOutput.innerText;if(!e)return;resultDiv.classList.remove("hidden"),resultDiv.innerHTML='<span class="text-slate-400">Menganalisis keaslian teks...</span>',checkButton.disabled=!0;try{const t=await fetch("/api/check-authenticity",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:e})});if(!t.ok)throw new Error("Gagal menghubungi server analisis.");const n=await t.json();if(resultDiv.innerHTML=n.summary||"Analisis selesai.",n.risky_sentences&&n.risky_sentences.length>0){let e=paraphrasedTextOutput.innerHTML;n.risky_sentences.forEach(t=>{const n=t.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),o=new RegExp(n,"gi");e=e.replace(o,`<span class="highlight-risk">${t}</span>`)}),paraphrasedTextOutput.innerHTML=e}}catch(e){resultDiv.innerHTML=`<span class="text-red-400">Error: ${e.message}</span>`}finally{checkButton.disabled=!1}}function handleCopy(){const e=paraphrasedTextOutput.innerText;if(e&&!paraphrasedTextOutput.querySelector("span.text-slate-500")){const t=document.createElement("textarea");t.value=e,document.body.appendChild(t),t.select(),document.execCommand("copy"),document.body.removeChild(t),copyText.innerText="Tersalin!",setTimeout(()=>{copyText.innerText="Salin"},2e3)}}function setLoading(e){paraphraseButton.disabled=e,loader.classList.toggle("hidden",!e),buttonText.classList.toggle("hidden",e)}function updateActiveButton(e){modeButtons.forEach(t=>{t.classList.remove(...activeModeClass.split(" ")),t.classList.add(...inactiveModeClass.split(" "))}),e.classList.remove(...inactiveModeClass.split(" ")),e.classList.add(...activeModeClass.split(" "))}function init(){paraphraseButton.addEventListener("click",handleParaphrase),copyButton.addEventListener("click",handleCopy),clearButton.addEventListener("click",()=>originalTextInput.value=""),checkButton.addEventListener("click",handleAuthenticityCheck),modeButtons.forEach(e=>{e.addEventListener("click",()=>{currentMode=e.dataset.mode,updateActiveButton(e)})}),updateActiveButton(document.querySelector('.mode-button[data-mode="standard"]'))}init();
 </script>
 </body>
 </html>

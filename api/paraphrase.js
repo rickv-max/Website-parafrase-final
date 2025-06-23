@@ -1,19 +1,46 @@
-// Impor 'fetch' karena kita akan menggunakannya
 const fetch = require('node-fetch');
 
-// Fungsi baru untuk membersihkan kata pembuka
-function cleanOpeningWords(text) {
-    const commonOpeners = ["Tentu,", "Berikut adalah", "Baik,", "Ini adalah", "Berikut"];
-    const words = text.split(' ');
-    if (commonOpeners.includes(words[0].replace(/,$/, ''))) {
-        return words.slice(1).join(' ').trim();
+/**
+ * Fungsi canggih untuk membersihkan teks dari AI.
+ * Menghapus kata pembuka umum dan pola penomoran.
+ * @param {string} text - Teks mentah dari AI.
+ * @returns {string} - Teks yang sudah bersih.
+ */
+function cleanAiResponse(text) {
+    let cleanedText = text.trim();
+
+    // Daftar frasa pembuka yang umum untuk dihapus
+    const openingPhrases = [
+        "Tentu, berikut adalah hasil parafrasenya:",
+        "Tentu, ini hasil parafrasenya:",
+        "Berikut adalah hasil parafrasenya:",
+        "Baik, ini hasilnya:",
+        "Tentu saja,",
+        "Tentu,",
+        "Berikut adalah",
+        "Baik,",
+        "Ini adalah",
+        "Berikut"
+    ];
+
+    for (const phrase of openingPhrases) {
+        if (cleanedText.toLowerCase().startsWith(phrase.toLowerCase())) {
+            cleanedText = cleanedText.substring(phrase.length).trim();
+            break; // Hentikan setelah menemukan kecocokan pertama
+        }
     }
-    return text.trim();
+
+    // Menghapus pola penomoran seperti "Parafrase 1:", "1.", "a)" di awal teks
+    // Ini akan menghapus penomoran hanya jika ada di paling depan.
+    cleanedText = cleanedText.replace(/^(parafrase\s*\d*\s*[:\.]?\s*)/i, '');
+    cleanedText = cleanedText.replace(/^(\d+\.\s*)/, '');
+    cleanedText = cleanedText.replace(/^([a-z]\)\s*)/i, '');
+
+    return cleanedText.trim();
 }
 
-// Ini adalah format handler yang benar untuk Netlify
+
 exports.handler = async function(event, context) {
-  // Hanya izinkan request dengan metode POST
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
@@ -21,7 +48,6 @@ exports.handler = async function(event, context) {
     };
   }
 
-  // Ambil kunci API rahasia dari Netlify
   const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
   if (!GEMINI_API_KEY) {
     return {
@@ -31,7 +57,6 @@ exports.handler = async function(event, context) {
   }
 
   try {
-    // Ambil data dari body request
     const body = JSON.parse(event.body);
     const { prompt } = body;
 
@@ -45,7 +70,6 @@ exports.handler = async function(event, context) {
     const googleApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
     const payload = { contents: [{ role: 'user', parts: [{ text: prompt }] }] };
 
-    // Kirim permintaan ke Google AI
     const apiResponse = await fetch(googleApiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -54,7 +78,6 @@ exports.handler = async function(event, context) {
 
     const data = await apiResponse.json();
 
-    // Jika Google mengembalikan error, teruskan errornya
     if (!apiResponse.ok || !data.candidates || !data.candidates[0].content) {
       console.error('Error dari Google API:', data);
       return {
@@ -63,16 +86,13 @@ exports.handler = async function(event, context) {
       };
     }
 
-    // Ambil teks dari AI
     let originalAiText = data.candidates[0].content.parts[0].text;
 
-    // **BARU:** Bersihkan kata pembuka dari hasil AI
-    let cleanedText = cleanOpeningWords(originalAiText);
+    // **MENGGUNAKAN FUNGSI PEMBERSIH BARU**
+    let cleanedText = cleanAiResponse(originalAiText);
 
-    // Modifikasi respons untuk mengirim teks yang sudah bersih
     data.candidates[0].content.parts[0].text = cleanedText;
 
-    // Jika berhasil, kirim hasilnya kembali ke frontend
     return {
       statusCode: 200,
       body: JSON.stringify(data),

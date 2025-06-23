@@ -1,4 +1,3 @@
-```javascript
 const fetch = require('node-fetch');
 
 // Fungsi untuk memecah teks menjadi kalimat-kalimat
@@ -9,10 +8,10 @@ function getSentences(text) {
 // Simulasi pencarian menggunakan AI. Ini akan meminta AI untuk berperan sebagai mesin pencari.
 async function simulateSearchWithAI(sentence, apiKey) {
     const prompt = `
-      Anda adalah sebuah mesin pencari. Saya akan memberikan sebuah kalimat. Jika kalimat ini terlihat sangat umum atau mungkin ada di sebuah artikel online, berikan satu contoh URL sumber yang paling relevan. Jika kalimatnya terlihat sangat unik dan spesifik, jawab dengan "TIDAK_DITEMUKAN".
-      JANGAN berikan penjelasan. Hanya berikan URL atau kata "TIDAK_DITEMUKAN".
+      You are a search engine. I will provide a sentence. If this sentence seems very common or likely exists in an online article, provide ONE relevant source URL. If the sentence seems very unique and specific, reply with the single word "TIDAK_DITEMUKAN".
+      Do NOT provide explanations. ONLY provide the URL or the word "TIDAK_DITEMUKAN".
       
-      Kalimat: "${sentence}"
+      Sentence: "${sentence}"
     `;
     const googleApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
     const payload = { contents: [{ role: 'user', parts: [{ text: prompt }] }] };
@@ -41,13 +40,13 @@ exports.handler = async function(event, context) {
             return { statusCode: 400, body: JSON.stringify({ error: 'Teks dibutuhkan.' }) };
         }
         const sentences = getSentences(text);
-        if (sentences.length === 0) {
-            return { statusCode: 200, body: JSON.stringify({ plagiarism_score: 0, summary: "Teks terlalu singkat.", sources_found: 0, plagiarized_sources: [] }) };
+        if (sentences.length < 3) { // Perlu minimal 3 kalimat untuk diperiksa
+            return { statusCode: 200, body: JSON.stringify({ plagiarism_score: 0, summary: "Teks terlalu singkat untuk diperiksa secara akurat.", sources_found: 0, plagiarized_sources: [] }) };
         }
 
         let plagiarizedCount = 0;
         const plagiarizedSources = [];
-        const sentencesToCheck = sentences.slice(0, 5); // Batasi pengecekan ke 5 kalimat pertama
+        const sentencesToCheck = sentences.slice(0, 5); // Batasi pengecekan ke 5 kalimat pertama untuk efisiensi
 
         for (const sentence of sentencesToCheck) {
              const searchResult = await simulateSearchWithAI(sentence.trim(), GEMINI_API_KEY);
@@ -76,4 +75,3 @@ exports.handler = async function(event, context) {
         return { statusCode: 500, body: JSON.stringify({ error: 'Terjadi kesalahan saat memeriksa plagiarisme.' }) };
     }
 };
-```

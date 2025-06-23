@@ -9,7 +9,7 @@
 
   gtag('config', 'G-X2TL6DZQM0');
 </script>
-
+  
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,8 +19,24 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- ====================================================== -->
+    <!-- ==> MASUKKAN KODE GOOGLE ANALYTICS ANDA DI SINI <== -->
+    <!-- Contoh: -->
+    <!-- 
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX');
+    </script> 
+    -->
+    <!-- ====================================================== -->
+
     <style>
         body{font-family:'Inter',sans-serif;background-color:#0f172a}.glassmorphism{background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2)}textarea::placeholder{color:#94a3b8}.custom-scrollbar::-webkit-scrollbar{width:8px}.custom-scrollbar::-webkit-scrollbar-track{background:transparent}.custom-scrollbar::-webkit-scrollbar-thumb{background-color:#475569;border-radius:10px;border:2px solid transparent;background-clip:content-box}@keyframes spin{to{transform:rotate(360deg)}}.loader{animation:spin 1s linear infinite}.highlight{background-color:rgba(99,102,241,0.3);color:#c7d2fe;border-radius:4px;padding:2px 1px;font-weight:500}
+        .highlight-risk{background-color: rgba(251, 191, 36, 0.3); color: #fef3c7; border-radius: 4px; padding: 2px 1px; font-weight: 500;} /* New highlight style */
     </style>
 </head>
 <body class="text-white antialiased">
@@ -37,16 +53,71 @@
         <div class="w-full lg:w-auto flex items-center justify-center py-4 lg:py-0 lg:self-center">
             <button id="paraphrase-button" class="w-full lg:w-auto bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:shadow-cyan-500/50 transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-3"><span id="button-text">Parafrase</span><div id="loader" class="hidden loader w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div></button>
         </div>
-        <div class="w-full lg:w-1/2 flex flex-col">
+        <div class="w-full lg:w-1/2 flex flex-col gap-4">
             <div class="glassmorphism rounded-xl p-6 h-full flex flex-col flex-grow">
                 <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-semibold text-slate-200">Hasil Parafrase</h2><button id="copy-button" title="Salin Hasil" class="text-slate-400 hover:text-white transition-colors flex items-center gap-2"><span id="copy-text">Salin</span><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button></div>
                 <div id="paraphrased-text" class="custom-scrollbar w-full flex-grow bg-slate-800/50 p-4 rounded-lg text-slate-300 overflow-y-auto leading-relaxed"><span class="text-slate-500">Hasil parafrase akan muncul di sini...</span></div>
+            </div>
+            <!-- Authenticity Checker UI -->
+            <div id="authenticity-container" class="hidden glassmorphism rounded-xl p-4 flex flex-col gap-3">
+                <button id="check-authenticity-button" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46 16 2a4 4 0 0 0-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"></path></svg>
+                    <span>Cek Keaslian</span>
+                </button>
+                <div id="authenticity-result" class="text-sm text-slate-300 p-3 bg-slate-800/50 rounded-lg hidden"></div>
             </div>
         </div>
     </main>
 </div>
 <script>
-    const originalTextInput=document.getElementById("original-text"),paraphrasedTextOutput=document.getElementById("paraphrased-text"),paraphraseButton=document.getElementById("paraphrase-button"),copyButton=document.getElementById("copy-button"),clearButton=document.getElementById("clear-button"),loader=document.getElementById("loader"),buttonText=document.getElementById("button-text"),copyText=document.getElementById("copy-text"),modeButtons=document.querySelectorAll(".mode-button"),activeModeClass="bg-indigo-600 text-white font-semibold",inactiveModeClass="bg-slate-700 hover:bg-slate-600 text-slate-300",prompts={standard:"Anda adalah ahli parafrase. Tulis ulang teks berikut untuk meningkatkan kejelasan dan alur, sambil mempertahankan makna asli. Langsung berikan hasilnya.",formal:"Anda adalah seorang penulis akademis. Tulis ulang teks berikut dengan gaya bahasa yang sangat formal, profesional, dan objektif. Gunakan terminologi yang tepat. Langsung berikan hasilnya.",creative:"Anda adalah seorang penulis kreatif. Tulis ulang teks berikut dengan gaya yang imajinatif, ekspresif, dan menarik. Gunakan metafora dan kosakata yang kaya. Langsung berikan hasilnya.",simple:"Anda adalah seorang ahli penyederhanaan konten. Jelaskan kembali teks berikut dengan bahasa yang sangat sederhana dan mudah dimengerti. Gunakan kalimat pendek. Langsung berikan hasilnya.",mahasiswa:"Anda adalah seorang mahasiswa yang sedang mengerjakan tugas. Tulis ulang teks berikut dengan gaya bahasa yang terstruktur dan semi-formal. Gunakan kata penghubung (contoh: 'oleh karena itu', 'selain itu') dan istilah akademis umum untuk membangun argumen yang logis, khas tulisan mahasiswa. Langsung berikan hasilnya."};let currentMode="standard";async function handleParaphrase(){const e=originalTextInput.value.trim();if(!e)return void(paraphrasedTextOutput.innerHTML='<span class="text-yellow-400">Silakan masukkan teks terlebih dahulu.</span>');setLoading(!0),paraphrasedTextOutput.innerHTML='<span class="text-slate-500">Sedang memproses...</span>';const t=`${prompts[currentMode]}\n\nTeks asli:\n---\n${e}`;try{const e=await fetch("/api/paraphrase",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:t})});if(!e.ok){const t=await e.json();throw new Error(t.error?.message||`API Error: ${e.status}`)}const n=await e.json(),o=n.candidates?.[0]?.content?.parts?.[0]?.text;if(o){const e=cleanAIOutput(o);displayHighlightedDiff(originalTextInput.value.trim(),e)}else throw new Error("Tidak ada konten yang dihasilkan oleh AI.")}catch(e){console.error("Error during paraphrasing:",e),paraphrasedTextOutput.innerHTML=`<span class="text-red-400">Maaf, terjadi kesalahan. Detail: ${e.message}</span>`}finally{setLoading(!1)}}function cleanAIOutput(e){let t=e.trim();const n=t.split("\n");return n.length>1&&n[0].includes(":")&&n[0].length<150&&(t=n.slice(1).join("\n").trim()),t=t.replace(/\*/g,""),t}function displayHighlightedDiff(e,t){const n=Diff.diffWords(e,t,{ignoreCase:!1}),o=document.createDocumentFragment();n.forEach(e=>{const t=e.value.replace(/</g,"&lt;").replace(/>/g,"&gt;");let n;e.added?(n=document.createElement("span"),n.className="highlight",n.textContent=e.value):e.removed||(n=document.createTextNode(e.value)),n&&o.appendChild(n)}),paraphrasedTextOutput.innerHTML="",paraphrasedTextOutput.appendChild(o)}function handleCopy(){const e=paraphrasedTextOutput.innerText;if(e&&!paraphrasedTextOutput.querySelector("span.text-slate-500")){const t=document.createElement("textarea");t.value=e,document.body.appendChild(t),t.select(),document.execCommand("copy"),document.body.removeChild(t),copyText.innerText="Tersalin!",setTimeout(()=>{copyText.innerText="Salin"},2e3)}else copyText.innerText="Gagal!",setTimeout(()=>{copyText.innerText="Salin"},2e3)}function setLoading(e){paraphraseButton.disabled=e,loader.classList.toggle("hidden",!e),buttonText.classList.toggle("hidden",e)}function updateActiveButton(e){modeButtons.forEach(t=>{t.classList.remove(...activeModeClass.split(" ")),t.classList.add(...inactiveModeClass.split(" "))}),e.classList.remove(...inactiveModeClass.split(" ")),e.classList.add(...activeModeClass.split(" "))}function init(){paraphraseButton.addEventListener("click",handleParaphrase),copyButton.addEventListener("click",handleCopy),clearButton.addEventListener("click",()=>originalTextInput.value=""),modeButtons.forEach(e=>{e.addEventListener("click",()=>{currentMode=e.dataset.mode,updateActiveButton(e)})}),modeButtons.forEach(e=>{e.className=`mode-button w-full text-center py-2 px-3 rounded-lg cursor-pointer transition-colors duration-200 ${inactiveModeClass}`}),updateActiveButton(document.querySelector(`.mode-button[data-mode="${currentMode}"]`))}init();
+    // --- All your previous JavaScript code is here ---
+    const originalTextInput=document.getElementById("original-text"),paraphrasedTextOutput=document.getElementById("paraphrased-text"),paraphraseButton=document.getElementById("paraphrase-button"),copyButton=document.getElementById("copy-button"),clearButton=document.getElementById("clear-button"),loader=document.getElementById("loader"),buttonText=document.getElementById("button-text"),copyText=document.getElementById("copy-text"),modeButtons=document.querySelectorAll(".mode-button"),activeModeClass="bg-indigo-600 text-white font-semibold",inactiveModeClass="bg-slate-700 hover:bg-slate-600 text-slate-300",prompts={standard:"Anda adalah ahli parafrase. Tulis ulang teks berikut untuk meningkatkan kejelasan dan alur, sambil mempertahankan makna asli. Langsung berikan hasilnya.",formal:"Anda adalah seorang penulis akademis. Tulis ulang teks berikut dengan gaya bahasa yang sangat formal, profesional, dan objektif. Gunakan terminologi yang tepat. Langsung berikan hasilnya.",creative:"Anda adalah seorang penulis kreatif. Tulis ulang teks berikut dengan gaya yang imajinatif, ekspresif, dan menarik. Gunakan metafora dan kosakata yang kaya. Langsung berikan hasilnya.",simple:"Anda adalah seorang ahli penyederhanaan konten. Jelaskan kembali teks berikut dengan bahasa yang sangat sederhana dan mudah dimengerti. Gunakan kalimat pendek. Langsung berikan hasilnya.",mahasiswa:"Anda adalah seorang mahasiswa yang sedang mengerjakan tugas. Tulis ulang teks berikut dengan gaya bahasa yang terstruktur dan semi-formal. Gunakan kata penghubung (contoh: 'oleh karena itu', 'selain itu') dan istilah akademis umum untuk membangun argumen yang logis, khas tulisan mahasiswa. Langsung berikan hasilnya."};let currentMode="standard";async function handleParaphrase(){const e=originalTextInput.value.trim();if(!e)return void(paraphrasedTextOutput.innerHTML='<span class="text-yellow-400">Silakan masukkan teks terlebih dahulu.</span>');setLoading(!0),paraphrasedTextOutput.innerHTML='<span class="text-slate-500">Sedang memproses...</span>',document.getElementById("authenticity-container").classList.add("hidden");try{const e=await fetch("/api/paraphrase",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:`${prompts[currentMode]}\n\nTeks asli:\n---\n${e}`})});if(!e.ok){const t=await e.json();throw new Error(t.error?.message||`API Error: ${e.status}`)}const t=await e.json(),n=t.candidates?.[0]?.content?.parts?.[0]?.text;if(n){const t=cleanAIOutput(n);displayHighlightedDiff(originalTextInput.value.trim(),t),document.getElementById("authenticity-container").classList.remove("hidden")}else throw new Error("Tidak ada konten yang dihasilkan oleh AI.")}catch(e){console.error("Error during paraphrasing:",e),paraphrasedTextOutput.innerHTML=`<span class="text-red-400">Maaf, terjadi kesalahan. Detail: ${e.message}</span>`}finally{setLoading(!1)}}function cleanAIOutput(e){let t=e.trim();const n=t.split("\n");return n.length>1&&n[0].includes(":")&&n[0].length<150&&(t=n.slice(1).join("\n").trim()),t=t.replace(/\*/g,""),t}function displayHighlightedDiff(e,t){const n=Diff.diffWords(e,t,{ignoreCase:!1}),o=document.createDocumentFragment();n.forEach(e=>{const t=e.value.replace(/</g,"&lt;").replace(/>/g,"&gt;");let n;e.added?(n=document.createElement("span"),n.className="highlight",n.textContent=e.value):e.removed||(n=document.createTextNode(e.value)),n&&o.appendChild(n)}),paraphrasedTextOutput.innerHTML="",paraphrasedTextOutput.appendChild(o)}function handleCopy(){const e=paraphrasedTextOutput.innerText;if(e&&!paraphrasedTextOutput.querySelector("span.text-slate-500")){const t=document.createElement("textarea");t.value=e,document.body.appendChild(t),t.select(),document.execCommand("copy"),document.body.removeChild(t),copyText.innerText="Tersalin!",setTimeout(()=>{copyText.innerText="Salin"},2e3)}else copyText.innerText="Gagal!",setTimeout(()=>{copyText.innerText="Salin"},2e3)}function setLoading(e){paraphraseButton.disabled=e,loader.classList.toggle("hidden",!e),buttonText.classList.toggle("hidden",e)}function updateActiveButton(e){modeButtons.forEach(t=>{t.classList.remove(...activeModeClass.split(" ")),t.classList.add(...inactiveModeClass.split(" "))}),e.classList.remove(...inactiveModeClass.split(" ")),e.classList.add(...activeModeClass.split(" "))}function init(){paraphraseButton.addEventListener("click",handleParaphrase),copyButton.addEventListener("click",handleCopy),clearButton.addEventListener("click",()=>originalTextInput.value=""),modeButtons.forEach(e=>{e.addEventListener("click",()=>{currentMode=e.dataset.mode,updateActiveButton(e)})}),modeButtons.forEach(e=>{e.className=`mode-button w-full text-center py-2 px-3 rounded-lg cursor-pointer transition-colors duration-200 ${inactiveModeClass}`}),updateActiveButton(document.querySelector(`.mode-button[data-mode="${currentMode}"]`))}init();
+
+    // --- New JavaScript for Authenticity Checker ---
+    const checkButton = document.getElementById('check-authenticity-button');
+    const resultDiv = document.getElementById('authenticity-result');
+
+    checkButton.addEventListener('click', async () => {
+        const paraphrasedText = paraphrasedTextOutput.innerText;
+        if (!paraphrasedText) return;
+
+        resultDiv.classList.remove('hidden');
+        resultDiv.innerHTML = '<span class="text-slate-400">Menganalisis keaslian teks...</span>';
+        checkButton.disabled = true;
+
+        try {
+            const response = await fetch('/api/check-authenticity', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: paraphrasedText })
+            });
+
+            if (!response.ok) {
+                throw new Error('Gagal menghubungi server analisis.');
+            }
+
+            const result = await response.json();
+
+            // Display the summary from the AI
+            resultDiv.innerHTML = result.summary || 'Analisis selesai.';
+
+            // Highlight the risky sentences
+            if (result.risky_sentences && result.risky_sentences.length > 0) {
+                let currentText = paraphrasedTextOutput.innerHTML;
+                result.risky_sentences.forEach(sentence => {
+                    const cleanSentence = sentence.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    const regex = new RegExp(cleanSentence, "gi");
+                    currentText = currentText.replace(regex, `<span class="highlight-risk">${sentence}</span>`);
+                });
+                paraphrasedTextOutput.innerHTML = currentText;
+            }
+
+        } catch (error) {
+            resultDiv.innerHTML = `<span class="text-red-400">Error: ${error.message}</span>`;
+        } finally {
+            checkButton.disabled = false;
+        }
+    });
 </script>
 </body>
 </html>

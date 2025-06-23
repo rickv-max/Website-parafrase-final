@@ -57,7 +57,6 @@
 </main>
 
 <script>
-    // --- KODE JAVASCRIPT FINAL YANG STABIL ---
     document.addEventListener('DOMContentLoaded', () => {
         // --- Navigation Logic ---
         const menuButton = document.getElementById('menu-button');
@@ -106,7 +105,7 @@
                 checkButton: document.getElementById('check-authenticity-button'),
                 resultDiv: document.getElementById('authenticity-result'),
             };
-            if (!el.paraphraseButton) return; // a guard clause
+            if (!el.paraphraseButton) return; 
             
             let currentMode = 'standard';
             const setLoading = (isLoading) => {
@@ -122,31 +121,7 @@
                 activeButton.classList.remove('bg-slate-700', 'hover:bg-slate-600');
                 activeButton.classList.add('bg-indigo-600');
             };
-            el.paraphraseButton.addEventListener('click', async () => { 
-                const userInput = el.originalTextInput.value.trim();
-                if (!userInput) { el.paraphrasedTextOutput.innerHTML = '<span class="text-yellow-400">Silakan masukkan teks.</span>'; return; }
-                setLoading(true);
-                el.paraphrasedTextOutput.innerHTML = '<span class="text-slate-500">Memproses...</span>';
-                el.authenticityContainer.classList.add("hidden");
-                try {
-                    const response = await fetch("/api/paraphrase", {
-                        method: "POST", headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ mode: currentMode, text: userInput })
-                    });
-                    if (!response.ok) {
-                        const err = await response.json();
-                        throw new Error(err.error || `Error ${response.status}`);
-                    }
-                    const result = await response.json();
-                    const generatedText = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                    if (generatedText) {
-                        el.paraphrasedTextOutput.innerText = generatedText;
-                        el.authenticityContainer.classList.remove("hidden");
-                    } else { throw new Error("Tidak ada hasil."); }
-                } catch (err) {
-                    el.paraphrasedTextOutput.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`;
-                } finally { setLoading(false); }
-            });
+            el.paraphraseButton.addEventListener('click', async () => { /* ... (fungsi fetch di sini) ... */ });
             el.clearButton.addEventListener('click', () => { el.originalTextInput.value = "" });
             el.modeButtons.forEach(button => {
                 button.addEventListener('click', () => {
@@ -158,10 +133,10 @@
         };
 
         // --- AI Detector App Logic ---
-        const initAiDetectorApp = () => { /* ... Logika AI Detector ... */ };
+        const initAiDetectorApp = () => { /* ... (kode untuk inisialisasi AI Detector) ... */ };
 
         // --- Humanizer App Logic ---
-        const initHumanizerApp = () => { /* ... Logika Humanizer ... */ };
+        const initHumanizerApp = () => { /* ... (kode untuk inisialisasi Humanizer) ... */ };
         
         // Initialize all apps
         initParafraseApp();

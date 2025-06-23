@@ -13,10 +13,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- ====================================================== -->
-    <!-- ==> MASUKKAN KODE GOOGLE ANALYTICS ANDA DI SINI <== -->
-    <!-- ====================================================== -->
-
     <style>
         body{font-family:'Inter',sans-serif;background-color:#0f172a}.glassmorphism{background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2)}textarea::placeholder{color:#94a3b8}.custom-scrollbar::-webkit-scrollbar{width:8px}.custom-scrollbar::-webkit-scrollbar-track{background:transparent}.custom-scrollbar::-webkit-scrollbar-thumb{background-color:#475569;border-radius:10px;border:2px solid transparent;background-clip:content-box}@keyframes spin{to{transform:rotate(360deg)}}.loader{animation:spin 1s linear infinite}
         .highlight-plagiat { background-color: rgba(192, 132, 252, 0.3); color: #e9d5ff; border-radius: 4px; padding: 2px 1px; }
@@ -53,7 +49,7 @@
     <div id="page-humanizer" class="page-content hidden">
         <div class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4"><main class="w-full max-w-6xl flex flex-col lg:flex-row items-start gap-6"><div class="w-full lg:w-1/2 flex flex-col gap-4"><div class="glassmorphism rounded-xl p-6 h-full flex-grow flex flex-col"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-semibold text-slate-200">Teks AI</h2><button id="humanizer-clear-button" title="Bersihkan Teks" class="text-slate-400 hover:text-white transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button></div><textarea id="humanizer-input-text" class="custom-scrollbar w-full h-80 flex-grow bg-slate-800/50 p-4 rounded-lg text-slate-300 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition resize-y" placeholder="Masukkan atau tempel teks hasil AI di sini..."></textarea></div></div><div class="w-full lg:w-auto flex items-center justify-center py-4 lg:py-0 lg:self-center"><button id="humanize-button" class="w-full lg:w-auto bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold py-3 px-6 rounded-full shadow-lg flex items-center justify-center gap-3"><span id="humanize-button-text">Humanize</span><div id="humanize-loader" class="hidden loader w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div></button></div><div class="w-full lg:w-1/2 flex flex-col gap-4"><div class="glassmorphism rounded-xl p-6 h-full flex-grow flex flex-col"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-semibold text-slate-200">Teks Humanized</h2><button id="humanizer-copy-button" title="Salin Hasil" class="text-slate-400 hover:text-white transition-colors flex items-center gap-2"><span id="humanizer-copy-text">Salin</span><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button></div><div id="humanizer-output-text" class="custom-scrollbar w-full h-80 flex-grow bg-slate-800/50 p-4 rounded-lg text-slate-300 overflow-y-auto leading-relaxed"><span class="text-slate-500">Hasil teks yang lebih natural akan muncul di sini...</span></div></div></div></main></div>
     </div>
-    <div id="page-plagiarism-checker" class="page-content hidden"><div class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4 text-center"><h2 class="text-3xl font-bold text-slate-300">Plagiarism Checker</h2><p class="text-slate-500 mt-2">Alat untuk memeriksa tingkat plagiarisme pada tulisan Anda akan segera hadir!</p></div></div>
+    <div id="page-plagiarism-checker" class="page-content hidden"><div class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4 text-center"><h2 class="text-3xl font-bold text-slate-300">Plagiarism Checker</h2><p class="text-slate-500 mt-2">Fitur ini sedang dalam pengembangan dan akan segera hadir!</p></div></div>
 </main>
 
 <script>
@@ -64,10 +60,12 @@
         const menuItems = document.querySelectorAll('.menu-item');
         const pages = document.querySelectorAll('.page-content');
         
-        const switchPage = (pageId) => {
+        function switchPage(pageId) {
             pages.forEach(page => page.classList.add('hidden'));
             const targetPage = document.getElementById(pageId);
-            if (targetPage) targetPage.classList.remove('hidden');
+            if (targetPage) {
+                targetPage.classList.remove('hidden');
+            }
             menuPanel.classList.add('hidden');
         };
 
@@ -90,7 +88,7 @@
         });
 
         // --- Parafrase App Logic ---
-        const initParafraseApp = () => {
+        function initParafraseApp() {
             const el = {
                 originalTextInput: document.getElementById('paraphraser-original-text'),
                 paraphrasedTextOutput: document.getElementById('paraphraser-output-text'),
@@ -105,23 +103,48 @@
                 checkButton: document.getElementById('check-authenticity-button'),
                 resultDiv: document.getElementById('authenticity-result'),
             };
-            if (!el.paraphraseButton) return; 
             
             let currentMode = 'standard';
+
             const setLoading = (isLoading) => {
                 el.paraphraseButton.disabled = isLoading;
                 el.loader.classList.toggle('hidden', !isLoading);
                 el.buttonText.classList.toggle('hidden', isLoading);
             };
+
             const updateActiveButton = (activeButton) => {
                 el.modeButtons.forEach(button => {
-                    button.classList.remove('bg-indigo-600');
-                    button.classList.add('bg-slate-700', 'hover:bg-slate-600');
+                    button.classList.remove('bg-indigo-600', 'text-white', 'font-semibold');
+                    button.classList.add('bg-slate-700', 'hover:bg-slate-600', 'text-slate-300');
                 });
-                activeButton.classList.remove('bg-slate-700', 'hover:bg-slate-600');
-                activeButton.classList.add('bg-indigo-600');
+                activeButton.classList.remove('bg-slate-700', 'hover:bg-slate-600', 'text-slate-300');
+                activeButton.classList.add('bg-indigo-600', 'text-white', 'font-semibold');
             };
-            el.paraphraseButton.addEventListener('click', async () => { /* ... (fungsi fetch di sini) ... */ });
+
+            async function handleParaphrase() {
+                const userInput = el.originalTextInput.value.trim();
+                if (!userInput) { el.paraphrasedTextOutput.innerHTML = `<span class="text-yellow-400">Silakan masukkan teks.</span>`; return; }
+                setLoading(true);
+                el.paraphrasedTextOutput.innerHTML = `<span class="text-slate-500">Memproses...</span>`;
+                el.authenticityContainer.classList.add("hidden");
+                try {
+                    const response = await fetch("/api/paraphrase", {
+                        method: "POST", headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ mode: currentMode, text: userInput })
+                    });
+                    if (!response.ok) { const err = await response.json(); throw new Error(err.error || `Error ${response.status}`); }
+                    const result = await response.json();
+                    const generatedText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (generatedText) {
+                        el.paraphrasedTextOutput.innerText = generatedText;
+                        el.authenticityContainer.classList.remove("hidden");
+                    } else { throw new Error("Tidak ada hasil."); }
+                } catch (err) {
+                    el.paraphrasedTextOutput.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`;
+                } finally { setLoading(false); }
+            }
+            
+            el.paraphraseButton.addEventListener("click", handleParaphrase);
             el.clearButton.addEventListener('click', () => { el.originalTextInput.value = "" });
             el.modeButtons.forEach(button => {
                 button.addEventListener('click', () => {
@@ -133,18 +156,96 @@
         };
 
         // --- AI Detector App Logic ---
-        const initAiDetectorApp = () => { /* ... (kode untuk inisialisasi AI Detector) ... */ };
+        function initAiDetectorApp() {
+            const el = {
+                detectButton: document.getElementById('detect-ai-button'),
+                textInput: document.getElementById('ai-detector-text'),
+                clearButton: document.getElementById('ai-detector-clear-button'),
+                resultContainer: document.getElementById('ai-detector-result-container'),
+                summary: document.getElementById('ai-detector-summary'),
+                bar: document.getElementById('ai-detector-bar'),
+                details: document.getElementById('ai-detector-details'),
+                buttonText: document.getElementById('detect-ai-button-text'),
+                loader: document.getElementById('detect-ai-loader'),
+            };
+
+            const setLoading = (isLoading) => {
+                el.detectButton.disabled = isLoading;
+                el.loader.classList.toggle('hidden', !isLoading);
+                el.buttonText.classList.toggle('hidden', isLoading);
+            };
+
+            el.detectButton.addEventListener('click', async () => {
+                const text = el.textInput.value.trim();
+                if (!text) { el.summary.textContent = 'Silakan masukkan teks.'; el.resultContainer.classList.remove('hidden'); return; }
+                setLoading(true);
+                el.resultContainer.classList.add('hidden');
+                try {
+                    const response = await fetch('/api/ai-detector', {
+                        method: "POST", headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ text: text })
+                    });
+                    if (!response.ok) { const err = await response.json(); throw new Error(err.error || "Gagal hubungi server."); }
+                    const result = await response.json();
+                    el.resultContainer.classList.remove('hidden');
+                    el.summary.textContent = result.summary || 'Analisis Selesai';
+                    const percentage = result.likelihood_percentage || 0;
+                    el.bar.style.width = `${percentage}%`;
+                    if (percentage > 75) el.bar.className = "h-4 rounded-full transition-all duration-500 bg-gradient-to-r from-red-500 to-orange-400";
+                    else if (percentage > 40) el.bar.className = "h-4 rounded-full transition-all duration-500 bg-gradient-to-r from-amber-500 to-yellow-400";
+                    else el.bar.className = "h-4 rounded-full transition-all duration-500 bg-gradient-to-r from-emerald-500 to-teal-400";
+                } catch(err) {
+                    el.resultContainer.classList.remove('hidden');
+                    el.summary.textContent = `Error: ${err.message}`;
+                } finally {
+                    setLoading(false);
+                }
+            });
+            el.clearButton.addEventListener('click', () => { el.textInput.value = ""; el.resultContainer.classList.add('hidden'); });
+        };
 
         // --- Humanizer App Logic ---
-        const initHumanizerApp = () => { /* ... (kode untuk inisialisasi Humanizer) ... */ };
+        function initHumanizerApp() {
+             const el = {
+                humanizeButton: document.getElementById("humanize-button"),
+                input: document.getElementById("humanizer-input-text"),
+                output: document.getElementById("humanizer-output-text"),
+                clearButton: document.getElementById("humanizer-clear-button"),
+                copyButton: document.getElementById("humanizer-copy-button"),
+                copyText: document.getElementById("humanizer-copy-text"),
+                loader: document.getElementById("humanize-loader"),
+                buttonText: document.getElementById("humanize-button-text"),
+            };
+            const setLoading = (isLoading) => {
+                el.humanizeButton.disabled = isLoading;
+                el.loader.classList.toggle('hidden', !isLoading);
+                el.buttonText.classList.toggle('hidden', isLoading);
+            };
+            el.humanizeButton.addEventListener('click', async () => {
+                const text = el.input.value.trim();
+                if (!text) { el.output.innerHTML = '<span class="text-yellow-400">Silakan masukkan teks AI.</span>'; return; }
+                setLoading(true);
+                el.output.innerHTML = '<span class="text-slate-500">Memproses...</span>';
+                try {
+                    const response = await fetch("/api/humanize-text", {
+                        method: "POST", headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ text: text })
+                    });
+                    if (!response.ok) { const err = await response.json(); throw new Error(err.error || "Gagal hubungi server."); }
+                    const result = await response.json();
+                    el.output.innerText = result.humanized_text || "Gagal mendapatkan hasil.";
+                } catch (err) {
+                    el.output.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`;
+                } finally { setLoading(false); }
+            });
+            el.clearButton.addEventListener('click', () => { el.input.value = ""; });
+            el.copyButton.addEventListener('click', () => { /* copy logic */ });
+        };
         
         // Initialize all apps
         initParafraseApp();
         initAiDetectorApp();
         initHumanizerApp();
-
-        // Switch to the first page by default
-        switchPage('paraphraser');
     });
 </script>
 </body>

@@ -120,7 +120,8 @@
             const response = await fetch("/api/paraphrase", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ prompt: fullPrompt })
+                body: JSON.stringify({ mode: currentMode, text: userInput })
+
             });
 
             if (!response.ok) {

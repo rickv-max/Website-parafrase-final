@@ -95,68 +95,31 @@
     const activeModeClass = 'bg-indigo-600 text-white font-semibold';
     const inactiveModeClass = 'bg-slate-700 hover:bg-slate-600 text-slate-300';
     let currentMode = 'standard';
+
     const prompts = {
-        standard: "Anda adalah ahli parafrase...", // (and so on, prompts are the same)
-        formal: "Anda adalah seorang penulis akademis...",
-        creative: "Anda adalah seorang penulis kreatif...",
-        simple: "Anda adalah seorang ahli penyederhanaan konten...",
-        mahasiswa: "Anda adalah seorang mahasiswa yang sedang mengerjakan tugas..."
+        standard: "Tugas Anda adalah memparafrase teks berikut. Ubah struktur setiap kalimat secara signifikan, ganti pilihan kata (diksi) dengan sinonim yang relevan, namun pastikan SEMUA makna, detail, dan ide asli tetap utuh. JANGAN meringkas atau menghilangkan informasi. Hasilnya harus unik dan sulit dideteksi sebagai plagiarisme. Langsung berikan teks yang sudah jadi tanpa kalimat pembuka.",
+        formal: "Posisikan diri Anda sebagai editor jurnal akademis. Parafrasekan teks berikut ke dalam gaya bahasa yang sangat formal, objektif, dan terstruktur. Gunakan terminologi yang canggih dan struktur kalimat majemuk yang bervariasi. Prioritaskan keakuratan makna dan pertahankan semua detail informasi. Hindari opini atau bahasa kasual. Hasilnya harus terdengar profesional dan siap untuk publikasi ilmiah. Langsung berikan teksnya tanpa basa-basi.",
+        creative: "Imajinasikan Anda seorang novelis. Ubah teks berikut menjadi narasi yang lebih hidup, deskriptif, dan ekspresif. Gunakan metafora, kiasan, dan kosakata yang kaya untuk menggugah imajinasi pembaca. Jangan ragu untuk sedikit mendramatisir, tetapi inti dan makna utama dari teks asli harus tetap terjaga. JANGAN menghilangkan detail penting. Langsung berikan hasilnya tanpa pengantar.",
+        simple: "Jelaskan kembali teks berikut dengan bahasa yang paling sederhana dan mudah dimengerti, seolah-olah Anda berbicara kepada anak sekolah. Pecah kalimat yang panjang menjadi kalimat-kalimat pendek. Ganti semua kata sulit dengan padanan kata yang umum digunakan sehari-hari. Pastikan semua poin utama dari teks asli tetap tersampaikan dengan jelas. Jangan meringkas, hanya sederhanakan bahasanya. Langsung berikan hasilnya.",
+        mahasiswa: "Anda adalah seorang mahasiswa yang sedang menyusun skripsi. Parafrasekan teks berikut dengan gaya bahasa akademis yang baik. Fokus utama Anda adalah mengubah kalimat asli untuk menghindari plagiarisme. Lakukan ini dengan cara: (1) Mengubah struktur kalimat (misalnya dari aktif ke pasif atau sebaliknya), (2) Menggunakan kata-kata transisi akademis (contoh: 'oleh karena itu', 'di sisi lain', 'selanjutnya'), (3) Mengganti kata kunci dengan sinonim yang tepat dalam konteks akademis. Pastikan semua data, fakta, dan detail dari teks asli tetap ada. Langsung berikan hasilnya tanpa analisis atau pembukaan."
     };
 
-    // --- Functions ---
+    // --- Core Functions ---
     async function handleParaphrase() {
-    const userInput = originalTextInput.value.trim();
-    if (!userInput) {
-        paraphrasedTextOutput.innerHTML = '<span class="text-yellow-400">Silakan masukkan teks terlebih dahulu.</span>';
-        return;
-    }
-    setLoading(true);
-    paraphrasedTextOutput.innerHTML = '<span class="text-slate-500">Sedang memproses...</span>';
-    authenticityContainer.classList.add('hidden');
-
-    try {
-        const response = await fetch("/api/paraphrase", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            // Ini adalah body yang benar, mengirim mode dan text secara terpisah
-            body: JSON.stringify({ mode: currentMode, text: userInput })
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error?.message || `API Error: ${response.status}`);
+        const userInput = originalTextInput.value.trim();
+        if (!userInput) {
+            paraphrasedTextOutput.innerHTML = '<span class="text-yellow-400">Silakan masukkan teks terlebih dahulu.</span>';
+            return;
         }
-
-        const result = await response.json();
-        const generatedText = result.candidates?.[0]?.content?.parts?.[0]?.text;
-
-        if (generatedText) {
-            const cleanedText = cleanAiResponse(generatedText);
-            displayHighlightedDiff(originalTextInput.value.trim(), cleanedText);
-            authenticityContainer.classList.remove('hidden');
-        } else {
-            throw new Error("Tidak ada konten yang dihasilkan oleh AI.");
-        }
-    } catch (error) {
-        console.error("Error during paraphrasing:", error);
-        paraphrasedTextOutput.innerHTML = `<span class="text-red-400">Maaf, terjadi kesalahan. Detail: ${error.message}</span>`;
-    } finally {
-        setLoading(false);
-    }
-}
-
         setLoading(true);
         paraphrasedTextOutput.innerHTML = '<span class="text-slate-500">Sedang memproses...</span>';
         authenticityContainer.classList.add('hidden');
-
-        const fullPrompt = `${prompts[currentMode]}\n\nTeks asli:\n---\n${userInput}`;
 
         try {
             const response = await fetch("/api/paraphrase", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ mode: currentMode, text: userInput })
-
             });
 
             if (!response.ok) {
@@ -168,7 +131,7 @@
             const generatedText = result.candidates?.[0]?.content?.parts?.[0]?.text;
 
             if (generatedText) {
-                const cleanedText = cleanAIOutput(generatedText);
+                const cleanedText = cleanAiResponse(generatedText);
                 displayHighlightedDiff(originalTextInput.value.trim(), cleanedText);
                 authenticityContainer.classList.remove('hidden');
             } else {
@@ -182,14 +145,31 @@
         }
     }
 
-    function cleanAIOutput(text) {
-        let cleaned = text.trim();
-        const lines = cleaned.split('\n');
-        if (lines.length > 1 && lines[0].includes(':') && lines[0].length < 150) {
-            cleaned = lines.slice(1).join('\n').trim();
+    function cleanAiResponse(text) {
+        let cleanedText = text.trim();
+        const paragraphs = cleanedText.split('\n').filter(p => p.trim() !== '');
+        if (paragraphs.length > 1) {
+            const potentialStarts = ["Pilihan", "Parafrase", "Versi", "Berikut adalah"];
+            let bestParagraph = paragraphs[0];
+            for (const p of paragraphs) {
+                const isIntro = potentialStarts.some(start => p.trim().toLowerCase().startsWith(start.toLowerCase()));
+                const hasColon = p.includes(':');
+                if (!isIntro && !hasColon) {
+                    bestParagraph = p;
+                    break;
+                }
+            }
+            if (bestParagraph === paragraphs[0]) {
+                const lastParagraph = paragraphs[paragraphs.length - 1];
+                const isLastAlsoIntro = potentialStarts.some(start => lastParagraph.trim().toLowerCase().startsWith(start.toLowerCase()));
+                if (!isLastAlsoIntro) {
+                    bestParagraph = lastParagraph;
+                }
+            }
+            cleanedText = bestParagraph;
         }
-        cleaned = cleaned.replace(/\*/g, '');
-        return cleaned;
+        cleanedText = cleanedText.replace(/^(oke, baik\.|oke, baik|baik,|tentu,|berikut adalah|pilihan \d:|\d\.\s*)/i, '').trim();
+        return cleanedText;
     }
 
     function displayHighlightedDiff(original, modified) {
@@ -271,19 +251,24 @@
     }
 
     function init() {
+        // Attach all event listeners
         paraphraseButton.addEventListener('click', handleParaphrase);
         copyButton.addEventListener('click', handleCopy);
         clearButton.addEventListener('click', () => originalTextInput.value = '');
         checkButton.addEventListener('click', handleAuthenticityCheck);
+
         modeButtons.forEach(button => {
             button.addEventListener('click', () => {
                 currentMode = button.dataset.mode;
                 updateActiveButton(button);
             });
         });
-        updateActiveButton(document.querySelector('.mode-button[data-mode="standard"]'));
+
+        // This single call will correctly set the initial state for all buttons
+        updateActiveButton(document.querySelector(`.mode-button[data-mode="${currentMode}"]`));
     }
 
+    // Run the app!
     init();
 </script>
 </body>

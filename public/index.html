@@ -57,93 +57,187 @@
 
 <script>
     // --- Bagian Navigasi & Halaman ---
-    const menuButton=document.getElementById("menu-button"),menuPanel=document.getElementById("menu-panel"),menuItems=document.querySelectorAll(".menu-item"),pages=document.querySelectorAll(".page-content");menuButton.addEventListener("click",()=>{menuPanel.classList.toggle("hidden")}),menuItems.forEach(e=>{e.addEventListener("click",t=>{t.preventDefault();const n="page-"+e.dataset.page;pages.forEach(e=>{e.classList.add("hidden")});const o=document.getElementById(n);o&&o.classList.remove("hidden"),menuPanel.classList.add("hidden")})});
+    const menuButton = document.getElementById('menu-button');
+    const menuPanel = document.getElementById('menu-panel');
+    const menuItems = document.querySelectorAll('.menu-item');
+    const pages = document.querySelectorAll('.page-content');
+    menuButton.addEventListener('click', () => { menuPanel.classList.toggle('hidden'); });
+    menuItems.forEach(item => {
+        item.addEventListener('click', (event) => {
+            event.preventDefault();
+            const targetPageId = 'page-' + item.dataset.page;
+            pages.forEach(page => { page.classList.add('hidden'); });
+            const targetPage = document.getElementById(targetPageId);
+            if (targetPage) { targetPage.classList.remove('hidden'); }
+            menuPanel.classList.add('hidden');
+        });
+    });
 
-    // --- Bagian Parafrase ---
-    const parafraseApp = (() => { /* ... kode parafrase tidak berubah ... */ })();
+    // --- Bagian Parafrase (Logika yang Diperbaiki dan Bersih) ---
+    const parafraseApp = (() => {
+        // Elements
+        const originalTextInput = document.getElementById('original-text');
+        const paraphrasedTextOutput = document.getElementById('paraphrased-text');
+        const paraphraseButton = document.getElementById('paraphrase-button');
+        const copyButton = document.getElementById('copy-button');
+        const clearButton = document.getElementById('clear-button');
+        const loader = document.getElementById('loader');
+        const buttonText = document.getElementById('button-text');
+        const copyText = document.getElementById('copy-text');
+        const modeButtons = document.querySelectorAll('#page-paraphraser .mode-button');
+        const authenticityContainer = document.getElementById('authenticity-container');
+        const checkButton = document.getElementById('check-authenticity-button');
+        const resultDiv = document.getElementById('authenticity-result');
 
-    // --- Bagian AI Detector (Logika Baru yang Sudah Diperbaiki) ---
-    const aiDetectorApp = (() => {
-        const detectAiButton=document.getElementById("detect-ai-button");
-        const aiDetectorText=document.getElementById("ai-detector-text");
-        const aiDetectorClearButton=document.getElementById("ai-detector-clear-button");
-        const resultContainer=document.getElementById("ai-detector-result-container");
-        const summaryEl=document.getElementById("ai-detector-summary");
-        const barEl=document.getElementById("ai-detector-bar");
-        const detailsEl=document.getElementById("ai-detector-details");
-        const buttonTextEl=document.getElementById("detect-ai-button-text");
-        const loaderEl=document.getElementById("detect-ai-loader");
+        // Config
+        const activeModeClass = 'bg-indigo-600';
+        const inactiveModeClass = 'bg-slate-700';
+        const hoverClass = 'hover:bg-slate-600';
 
-        async function handleDetect() {
-            const text = aiDetectorText.value;
-            if (!text.trim()) {
-                summaryEl.textContent = 'Silakan masukkan teks terlebih dahulu.';
-                resultContainer.classList.remove('hidden');
+        // State
+        let currentMode = 'standard';
+
+        // Functions
+        async function handleParaphrase() {
+            const userInput = originalTextInput.value.trim();
+            if (!userInput) {
+                paraphrasedTextOutput.innerHTML = '<span class="text-yellow-400">Silakan masukkan teks.</span>';
                 return;
             }
-
-            detectAiButton.disabled = true;
-            loaderEl.classList.remove('hidden');
-            buttonTextEl.classList.add('hidden');
-            resultContainer.classList.add('hidden');
-
+            setLoading(true);
+            paraphrasedTextOutput.innerHTML = '<span class="text-slate-500">Memproses...</span>';
+            authenticityContainer.classList.add("hidden");
             try {
-                const response = await fetch("/api/ai-detector", {
+                const response = await fetch("/api/paraphrase", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ mode: currentMode, text: userInput })
+                });
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.error || `Error ${response.status}`);
+                }
+                const result = await response.json();
+                const generatedText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (generatedText) {
+                    const cleaned = cleanAiResponse(generatedText);
+                    displayHighlightedDiff(userInput, cleaned);
+                    authenticityContainer.classList.remove("hidden");
+                } else {
+                    throw new Error("Tidak ada hasil.");
+                }
+            } catch (err) {
+                paraphrasedTextOutput.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`;
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        function cleanAiResponse(text) {
+            let cleaned = text.trim();
+            cleaned = cleaned.replace(/^(oke, baik\.|baik, |tentu, |berikut adalah.*?:\s*|pilihan \d:|\d\.\s*|`{3}json|`{3})/i, "").trim();
+            return cleaned;
+        }
+
+        function displayHighlightedDiff(original, modified) {
+            const diff = Diff.diffWords(original, modified, { ignoreCase: false });
+            const fragment = document.createDocumentFragment();
+            diff.forEach(part => {
+                const el = document.createElement("span");
+                el.textContent = part.value;
+                if (part.added) {
+                    el.className = "highlight";
+                }
+                fragment.appendChild(el);
+            });
+            paraphrasedTextOutput.innerHTML = "";
+            paraphrasedTextOutput.appendChild(fragment);
+        }
+
+        async function handleAuthenticityCheck() {
+            const text = paraphrasedTextOutput.innerText;
+            if (!text) return;
+            resultDiv.classList.remove("hidden");
+            resultDiv.innerHTML = '<span class="text-slate-400">Menganalisis...</span>';
+            checkButton.disabled = true;
+            try {
+                const response = await fetch("/api/check-authenticity", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ text: text })
                 });
-
-                if (!response.ok) {
-                    const err = await response.json();
-                    throw new Error(err.error || "Gagal menghubungi server.");
-                }
-
+                if (!response.ok) throw new Error("Gagal hubungi server.");
                 const result = await response.json();
-                
-                resultContainer.classList.remove('hidden');
-                summaryEl.textContent = result.summary || "Analisis Selesai";
-                
-                // === LOGIKA BAR YANG DIPERBAIKI ===
-                const percentage = result.likelihood_percentage || 0;
-                barEl.style.width = `${percentage}%`; // Lebar bar sesuai persentase AI
-
-                // Ganti warna berdasarkan persentase AI
-                if (percentage > 75) {
-                    barEl.className = "h-4 rounded-full transition-all duration-500 bg-gradient-to-r from-red-500 to-orange-400";
-                } else if (percentage > 40) {
-                    barEl.className = "h-4 rounded-full transition-all duration-500 bg-gradient-to-r from-amber-500 to-yellow-400";
-                } else {
-                    barEl.className = "h-4 rounded-full transition-all duration-500 bg-gradient-to-r from-emerald-500 to-teal-400";
-                }
-                
-                let highlightedText = text;
-                if (result.highlight_sentences && result.highlight_sentences.length > 0) {
-                    result.highlight_sentences.forEach(sentence => {
-                        const cleanSentence = sentence.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-                        const regex = new RegExp(cleanSentence, "gi");
-                        highlightedText = highlightedText.replace(regex, `<span class="highlight-ai">${sentence}</span>`);
+                resultDiv.innerHTML = result.summary || "Analisis selesai.";
+                if (result.risky_sentences && result.risky_sentences.length > 0) {
+                    let html = paraphrasedTextOutput.innerHTML;
+                    result.risky_sentences.forEach(s => {
+                        const clean = s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+                        const regex = new RegExp(clean, "gi");
+                        html = html.replace(regex, `<span class="highlight-risk">${s}</span>`);
                     });
+                    paraphrasedTextOutput.innerHTML = html;
                 }
-                detailsEl.innerHTML = highlightedText.replace(/\n/g, "<br>");
-
             } catch (err) {
-                resultContainer.classList.remove('hidden');
-                summaryEl.textContent = `Error: ${err.message}`;
+                resultDiv.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`;
             } finally {
-                detectAiButton.disabled = false;
-                loaderEl.classList.add('hidden');
-                buttonTextEl.classList.remove('hidden');
+                checkButton.disabled = false;
             }
         }
-        
-        function init() {
-            detectAiButton.addEventListener("click", handleDetect);
-            aiDetectorClearButton.addEventListener("click", () => {
-                aiDetectorText.value = "";
-                resultContainer.classList.add('hidden');
-            });
+
+        function handleCopy() {
+            const text = paraphrasedTextOutput.innerText;
+            if (text && !paraphrasedTextOutput.querySelector("span")) {
+                const el = document.createElement("textarea");
+                el.value = text;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand("copy");
+                document.body.removeChild(el);
+                copyText.innerText = "Tersalin!";
+                setTimeout(() => { copyText.innerText = "Salin" }, 2000);
+            }
         }
+
+        function setLoading(isLoading) {
+            paraphraseButton.disabled = isLoading;
+            loader.classList.toggle("hidden", !isLoading);
+            buttonText.classList.toggle("hidden", isLoading);
+        }
+
+        function updateActiveButton(activeButton) {
+            modeButtons.forEach(button => {
+                button.classList.remove(activeModeClass);
+                button.classList.add(inactiveModeClass, hoverClass);
+            });
+            activeButton.classList.remove(inactiveModeClass, hoverClass);
+            activeButton.classList.add(activeModeClass);
+        }
+
+        function init() {
+            paraphraseButton.addEventListener("click", handleParaphrase);
+            copyButton.addEventListener("click", handleCopy);
+            clearButton.addEventListener("click", () => { originalTextInput.value = "" });
+            checkButton.addEventListener("click", handleAuthenticityCheck);
+
+            modeButtons.forEach(button => {
+                button.addEventListener("click", () => {
+                    currentMode = button.dataset.mode;
+                    updateActiveButton(button);
+                });
+            });
+
+            updateActiveButton(document.querySelector('#page-paraphraser .mode-button[data-mode="standard"]'));
+        }
+
+        init();
+    })();
+
+    // --- Bagian AI Detector ---
+    const aiDetectorApp = (() => {
+        const detectAiButton=document.getElementById("detect-ai-button"),aiDetectorText=document.getElementById("ai-detector-text"),aiDetectorClearButton=document.getElementById("ai-detector-clear-button"),resultContainer=document.getElementById("ai-detector-result-container"),summaryEl=document.getElementById("ai-detector-summary"),barEl=document.getElementById("ai-detector-bar"),detailsEl=document.getElementById("ai-detector-details"),buttonTextEl=document.getElementById("detect-ai-button-text"),loaderEl=document.getElementById("detect-ai-loader");
+        async function handleDetect(){const text=aiDetectorText.value;if(!text.trim()){summaryEl.textContent="Silakan masukkan teks.";resultContainer.classList.remove("hidden");return}detectAiButton.disabled=true;loaderEl.classList.remove("hidden");buttonTextEl.classList.add("hidden");resultContainer.classList.add("hidden");try{const response=await fetch("/api/ai-detector",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:text})});if(!response.ok){const err=await response.json();throw new Error(err.error||"Gagal hubungi server.")}const result=await response.json();resultContainer.classList.remove("hidden");summaryEl.textContent=result.summary||"Analisis Selesai";const percentage=result.likelihood_percentage||0;barEl.style.width=`${percentage}%`;if(percentage>75){barEl.className="h-4 rounded-full transition-all duration-500 bg-gradient-to-r from-red-500 to-orange-400"}else if(percentage>40){barEl.className="h-4 rounded-full transition-all duration-500 bg-gradient-to-r from-amber-500 to-yellow-400"}else{barEl.className="h-4 rounded-full transition-all duration-500 bg-gradient-to-r from-emerald-500 to-teal-400"}let highlighted=text;if(result.highlight_sentences&&result.highlight_sentences.length>0){result.highlight_sentences.forEach(s=>{const clean=s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");const regex=new RegExp(clean,"gi");highlighted=highlighted.replace(regex,`<span class="highlight-ai">${s}</span>`)})}detailsEl.innerHTML=highlighted.replace(/\n/g,"<br>")}catch(err){resultContainer.classList.remove("hidden");summaryEl.textContent=`Error: ${err.message}`}finally{detectAiButton.disabled=false;loaderEl.classList.add("hidden");buttonTextEl.classList.remove("hidden")}}
+        function init(){detectAiButton.addEventListener("click",handleDetect);aiDetectorClearButton.addEventListener("click",()=>{aiDetectorText.value="";resultContainer.classList.add("hidden")})}
         init();
     })();
 </script>

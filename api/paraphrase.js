@@ -1,19 +1,29 @@
 const fetch = require('node-fetch');
 
-/**
- * Fungsi pembersih yang sudah disempurnakan.
- * @param {string} text - Teks mentah dari AI.
- * @returns {string} - Teks yang sudah bersih.
- */
 function cleanAiResponse(text) {
     let cleanedText = text.trim();
-    // Menghapus baris pembuka yang mungkin dibuat AI meskipun sudah dilarang
-    const lines = cleanedText.split('\n');
-    if (lines.length > 1 && lines[0].length < 100 && lines[0].includes(':')) {
-         cleanedText = lines.slice(1).join('\n').trim();
+    const paragraphs = cleanedText.split('\n').filter(p => p.trim() !== '');
+    if (paragraphs.length > 1) {
+        const potentialStarts = ["Pilihan", "Parafrase", "Versi", "Berikut adalah"];
+        let bestParagraph = paragraphs[0];
+        for (const p of paragraphs) {
+            const isIntro = potentialStarts.some(start => p.trim().toLowerCase().startsWith(start.toLowerCase()));
+            const hasColon = p.includes(':');
+            if (!isIntro && !hasColon) {
+                bestParagraph = p;
+                break;
+            }
+        }
+        if (bestParagraph === paragraphs[0]) {
+            const lastParagraph = paragraphs[paragraphs.length - 1];
+            const isLastAlsoIntro = potentialStarts.some(start => lastParagraph.trim().toLowerCase().startsWith(start.toLowerCase()));
+            if (!isLastAlsoIntro) {
+                bestParagraph = lastParagraph;
+            }
+        }
+        cleanedText = bestParagraph;
     }
-    // Menghapus sisa-sisa markdown atau penomoran
-    cleanedText = cleanedText.replace(/^(```json|```|oke, baik\.|baik, |tentu, )/i, '').trim();
+    cleanedText = cleanedText.replace(/^(oke, baik\.|oke, baik|baik,|tentu,|berikut adalah|pilihan \d:|\d\.\s*)/i, '').trim();
     return cleanedText;
 }
 
@@ -28,12 +38,15 @@ exports.handler = async function(event, context) {
   }
 
   try {
-    const { prompt: mode, text } = JSON.parse(event.body); // Sekarang kita menerima 'mode' dan 'text'
+    // === INI BAGIAN YANG DIPERBAIKI ===
+    // Sebelumnya: const { prompt: mode, text } = JSON.parse(event.body); (SALAH)
+    // Sekarang:
+    const { mode, text } = JSON.parse(event.body);
+
     if (!mode || !text) {
       return { statusCode: 400, body: JSON.stringify({ error: 'Mode dan teks dibutuhkan' }) };
     }
 
-    // === PROMPT BARU YANG JAUH LEBIH SPESIFIK ===
     const prompts = {
         standard: `Tugas Anda adalah memparafrase teks berikut. Ubah struktur setiap kalimat secara signifikan, ganti pilihan kata (diksi) dengan sinonim yang relevan, namun pastikan SEMUA makna, detail, dan ide asli tetap utuh. JANGAN meringkas atau menghilangkan informasi. Hasilnya harus unik dan sulit dideteksi sebagai plagiarisme. Langsung berikan teks yang sudah jadi tanpa kalimat pembuka.`,
         formal: `Posisikan diri Anda sebagai editor jurnal akademis. Parafrasekan teks berikut ke dalam gaya bahasa yang sangat formal, objektif, dan terstruktur. Gunakan terminologi yang canggih dan struktur kalimat majemuk yang bervariasi. Prioritaskan keakuratan makna dan pertahankan semua detail informasi. Hindari opini atau bahasa kasual. Hasilnya harus terdengar profesional dan siap untuk publikasi ilmiah. Langsung berikan teksnya tanpa basa-basi.`,

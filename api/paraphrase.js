@@ -1,23 +1,17 @@
 const fetch = require('node-fetch');
 
+/**
+ * Fungsi pembersih final yang lebih canggih.
+ * @param {string} text - Teks mentah dari AI.
+ * @returns {string} - Teks yang sudah bersih.
+ */
 function cleanAiResponse(text) {
     let cleanedText = text.trim();
-    const openingPhrases = [
-        "Tentu, berikut hasil parafrasenya:",
-        "Berikut adalah hasil parafrasenya:",
-        "Tentu, ini hasil parafrasenya:",
-        "Oke, baik. Sebagai mahasiswa yang sedang mengerjakan tugas, saya akan menganalisis teks ini",
-        "beberapa pilihan parafrase dari teks asli, dengan tingkatan yang berbeda dalam mengubah struktur kalimat dan penggunaan sinonim",
-        "Berikut adalah beberapa pemikiran awal saya:"
-    ];
-    for (const phrase of openingPhrases) {
-        if (cleanedText.toLowerCase().startsWith(phrase.toLowerCase())) {
-            cleanedText = cleanedText.substring(phrase.length).trim();
-            break;
-        }
-    }
-    cleanedText = cleanedText.replace(/^(```json|```|oke, baik\.|baik, |tentu, |pilihan \d:|\d\.\s*)/i, '').replace(/:\s*$/, "").trim();
-    return cleanedText;
+    // Menghapus semua jenis kalimat pembuka yang diikuti oleh titik dua atau baris baru
+    cleanedText = cleanedText.replace(/^[\w\s,.]+:[\s\n]*/, '');
+    // Menghapus penomoran atau bullet points di awal
+    cleanedText = cleanedText.replace(/^(\d+\.\s*|\*\s*|-\s*)/, '');
+    return cleanedText.trim();
 }
 
 exports.handler = async function(event, context) {
@@ -55,7 +49,7 @@ exports.handler = async function(event, context) {
       return { statusCode: apiResponse.status, body: JSON.stringify(data) };
     }
     const originalAiText = data.candidates[0].content.parts[0].text;
-    const cleanedText = cleanAiResponse(originalAiText);
+    const cleanedText = cleanAiResponse(originalAiText); // Menggunakan fungsi pembersih baru
     data.candidates[0].content.parts[0].text = cleanedText;
     return {
       statusCode: 200,

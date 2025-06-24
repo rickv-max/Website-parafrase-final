@@ -30,7 +30,16 @@ exports.handler = async function(event, context) {
       HANYA berikan teks yang sudah di-humanize. Jangan berikan komentar, penjelasan, atau kata pembuka apa pun.
     `;
     const googleApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
-    const payload = { contents: [{ role: 'user', parts: [{ text: prompt }] }] };
+    
+    // --- PERUBAHAN DI SINI: Menambahkan generationConfig dengan temperature ---
+    const payload = { 
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.1, // Nilai rendah untuk konsistensi yang lebih tinggi
+      },
+    };
+    // --- AKHIR PERUBAHAN ---
+
     const apiResponse = await fetch(googleApiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -42,8 +51,7 @@ exports.handler = async function(event, context) {
         throw new Error('Gagal mendapatkan respons valid dari AI.');
     }
     const humanizedText = data.candidates[0].content.parts[0].text.trim();
-    // Jika ada tanda kutip di awal atau akhir yang tidak diinginkan, bisa ditambahkan pembersihan di sini
-    const cleanedHumanizedText = humanizedText.replace(/^['"]|['"]$/g, ''); // Hapus kutip di awal/akhir
+    const cleanedHumanizedText = humanizedText.replace(/^['"]|['"]$/g, ''); 
     return {
       statusCode: 200,
       body: JSON.stringify({ humanized_text: cleanedHumanizedText }),

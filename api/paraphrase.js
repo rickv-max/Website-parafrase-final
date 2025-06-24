@@ -1,3 +1,4 @@
+// paraphrase.js
 const fetch = require('node-fetch');
 
 /**
@@ -7,11 +8,12 @@ const fetch = require('node-fetch');
  */
 function cleanAiResponse(text) {
     let cleanedText = text.trim();
-    // Menghapus semua jenis kalimat pembuka yang diikuti oleh titik dua atau baris baru
-    cleanedText = cleanedText.replace(/^[\w\s,.]+:[\s\n]*/, '');
+    // Menghapus semua jenis kalimat pembuka yang diikuti oleh titik dua, baris baru, atau frasa umum
+    cleanedText = cleanedText.replace(/^(Teks (yang )?sudah (di)?parafrase|Berikut adalah hasil parafrase|Hasil parafrase|Berikut teks yang telah diparafrase):?[\s\n]*/i, '');
     // Menghapus penomoran atau bullet points di awal
-    cleanedText = cleanedText.replace(/^(\d+\.\s*|\*\s*|-\s*)/, '');
-    return cleanedText.trim();
+    cleanedText = cleanedText.replace(/^(\d+\.\s*|\*\s*|-\s*|\'|\"|\`)/, ''); // Tambahan quotes juga dihapus
+    cleanedText = cleanedText.trim();
+    return cleanedText;
 }
 
 exports.handler = async function(event, context) {
@@ -28,11 +30,11 @@ exports.handler = async function(event, context) {
       return { statusCode: 400, body: JSON.stringify({ error: 'Mode dan teks dibutuhkan' }) };
     }
     const prompts = {
-        standard: `Tugas Anda adalah memparafrase teks berikut. Ubah struktur setiap kalimat secara signifikan dan ganti pilihan kata dengan sinonim yang relevan. Pastikan SEMUA makna dan detail informasi dari teks asli tetap utuh. JANGAN meringkas. Langsung berikan teks yang sudah jadi tanpa kalimat pembuka atau analisis.`,
-        formal: `Anda adalah editor akademis. Parafrasekan teks berikut ke dalam gaya bahasa yang sangat formal dan objektif. Pertahankan semua detail informasi dengan presisi tinggi. Langsung berikan teksnya tanpa basa-basi.`,
-        creative: `Anda adalah seorang novelis. Ubah teks berikut menjadi narasi yang lebih hidup dan ekspresif. Pertahankan semua informasi inti, namun sajikan dengan kosakata yang kaya dan struktur kalimat yang menarik. Langsung berikan hasilnya tanpa pengantar.`,
-        simple: `Jelaskan kembali teks berikut dengan bahasa yang sangat sederhana. Pecah kalimat panjang menjadi kalimat-kalimat pendek dan ganti kata sulit dengan padanan umum, namun jangan sampai ada informasi yang hilang. Langsung berikan hasilnya.`,
-        mahasiswa: `Anda adalah mahasiswa yang sedang menyusun skripsi. Parafrasekan teks berikut dengan gaya bahasa akademis. Fokus utama Anda adalah mengubah kalimat asli untuk menghindari plagiarisme dengan mengubah struktur kalimat dan menggunakan sinonim yang tepat. Pastikan semua data dan detail tetap ada. Langsung berikan hasilnya tanpa analisis.`
+        standard: `Tugas Anda adalah memparafrase teks berikut. Ubah struktur setiap kalimat secara signifikan dan ganti pilihan kata dengan sinonim yang relevan. Pastikan SEMUA makna dan detail informasi dari teks asli tetap utuh. JANGAN meringkas. HANYA berikan teks yang sudah diparafrase, tanpa kalimat pembuka, penjelasan, atau format tambahan.`,
+        formal: `Anda adalah editor akademis. Parafrasekan teks berikut ke dalam gaya bahasa yang sangat formal dan objektif. Pertahankan semua detail informasi dengan presisi tinggi. HANYA berikan teks yang sudah diparafrase, tanpa kalimat pembuka, penjelasan, atau format tambahan.`,
+        creative: `Anda adalah seorang novelis. Ubah teks berikut menjadi narasi yang lebih hidup dan ekspresif. Pertahankan semua informasi inti, namun sajikan dengan kosakata yang kaya dan struktur kalimat yang menarik. HANYA berikan teks yang sudah diparafrase, tanpa kalimat pembuka, penjelasan, atau format tambahan.`,
+        simple: `Jelaskan kembali teks berikut dengan bahasa yang sangat sederhana. Pecah kalimat panjang menjadi kalimat-kalimat pendek dan ganti kata sulit dengan padanan umum, namun jangan sampai ada informasi yang hilang. HANYA berikan teks yang sudah diparafrase, tanpa kalimat pembuka, penjelasan, atau format tambahan.`,
+        mahasiswa: `Anda adalah mahasiswa yang sedang menyusun skripsi. Parafrasekan teks berikut dengan gaya bahasa akademis. Fokus utama Anda adalah mengubah kalimat asli untuk menghindari plagiarisme dengan mengubah struktur kalimat dan menggunakan sinonim yang tepat. Pastikan semua data dan detail tetap ada. HANYA berikan teks yang sudah diparafrase, tanpa kalimat pembuka, penjelasan, atau format tambahan.`
     };
     const instruction = prompts[mode] || prompts['standard'];
     const fullPrompt = `${instruction}\n\nTeks Asli untuk diparafrase:\n---\n${text}`;
@@ -50,10 +52,12 @@ exports.handler = async function(event, context) {
     }
     const originalAiText = data.candidates[0].content.parts[0].text;
     const cleanedText = cleanAiResponse(originalAiText); // Menggunakan fungsi pembersih baru
-    data.candidates[0].content.parts[0].text = cleanedText;
+    
+    // Karena kita tidak mengembalikan objek data.candidates sepenuhnya,
+    // langsung kembalikan teks yang sudah bersih dalam objek sederhana
     return {
       statusCode: 200,
-      body: JSON.stringify(data),
+      body: JSON.stringify({ paraphrased_text: cleanedText }),
     };
   } catch (error) {
     console.error('Error di dalam fungsi Netlify:', error);

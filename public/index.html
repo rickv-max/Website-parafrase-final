@@ -164,8 +164,8 @@
 </footer>
 
 <script>
-    // --- Batas Kata Maksimum untuk Pengguna Gratis ---
-    const MAX_FREE_WORDS = 200; // Contoh: 200 kata untuk gratis. Sesuaikan sesuai keinginan Anda.
+    // --- Batas Kata Maksimum untuk Pengguna Gratis (DIHAPUS KARENA TIDAK ADA BATAS) ---
+    // const MAX_FREE_WORDS = 200; 
     // --- Akhir Batas Kata Maksimum ---
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -235,20 +235,14 @@
             const updateCounter = () => {
                 const text = textarea.value;
                 const charCount = text.length;
-                const wordCount = text.trim().split(/\s+/).filter(word => word.length > 0).length;
+                // Menghitung kata tanpa batas maksimum atau pewarnaan merah
+                const wordCount = text.trim().split(/\s+/).filter(word => word.length > 0).length; 
 
                 charCountSpan.textContent = charCount;
                 wordCountSpan.textContent = wordCount;
-
-                // --- Logika Indikasi Batas Kata ---
-                if (wordCount > MAX_FREE_WORDS) {
-                    wordCountSpan.classList.add('text-red-500'); // Merah jika melebihi batas
-                    wordCountSpan.classList.remove('text-slate-500');
-                } else {
-                    wordCountSpan.classList.remove('text-red-500');
-                    wordCountSpan.classList.add('text-slate-500');
-                }
-                // --- Akhir Logika Indikasi Batas Kata ---
+                // Menghapus logika pewarnaan merah
+                wordCountSpan.classList.remove('text-red-500'); 
+                wordCountSpan.classList.add('text-slate-500');
             };
 
             textarea.addEventListener('input', updateCounter);
@@ -287,16 +281,9 @@
             
             el.paraphraseButton.addEventListener("click", async () => {
                 const userInput = el.originalTextInput.value.trim();
-                const currentWordCount = userInput.split(/\s+/).filter(word => word.length > 0).length;
-
-                // --- Pemeriksaan Batas Kata ---
-                if (currentWordCount > MAX_FREE_WORDS) {
-                    el.paraphrasedTextOutput.innerHTML = `<span class="text-red-400">Teks melebihi ${MAX_FREE_WORDS} kata. Silakan kurangi teks atau <a href="#premium-info" class="text-blue-400 hover:underline">upgrade ke premium</a>.</span>`;
-                    if(el.authenticityContainer) el.authenticityContainer.classList.add("hidden");
-                    el.resultDiv.classList.add("hidden");
-                    return; // Hentikan proses jika melebihi batas
-                }
-                // --- Akhir Pemeriksaan Batas Kata ---
+                // Menghapus pemeriksaan batas kata
+                // const currentWordCount = userInput.split(/\s+/).filter(word => word.length > 0).length;
+                // if (currentWordCount > MAX_FREE_WORDS) { /* ... */ return; }
 
                 if (!userInput) {
                     el.paraphrasedTextOutput.innerHTML = `<span class="text-yellow-400">Silakan masukkan teks.</span>`;
@@ -341,15 +328,9 @@
 
             el.checkButton.addEventListener('click', async () => {
                 const textToCheck = el.paraphrasedTextOutput.innerText.trim();
-                const currentWordCount = textToCheck.split(/\s+/).filter(word => word.length > 0).length;
-
-                // --- Pemeriksaan Batas Kata (untuk hasil parafrase) ---
-                if (currentWordCount > MAX_FREE_WORDS) {
-                    el.resultDiv.classList.remove('hidden');
-                    el.resultDiv.innerHTML = `<span class="text-red-400">Teks hasil parafrase melebihi ${MAX_FREE_WORDS} kata. Pemeriksaan keaslian lanjutan memerlukan <a href="#premium-info" class="text-blue-400 hover:underline">premium</a>.</span>`;
-                    return; // Hentikan proses
-                }
-                // --- Akhir Pemeriksaan Batas Kata ---
+                // Menghapus pemeriksaan batas kata
+                // const currentWordCount = textToCheck.split(/\s+/).filter(word => word.length > 0).length;
+                // if (currentWordCount > MAX_FREE_WORDS) { /* ... */ return; }
 
                 if (!textToCheck || textToCheck.includes("Hasil parafrase akan muncul di sini...")) {
                     el.resultDiv.classList.remove('hidden');
@@ -439,18 +420,9 @@
 
             el.detectButton.addEventListener('click', async () => {
                 const text = el.textInput.value.trim();
-                const currentWordCount = text.split(/\s+/).filter(word => word.length > 0).length;
-
-                // --- Pemeriksaan Batas Kata ---
-                if (currentWordCount > MAX_FREE_WORDS) {
-                    el.resultContainer.classList.remove('hidden'); 
-                    el.summary.textContent = `Teks melebihi ${MAX_FREE_WORDS} kata. Silakan kurangi teks atau <a href="#premium-info" class="text-blue-400 hover:underline">upgrade ke premium</a>.`;
-                    el.details.innerHTML = '';
-                    el.bar.style.width = '0%';
-                    el.bar.className = "h-4 rounded-full transition-all duration-500 bg-slate-700"; 
-                    return; // Hentikan proses
-                }
-                // --- Akhir Pemeriksaan Batas Kata ---
+                // Menghapus pemeriksaan batas kata
+                // const currentWordCount = text.split(/\s+/).filter(word => word.length > 0).length;
+                // if (currentWordCount > MAX_FREE_WORDS) { /* ... */ return; }
 
                 if (!text) { 
                     el.resultContainer.classList.remove('hidden'); 
@@ -538,14 +510,9 @@
 
             el.humanizeButton.addEventListener('click', async () => {
                 const text = el.input.value.trim();
-                const currentWordCount = text.split(/\s+/).filter(word => word.length > 0).length;
-
-                // --- Pemeriksaan Batas Kata ---
-                if (currentWordCount > MAX_FREE_WORDS) {
-                    el.output.innerHTML = `<span class="text-red-400">Teks melebihi ${MAX_FREE_WORDS} kata. Silakan kurangi teks atau <a href="#premium-info" class="text-blue-400 hover:underline">upgrade ke premium</a>.</span>`; 
-                    return; // Hentikan proses
-                }
-                // --- Akhir Pemeriksaan Batas Kata ---
+                // Menghapus pemeriksaan batas kata
+                // const currentWordCount = text.split(/\s+/).filter(word => word.length > 0).length;
+                // if (currentWordCount > MAX_FREE_WORDS) { /* ... */ return; }
 
                 if (!text) { 
                     el.output.innerHTML = '<span class="text-yellow-400">Silakan masukkan teks AI.</span>'; 

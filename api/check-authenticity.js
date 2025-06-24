@@ -1,3 +1,4 @@
+// check-authenticity.js
 const fetch = require('node-fetch');
 
 exports.handler = async function(event, context) {
@@ -18,15 +19,23 @@ exports.handler = async function(event, context) {
       return { statusCode: 400, body: JSON.stringify({ error: 'Teks dibutuhkan.' }) };
     }
 
-    // 3. Buat prompt yang sangat spesifik untuk AI
+    // --- PROMPT BARU UNTUK KEASLIAN/KEUNIKAN ---
     const prompt = `
-      Analisis teks ini dan identifikasi kalimat yang berpotensi kurang unik atau terlalu umum.
-      Jawaban Anda HARUS dalam format JSON yang valid, tanpa teks atau markdown tambahan.
-      JSON harus memiliki dua kunci: "summary" (string) dan "risky_sentences" (array of strings).
-      Untuk "summary", berikan analisis singkat dan ramah.
-      Untuk "risky_sentences", masukkan kalimat lengkap yang berisiko. Jika tidak ada, kembalikan array kosong [].
-      Teks: "${text}"
+      Anda adalah seorang peninjau dokumen yang bertugas menganalisis teks untuk keaslian dan keunikan gaya penulisan, terutama setelah teks tersebut mungkin telah diproses (misalnya, diparafrase). Identifikasi bagian atau kalimat dalam teks ini yang masih terdengar generik, kaku, atau sangat mirip dengan gaya AI.
+
+      Berikan analisis Anda dalam format JSON yang valid dan HANYA JSON saja. JSON harus memiliki tiga kunci:
+      1. "overall_impression": Sebuah string singkat (maksimal 20 kata) yang memberikan kesan keseluruhan tentang keaslian/keunikannya (contoh: "Teks terdengar cukup manusiawi.", "Ada beberapa bagian yang terasa kaku.").
+      2. "problematic_sentences": Sebuah array berisi string. Setiap string adalah kalimat LENGKAP dari teks asli yang paling kuat menunjukkan ciri-ciri kurang asli, generik, atau seperti AI. Jika tidak ada, kembalikan array kosong [].
+      3. "authenticity_score": Sebuah angka integer dari 0 (sangat generik/AI-ish) hingga 100 (sangat unik/manusiawi).
+
+      Teks untuk dianalisis:
+      ---
+      ${text}
+      ---
+      
+      Langsung berikan hanya objek JSON, tanpa penjelasan atau kata pengantar.
     `;
+    // --- AKHIR PROMPT BARU ---
 
     const googleApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
     const payload = { contents: [{ role: 'user', parts: [{ text: prompt }] }] };
@@ -50,12 +59,10 @@ exports.handler = async function(event, context) {
 
     let jsonResponse;
     try {
-        // Coba cari JSON di dalam teks, bahkan jika terbungkus markdown
         const jsonMatch = aiResponseText.match(/\{[\s\S]*\}/);
         if (jsonMatch && jsonMatch[0]) {
             jsonResponse = JSON.parse(jsonMatch[0]);
         } else {
-            // Jika tidak ditemukan, coba parsing langsung (jika AI patuh)
             jsonResponse = JSON.parse(aiResponseText);
         }
     } catch (parseError) {

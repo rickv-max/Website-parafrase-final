@@ -1,3 +1,4 @@
+// humanize-text.js
 const fetch = require('node-fetch');
 
 exports.handler = async function(event, context) {
@@ -26,7 +27,7 @@ exports.handler = async function(event, context) {
       ${text}
       ---
       
-      Langsung berikan HANYA teks yang sudah di-humanize. Jangan berikan komentar, penjelasan, atau kata pembuka apa pun.
+      HANYA berikan teks yang sudah di-humanize. Jangan berikan komentar, penjelasan, atau kata pembuka apa pun.
     `;
     const googleApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
     const payload = { contents: [{ role: 'user', parts: [{ text: prompt }] }] };
@@ -41,9 +42,11 @@ exports.handler = async function(event, context) {
         throw new Error('Gagal mendapatkan respons valid dari AI.');
     }
     const humanizedText = data.candidates[0].content.parts[0].text.trim();
+    // Jika ada tanda kutip di awal atau akhir yang tidak diinginkan, bisa ditambahkan pembersihan di sini
+    const cleanedHumanizedText = humanizedText.replace(/^['"]|['"]$/g, ''); // Hapus kutip di awal/akhir
     return {
       statusCode: 200,
-      body: JSON.stringify({ humanized_text: humanizedText }),
+      body: JSON.stringify({ humanized_text: cleanedHumanizedText }),
     };
   } catch (error) {
     console.error('Error di dalam Netlify Function:', error.message);

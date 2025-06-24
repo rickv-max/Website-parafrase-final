@@ -44,30 +44,118 @@
 <main id="main-content-container" class="w-full">
     
     <div id="page-paraphraser" class="page-content">
-        <div class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4"><div class="w-full max-w-6xl flex flex-col lg:flex-row items-start gap-6"><div class="w-full lg:w-1/2 flex flex-col gap-4"><div class="glassmorphism rounded-xl p-3"><div class="grid grid-cols-2 sm:grid-cols-3 gap-2"><button class="mode-button relative" data-mode="standard">Standard <span class="suggestion-badge">Saran</span></button><button class="mode-button" data-mode="formal">Formal</button><button class="mode-button" data-mode="creative">Kreatif</button><button class="mode-button" data-mode="simple">Sederhana</button><button class="mode-button col-span-2 sm:col-span-1 relative" data-mode="mahasiswa">Mahasiswa <span class="suggestion-badge">Saran</span></button></div></div><div class="glassmorphism rounded-xl p-6 h-full flex-grow flex flex-col"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-semibold text-slate-200">Teks Asli</h2><button id="paraphraser-clear-button" title="Bersihkan Teks" class="text-slate-400 hover:text-white transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button></div><textarea id="paraphraser-original-text" class="custom-scrollbar w-full h-64 md:h-80 flex-grow bg-slate-800/50 p-4 rounded-lg text-slate-300 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition resize-none" placeholder="Masukkan atau tempel teks Anda di sini..."></textarea>
-<div class="text-right text-xs text-slate-500 mt-2">
-    <span id="paraphraser-word-count">0</span> Kata / <span id="paraphraser-char-count">0</span> Karakter
-</div>
-</div></div><div class="w-full lg:w-auto flex items-center justify-center py-4 lg:py-0 lg:self-center"><button id="paraphrase-button" class="w-full lg:w-auto bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:shadow-cyan-500/50 transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-3"><span id="paraphrase-button-text">Parafrase</span><div id="paraphrase-loader" class="hidden loader w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div></button></div><div class="w-full lg:w-1/2 flex flex-col gap-4"><div class="glassmorphism rounded-xl p-6 h-full flex flex-col flex-grow"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-semibold text-slate-200">Hasil Parafrase</h2><button id="paraphraser-copy-button" title="Salin Hasil" class="text-slate-400 hover:text-white transition-colors flex items-center gap-2"><span id="paraphraser-copy-text">Salin</span><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button></div><div id="paraphraser-output-text" class="custom-scrollbar w-full flex-grow bg-slate-800/50 p-4 rounded-lg text-slate-300 overflow-y-auto leading-relaxed"><span class="text-slate-500">Hasil parafrase akan muncul di sini...</span></div></div><div id="authenticity-container" class="hidden glassmorphism rounded-xl p-4 flex flex-col gap-3"><button id="check-authenticity-button" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46 16 2a4 4 0 0 0-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"></path></svg> <span>Cek Keaslian</span></button><div id="authenticity-result" class="text-sm text-slate-300 p-3 bg-slate-800/50 rounded-lg hidden"></div></div></div></div></div>
+        <div class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4">
+            <div class="w-full max-w-6xl flex flex-col lg:flex-row items-start gap-6">
+                <div class="w-full lg:w-1/2 flex flex-col gap-4">
+                    <div class="glassmorphism rounded-xl p-3">
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            <button class="mode-button relative" data-mode="standard">Standard <span class="suggestion-badge">Saran</span></button>
+                            <button class="mode-button" data-mode="formal">Formal</button>
+                            <button class="mode-button" data-mode="creative">Kreatif</button>
+                            <button class="mode-button" data-mode="simple">Sederhana</button>
+                            <button class="mode-button col-span-2 sm:col-span-1 relative" data-mode="mahasiswa">Mahasiswa <span class="suggestion-badge">Saran</span></button>
+                        </div>
+                    </div>
+                    <div class="glassmorphism rounded-xl p-6 h-full flex-grow flex flex-col">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold text-slate-200">Teks Asli</h2>
+                            <button id="paraphraser-clear-button" title="Bersihkan Teks" class="text-slate-400 hover:text-white transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                        </div>
+                        <textarea id="paraphraser-original-text" class="custom-scrollbar w-full h-64 md:h-80 flex-grow bg-slate-800/50 p-4 rounded-lg text-slate-300 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition resize-none" placeholder="Masukkan atau tempel teks Anda di sini..."></textarea>
+                        <div class="text-right text-xs text-slate-500 mt-2">
+                            <span id="paraphraser-word-count">0</span> Kata / <span id="paraphraser-char-count">0</span> Karakter
+                        </div>
+                    </div>
+                </div>
+                <div class="w-full lg:w-auto flex items-center justify-center py-4 lg:py-0 lg:self-center">
+                    <button id="paraphrase-button" class="w-full lg:w-auto bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:shadow-cyan-500/50 transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-3"><span id="paraphrase-button-text">Parafrase</span><div id="paraphrase-loader" class="hidden loader w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div></button>
+                </div>
+                <div class="w-full lg:w-1/2 flex flex-col gap-4">
+                    <div class="glassmorphism rounded-xl p-6 h-full flex flex-col flex-grow">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold text-slate-200">Hasil Parafrase</h2>
+                            <button id="paraphraser-copy-button" title="Salin Hasil" class="text-slate-400 hover:text-white transition-colors flex items-center gap-2"><span id="paraphraser-copy-text">Salin</span><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+                        </div>
+                        <div id="paraphraser-output-text" class="custom-scrollbar w-full flex-grow bg-slate-800/50 p-4 rounded-lg text-slate-300 overflow-y-auto leading-relaxed"><span class="text-slate-500">Hasil parafrase akan muncul di sini...</span></div>
+                    </div>
+                    <div id="authenticity-container" class="hidden glassmorphism rounded-xl p-4 flex flex-col gap-3">
+                        <button id="check-authenticity-button" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46 16 2a4 4 0 0 0-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"></path></svg> <span>Cek Keaslian</span></button>
+                        <div id="authenticity-result" class="text-sm text-slate-300 p-3 bg-slate-800/50 rounded-lg hidden"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     
     <div id="page-ai-detector" class="page-content hidden">
-        <div class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4"><div class="w-full max-w-2xl text-center"><h2 class="text-3xl font-bold text-slate-200">AI Content Detector</h2><p class="text-slate-400 mt-2 mb-8">Tempel tulisan Anda untuk menganalisis kemungkinan dibuat oleh AI.</p><div class="glassmorphism rounded-xl p-6 flex flex-col gap-4"><div class="relative w-full"><textarea id="ai-detector-text" class="custom-scrollbar w-full h-60 bg-slate-800/50 p-4 pr-10 rounded-lg text-slate-300 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition resize-y" placeholder="Masukkan teks di sini..."></textarea>
-<div class="text-right text-xs text-slate-500 mt-2">
-    <span id="ai-detector-word-count">0</span> Kata / <span id="ai-detector-char-count">0</span> Karakter
-</div>
-<button id="ai-detector-clear-button" title="Bersihkan Teks" class="absolute bottom-4 right-4 text-slate-500 hover:text-white transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button></div><button id="detect-ai-button" class="w-full bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white font-bold py-3 px-6 rounded-full shadow-lg flex items-center justify-center gap-3"><span id="detect-ai-button-text">Deteksi Konten AI</span><div id="detect-ai-loader" class="hidden loader w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div></button></div><div id="ai-detector-result-container" class="w-full mt-6 hidden"><div class="glassmorphism rounded-xl p-6"><h3 class="text-xl font-semibold text-slate-200 mb-4">Hasil Analisis</h3><div id="ai-detector-summary" class="text-center text-lg mb-4 font-medium"></div><div class="w-full bg-slate-700 rounded-full h-4 mb-2 overflow-hidden"><div id="ai-detector-bar" class="h-4 rounded-full transition-all duration-500"></div></div><div class="flex justify-between text-xs text-slate-400"><span>Manusia</span><span>AI</span></div><div id="ai-detector-details" class="mt-4 text-left text-sm text-slate-400 border-t border-slate-700 pt-4"></div>
-
+        <div class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4">
+            <div class="w-full max-w-2xl text-center">
+                <h2 class="text-3xl font-bold text-slate-200">AI Content Detector</h2>
+                <p class="text-slate-400 mt-2 mb-8">Tempel tulisan Anda untuk menganalisis kemungkinan dibuat oleh AI.</p>
+                <div class="glassmorphism rounded-xl p-6 flex flex-col gap-4">
+                    <div class="relative w-full">
+                        <textarea id="ai-detector-text" class="custom-scrollbar w-full h-60 bg-slate-800/50 p-4 pr-10 rounded-lg text-slate-300 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition resize-y" placeholder="Masukkan teks di sini..."></textarea>
+                        <div class="text-right text-xs text-slate-500 mt-2">
+                            <span id="ai-detector-word-count">0</span> Kata / <span id="ai-detector-char-count">0</span> Karakter
+                        </div>
+                        <button id="ai-detector-clear-button" title="Bersihkan Teks" class="absolute bottom-4 right-4 text-slate-500 hover:text-white transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                    </div>
+                    <button id="detect-ai-button" class="w-full bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white font-bold py-3 px-6 rounded-full shadow-lg flex items-center justify-center gap-3"><span id="detect-ai-button-text">Deteksi Konten AI</span><div id="detect-ai-loader" class="hidden loader w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div></button>
+                </div>
+                <div id="ai-detector-result-container" class="w-full mt-6 hidden">
+                    <div class="glassmorphism rounded-xl p-6">
+                        <h3 class="text-xl font-semibold text-slate-200 mb-4">Hasil Analisis</h3>
+                        <div id="ai-detector-summary" class="text-center text-lg mb-4 font-medium"></div>
+                        <div class="w-full bg-slate-700 rounded-full h-4 mb-2 overflow-hidden">
+                            <div id="ai-detector-bar" class="h-4 rounded-full transition-all duration-500"></div>
+                        </div>
+                        <div class="flex justify-between text-xs text-slate-400"><span>Manusia</span><span>AI</span></div>
+                        <div id="ai-detector-details" class="mt-4 text-left text-sm text-slate-400 border-t border-slate-700 pt-4"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <div id="page-humanizer" class="page-content hidden">
-        <div class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4"><main class="w-full max-w-6xl flex flex-col lg:flex-row items-start gap-6"><div class="w-full lg:w-1/2 flex flex-col gap-4"><div class="glassmorphism rounded-xl p-6 h-full flex-grow flex flex-col"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-semibold text-slate-200">Teks AI</h2><button id="humanizer-clear-button" title="Bersihkan Teks" class="text-slate-400 hover:text-white transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button></div><textarea id="humanizer-input-text" class="custom-scrollbar w-full h-80 flex-grow bg-slate-800/50 p-4 rounded-lg text-slate-300 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition resize-y" placeholder="Masukkan atau tempel teks hasil AI di sini..."></textarea>
-<div class="text-right text-xs text-slate-500 mt-2">
-    <span id="humanizer-word-count">0</span> Kata / <span id="humanizer-char-count">0</span> Karakter
-</div>
-</div><div class="w-full lg:w-auto flex items-center justify-center py-4 lg:py-0 lg:self-center"><button id="humanize-button" class="w-full lg:w-auto bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold py-3 px-6 rounded-full shadow-lg flex items-center justify-center gap-3"><span id="humanize-button-text">Humanize</span><div id="humanize-loader" class="hidden loader w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div></button></div><div class="w-full lg:w-1/2 flex flex-col gap-4"><div class="glassmorphism rounded-xl p-6 h-full flex-grow flex flex-col"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-semibold text-slate-200">Teks Humanized</h2><button id="humanizer-copy-button" title="Salin Hasil" class="text-slate-400 hover:text-white transition-colors flex items-center gap-2"><span id="humanizer-copy-text">Salin</span><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button></div><div id="humanizer-output-text" class="custom-scrollbar w-full h-80 flex-grow bg-slate-800/50 p-4 rounded-lg text-slate-300 overflow-y-auto leading-relaxed"><span class="text-slate-500">Hasil teks yang lebih natural akan muncul di sini...</span></div></div></div></main></div>
+        <div class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4">
+            <main class="w-full max-w-6xl flex flex-col lg:flex-row items-start gap-6">
+                <div class="w-full lg:w-1/2 flex flex-col gap-4">
+                    <div class="glassmorphism rounded-xl p-6 h-full flex-grow flex-col">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold text-slate-200">Teks AI</h2>
+                            <button id="humanizer-clear-button" title="Bersihkan Teks" class="text-slate-400 hover:text-white transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                        </div>
+                        <textarea id="humanizer-input-text" class="custom-scrollbar w-full h-80 flex-grow bg-slate-800/50 p-4 rounded-lg text-slate-300 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition resize-y" placeholder="Masukkan atau tempel teks hasil AI di sini..."></textarea>
+                        <div class="text-right text-xs text-slate-500 mt-2">
+                            <span id="humanizer-word-count">0</span> Kata / <span id="humanizer-char-count">0</span> Karakter
+                        </div>
+                    </div>
+                </div>
+                <div class="w-full lg:w-auto flex items-center justify-center py-4 lg:py-0 lg:self-center">
+                    <button id="humanize-button" class="w-full lg:w-auto bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold py-3 px-6 rounded-full shadow-lg flex items-center justify-center gap-3"><span id="humanize-button-text">Humanize</span><div id="humanize-loader" class="hidden loader w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div></button>
+                </div>
+                <div class="w-full lg:w-1/2 flex flex-col gap-4">
+                    <div class="glassmorphism rounded-xl p-6 h-full flex flex-col flex-grow">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold text-slate-200">Teks Humanized</h2>
+                            <button id="humanizer-copy-button" title="Salin Hasil" class="text-slate-400 hover:text-white transition-colors flex items-center gap-2"><span id="humanizer-copy-text">Salin</span><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+                        </div>
+                        <div id="humanizer-output-text" class="custom-scrollbar w-full h-80 flex-grow bg-slate-800/50 p-4 rounded-lg text-slate-300 overflow-y-auto leading-relaxed"><span class="text-slate-500">Hasil teks yang lebih natural akan muncul di sini...</span></div>
+                    </div>
+                </div>
+            </main>
+        </div>
     </div>
 
     <div id="page-plagiarism-checker" class="page-content hidden"><div class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4 text-center"><h2 class="text-3xl font-bold text-slate-300">Plagiarism Checker</h2><p class="text-slate-500 mt-2">Fitur ini sedang dalam pengembangan dan akan segera hadir!</p></div></div>
 </main>
+
+<footer class="bg-slate-900/50 backdrop-blur-lg border-t border-slate-800 py-4 mt-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-slate-500 text-sm">
+        <p>&copy; <span id="current-year"></span> Parafraser Pro. Alat ini dirancang oleh Ricky Maulana⚡️</p>
+    </div>
+</footer>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -78,16 +166,11 @@
         const pages = document.querySelectorAll('.page-content');
         
         function switchPage(pageId) {
-            // Sembunyikan semua halaman terlebih dahulu
             pages.forEach(page => page.classList.add('hidden'));
-            
-            // Tampilkan halaman yang dituju
             const targetPage = document.getElementById(pageId);
             if (targetPage) {
                 targetPage.classList.remove('hidden');
             }
-            
-            // Tutup panel menu
             if(menuPanel) menuPanel.classList.add('hidden');
         };
 
@@ -113,7 +196,6 @@
         // --- Generic Helper ---
         function copyToClipboard(textElement, feedbackElement) {
             const textToCopy = textElement.innerText;
-            // Pastikan tidak menyalin placeholder
             if (textToCopy && textToCopy.trim() !== '' && !textElement.querySelector('span.text-slate-500')) {
                 const el = document.createElement("textarea");
                 el.value = textToCopy;
@@ -127,6 +209,30 @@
                     setTimeout(() => { feedbackElement.innerText = originalText }, 2000);
                 }
             }
+        }
+
+        // --- Function to setup real-time word/character counter ---
+        function setupTextareaCounter(textareaId, wordCountId, charCountId) {
+            const textarea = document.getElementById(textareaId);
+            const wordCountSpan = document.getElementById(wordCountId);
+            const charCountSpan = document.getElementById(charCountId);
+
+            if (!textarea || !wordCountSpan || !charCountSpan) {
+                console.warn(`Elemen counter tidak ditemukan untuk ${textareaId}`);
+                return;
+            }
+
+            const updateCounter = () => {
+                const text = textarea.value;
+                const charCount = text.length;
+                const wordCount = text.trim().split(/\s+/).filter(word => word.length > 0).length;
+
+                charCountSpan.textContent = charCount;
+                wordCountSpan.textContent = wordCount;
+            };
+
+            textarea.addEventListener('input', updateCounter);
+            updateCounter(); // Initial update
         }
 
         // --- Parafrase App Logic ---
@@ -168,7 +274,7 @@
                 setLoading(true);
                 el.paraphrasedTextOutput.innerHTML = `<span class="text-slate-500">Memproses...</span>`;
                 if(el.authenticityContainer) el.authenticityContainer.classList.add("hidden");
-                el.resultDiv.classList.add("hidden"); // Sembunyikan hasil keaslian sebelumnya
+                el.resultDiv.classList.add("hidden"); 
 
                 try {
                     const response = await fetch("/.netlify/functions/paraphrase", {
@@ -182,10 +288,8 @@
                         throw new Error(result.error || `Error ${response.status}: Gagal memparafrase.`);
                     }
                     
-                    // Menerima respons baru yang langsung berisi teks parafrase
                     el.paraphrasedTextOutput.innerText = result.paraphrased_text || "Tidak ada hasil parafrase.";
                     
-                    // Tampilkan kontainer cek keaslian setelah parafrase berhasil
                     if(el.authenticityContainer) el.authenticityContainer.classList.remove("hidden");
 
                 } catch (err) {
@@ -202,10 +306,8 @@
                     updateActiveButton(button);
                 });
             });
-            // Atur tombol default saat pertama kali dimuat
             updateActiveButton(document.querySelector('#page-paraphraser .mode-button[data-mode="standard"]'));
 
-            // Logic for Check Authenticity (Plagiarism/Uniqueness)
             el.checkButton.addEventListener('click', async () => {
                 const textToCheck = el.paraphrasedTextOutput.innerText.trim();
                 if (!textToCheck || textToCheck.includes("Hasil parafrase akan muncul di sini...")) {
@@ -216,7 +318,7 @@
 
                 el.resultDiv.classList.remove('hidden');
                 el.resultDiv.innerHTML = `<span class="text-slate-500">Memeriksa keaslian...</span>`;
-                el.checkButton.disabled = true; // Disable button while checking
+                el.checkButton.disabled = true; 
 
                 try {
                     const response = await fetch("/.netlify/functions/check-authenticity", {
@@ -234,7 +336,6 @@
                     if (result.problematic_sentences && result.problematic_sentences.length > 0) {
                         let highlightedText = textToCheck;
                         result.problematic_sentences.forEach(sentence => {
-                            // Gunakan regex global untuk mengganti semua kemunculan
                             const regex = new RegExp(sentence.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
                             highlightedText = highlightedText.replace(regex, `<span class="highlight-risk">${sentence}</span>`);
                         });
@@ -243,7 +344,6 @@
                         displayHtml += `<p class="mt-4 text-emerald-400">Teks ini terlihat asli dan unik.</p>`;
                     }
                     
-                    // Menambahkan informasi skor keaslian
                     displayHtml += `<p class="mt-2 text-sm text-slate-400">Skor Keaslian: ${result.authenticity_score}% (lebih tinggi lebih baik)</p>`;
 
 
@@ -278,19 +378,18 @@
                 el.buttonText.classList.toggle('hidden', isLoading);
             };
 
-            // Helper function to highlight text based on AI detector's analysis
             const highlightText = (text, scores) => {
-                const sentences = text.split(/(?<=[.!?])\s+/); // Split by sentence
+                const sentences = text.split(/(?<=[.!?])\s+/); 
                 let highlightedHtml = '';
 
                 sentences.forEach(sentence => {
                     const avgScore = (scores.predictability_score + scores.uniformity_score + scores.generality_score) / 3;
 
-                    if (avgScore > 70) { // High AI likelihood
+                    if (avgScore > 70) { 
                         highlightedHtml += `<span class="highlight-ai">${sentence}</span> `;
-                    } else if (avgScore > 40) { // Medium AI likelihood
+                    } else if (avgScore > 40) { 
                         highlightedHtml += `<span class="highlight-risk">${sentence}</span> `;
-                    } else { // Mostly Human likelihood
+                    } else { 
                         highlightedHtml += `${sentence} `;
                     }
                 });
@@ -304,7 +403,7 @@
                     el.summary.textContent = 'Silakan masukkan teks untuk dianalisis.'; 
                     el.details.innerHTML = '';
                     el.bar.style.width = '0%';
-                    el.bar.className = "h-4 rounded-full transition-all duration-500 bg-slate-700"; // Reset bar color
+                    el.bar.className = "h-4 rounded-full transition-all duration-500 bg-slate-700"; 
                     return; 
                 }
                 setLoading(true);
@@ -322,7 +421,6 @@
                         throw new Error(result.error || `Error ${response.status}: Gagal mendeteksi AI.`);
                     }
 
-                    // Calculate overall AI likelihood from the scores
                     const { predictability_score, uniformity_score, generality_score, analysis_summary } = result;
                     const overallAiLikelihood = Math.round((predictability_score + uniformity_score + generality_score) / 3);
 
@@ -335,7 +433,7 @@
                         summaryText = `Kemungkinan Ditulis AI (${overallAiLikelihood}%)`;
                         barClass = "h-4 rounded-full transition-all duration-500 bg-gradient-to-r from-amber-500 to-yellow-400";
                     } else {
-                        summaryText = `Kemungkinan Ditulis Manusia (${100-overallAiLikelihood}%)`; // Display human percentage if low AI score
+                        summaryText = `Kemungkinan Ditulis Manusia (${100-overallAiLikelihood}%)`; 
                         barClass = "h-4 rounded-full transition-all duration-500 bg-gradient-to-r from-emerald-500 to-teal-400";
                     }
 
@@ -344,15 +442,14 @@
                     el.bar.style.width = `${overallAiLikelihood}%`;
                     el.bar.className = barClass;
                     
-                    // Display the AI's analysis summary and highlighted text
-                    const highlightedContent = highlightText(text, result); // Pass the original text and scores
+                    const highlightedContent = highlightText(text, result); 
                     el.details.innerHTML = `<strong>Ringkasan Analisis AI:</strong> ${analysis_summary}<br/><br/>Teks yang dianalisis:<br/><div class="p-2 bg-slate-700 rounded mt-2">${highlightedContent}</div>`;
 
                 } catch(err) {
                     el.resultContainer.classList.remove('hidden');
                     el.summary.textContent = `Error: ${err.message}`;
                     el.bar.style.width = '0%';
-                    el.bar.className = "h-4 rounded-full transition-all duration-500 bg-slate-700";
+                    el.bar.className = "h-4 rounded-full transition-all duration-500 bg-slate-700"; 
                 } finally { setLoading(false); }
             });
 
@@ -360,7 +457,7 @@
                 el.textInput.value = ""; 
                 el.resultContainer.classList.add('hidden'); 
                 el.bar.style.width = '0%';
-                el.bar.className = "h-4 rounded-full transition-all duration-500 bg-slate-700"; // Reset bar color
+                el.bar.className = "h-4 rounded-full transition-all duration-500 bg-slate-700"; 
             });
         };
 
@@ -406,7 +503,6 @@
                         throw new Error(result.error || `Error ${response.status}: Gagal menghumanisasi teks.`);
                     }
                     
-                    // Menerima respons baru yang langsung berisi teks humanized
                     el.output.innerText = result.humanized_text || "Tidak ada hasil humanisasi.";
 
                 } catch (err) {
@@ -418,6 +514,11 @@
             el.copyButton.addEventListener('click', () => copyToClipboard(el.output, el.copyText));
         };
         
+        // --- Call setupTextareaCounter for each textarea ---
+        setupTextareaCounter('paraphraser-original-text', 'paraphraser-word-count', 'paraphraser-char-count');
+        setupTextareaCounter('ai-detector-text', 'ai-detector-word-count', 'ai-detector-char-count');
+        setupTextareaCounter('humanizer-input-text', 'humanizer-word-count', 'humanizer-char-count');
+
         // Initialize all apps
         initParafraseApp();
         initAiDetectorApp();
@@ -426,15 +527,10 @@
         // Switch to the correct page ID on load
         switchPage('page-paraphraser');
     });
-     <footer class="bg-slate-900/50 backdrop-blur-lg border-t border-slate-800 py-4 mt-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-slate-500 text-sm">
-        <p>&copy; <span id="current-year"></span> Parafraser Pro. Alat ini dirancang oleh Ricky Maulana⚡️</p>
-    </div>
-</footer>
-
-<script>
+    // This script should be outside the DOMContentLoaded listener and right before </body>
+    // It's a simple script that just sets the current year.
     document.getElementById('current-year').textContent = new Date().getFullYear();
-    // ... (kode JavaScript lainnya yang sudah ada)
 </script>
+
 </body>
 </html>

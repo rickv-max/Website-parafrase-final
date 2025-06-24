@@ -1,3 +1,4 @@
+// ai-detector.js
 const fetch = require('node-fetch');
 
 exports.handler = async function(event, context) {
@@ -13,24 +14,28 @@ exports.handler = async function(event, context) {
     if (!text) {
       return { statusCode: 400, body: JSON.stringify({ error: 'Teks dibutuhkan.' }) };
     }
+
+    // --- PROMPT BARU UNTUK AKURASI LEBIH BAIK ---
+    // Kita meminta AI untuk memberikan "skor" berdasarkan ciri-ciri,
+    // bukan menebak apakah itu AI atau manusia secara langsung.
     const prompt = `
-      Anda adalah seorang ahli linguistik forensik yang sangat terlatih dalam membedakan antara teks yang ditulis oleh manusia dan teks yang dihasilkan oleh model bahasa AI seperti GPT. Analisis teks berikut berdasarkan kriteria canggih:
-      1.  **Perplexity:** Apakah pilihan kata cenderung umum dan dapat diprediksi (ciri AI) atau lebih bervariasi dan tidak terduga (ciri manusia)?
-      2.  **Burstiness:** Apakah panjang kalimat seragam dan monoton (ciri AI) atau bervariasi antara kalimat panjang dan pendek (ciri manusia)?
-      3.  **Spesifisitas & Emosi:** Apakah teks terasa generik dan datar, atau mengandung sentuhan personal, emosi, atau detail spesifik yang khas manusia?
+      Anda adalah seorang ahli analisis gaya penulisan. Teks berikut akan dianalisis untuk menentukan karakteristik gaya penulisan, khususnya dalam hal prediktabilitas, variasi struktur kalimat, dan sentuhan personal.
 
       Teks untuk dianalisis:
       ---
       ${text}
       ---
       
-      Berikan jawaban Anda dalam format JSON yang valid dan HANYA JSON saja. JSON harus memiliki tiga kunci:
-      1. "likelihood_percentage": Sebuah angka (integer) antara 0 dan 100, yang merepresentasikan perkiraan kemungkinan teks ini ditulis oleh AI. 0 berarti 100% manusia, 100 berarti 100% AI.
-      2. "summary": Sebuah string singkat (maksimal 15 kata) yang menyimpulkan hasil analisis. Contoh: "Sangat mungkin ditulis oleh AI.", "Kemungkinan besar ditulis oleh manusia.", atau "Terlihat seperti campuran tulisan AI dan manusia.".
-      3. "highlight_sentences": Sebuah array berisi string. Setiap string adalah kalimat LENGKAP dari teks asli yang paling kuat menunjukkan ciri-ciri tulisan AI. Jika tidak ada, kembalikan array kosong [].
+      Berikan analisis Anda dalam format JSON yang valid dan HANYA JSON saja. JSON harus memiliki empat kunci:
+      1. "predictability_score": Sebuah angka integer dari 0 (sangat tidak terduga/manusiawi) hingga 100 (sangat dapat diprediksi/AI).
+      2. "uniformity_score": Sebuah angka integer dari 0 (sangat bervariasi/manusiawi) hingga 100 (sangat seragam/AI).
+      3. "generality_score": Sebuah angka integer dari 0 (sangat spesifik/personal/manusiawi) hingga 100 (sangat umum/generik/AI).
+      4. "analysis_summary": Sebuah string singkat (maksimal 20 kata) yang menyimpulkan hasil analisis berdasarkan skor-skor tersebut.
 
       Langsung berikan hanya objek JSON, tanpa penjelasan atau kata pengantar.
     `;
+    // --- AKHIR PROMPT BARU ---
+
     const googleApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
     const payload = { contents: [{ role: 'user', parts: [{ text: prompt }] }] };
     const apiResponse = await fetch(googleApiUrl, {
@@ -47,7 +52,10 @@ exports.handler = async function(event, context) {
     let jsonResponse;
     try {
         const jsonMatch = aiResponseText.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) throw new Error("AI tidak mengembalikan format JSON yang valid.");
+        if (!jsonMatch) {
+             console.error("AI tidak mengembalikan format JSON yang valid. Respons asli:", aiResponseText);
+             throw new Error("AI memberikan respons yang tidak terduga. Coba lagi.");
+        }
         jsonResponse = JSON.parse(jsonMatch[0]);
     } catch (parseError) {
         console.error("Gagal mem-parsing JSON dari AI. Respons asli:", aiResponseText);

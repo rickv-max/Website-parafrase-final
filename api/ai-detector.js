@@ -15,9 +15,6 @@ exports.handler = async function(event, context) {
       return { statusCode: 400, body: JSON.stringify({ error: 'Teks dibutuhkan.' }) };
     }
 
-    // --- PROMPT BARU UNTUK AKURASI LEBIH BAIK ---
-    // Kita meminta AI untuk memberikan "skor" berdasarkan ciri-ciri,
-    // bukan menebak apakah itu AI atau manusia secara langsung.
     const prompt = `
       Anda adalah seorang ahli analisis gaya penulisan. Teks berikut akan dianalisis untuk menentukan karakteristik gaya penulisan, khususnya dalam hal prediktabilitas, variasi struktur kalimat, dan sentuhan personal.
 
@@ -34,10 +31,20 @@ exports.handler = async function(event, context) {
 
       Langsung berikan hanya objek JSON, tanpa penjelasan atau kata pengantar.
     `;
-    // --- AKHIR PROMPT BARU ---
 
     const googleApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
-    const payload = { contents: [{ role: 'user', parts: [{ text: prompt }] }] };
+    
+    // --- PERUBAHAN DI SINI: Menambahkan generationConfig dengan temperature ---
+    const payload = { 
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.1, // Nilai rendah untuk konsistensi yang lebih tinggi
+        // topP: 0.9, // Anda bisa menambahkan ini juga jika ingin kontrol lebih lanjut
+        // topK: 40,
+      },
+    };
+    // --- AKHIR PERUBAHAN ---
+
     const apiResponse = await fetch(googleApiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

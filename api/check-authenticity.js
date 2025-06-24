@@ -19,7 +19,6 @@ exports.handler = async function(event, context) {
       return { statusCode: 400, body: JSON.stringify({ error: 'Teks dibutuhkan.' }) };
     }
 
-    // --- PROMPT BARU UNTUK KEASLIAN/KEUNIKAN ---
     const prompt = `
       Anda adalah seorang peninjau dokumen yang bertugas menganalisis teks untuk keaslian dan keunikan gaya penulisan, terutama setelah teks tersebut mungkin telah diproses (misalnya, diparafrase). Identifikasi bagian atau kalimat dalam teks ini yang masih terdengar generik, kaku, atau sangat mirip dengan gaya AI.
 
@@ -35,10 +34,17 @@ exports.handler = async function(event, context) {
       
       Langsung berikan hanya objek JSON, tanpa penjelasan atau kata pengantar.
     `;
-    // --- AKHIR PROMPT BARU ---
 
     const googleApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
-    const payload = { contents: [{ role: 'user', parts: [{ text: prompt }] }] };
+    
+    // --- PERUBAHAN DI SINI: Menambahkan generationConfig dengan temperature ---
+    const payload = { 
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.1, // Nilai rendah untuk konsistensi yang lebih tinggi
+      },
+    };
+    // --- AKHIR PERUBAHAN ---
 
     // 4. Kirim permintaan ke Google AI
     const apiResponse = await fetch(googleApiUrl, {

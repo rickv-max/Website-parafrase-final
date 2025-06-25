@@ -39,7 +39,13 @@
                 <div class="relative">
                     <button id="menu-button" class="p-2 rounded-md text-slate-300 hover:text-white hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-white"><svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg></button>
                     <div id="menu-panel" class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-slate-800 ring-1 ring-black ring-opacity-5 focus:outline-none">
-                        <div class="py-1" role="menu"><a href="#" class="menu-item block px-4 py-2 text-sm text-slate-200 hover:bg-slate-700" role="menuitem" data-page="paraphraser">Paraphrasing Tool</a><a href="#" class="menu-item block px-4 py-2 text-sm text-slate-200 hover:bg-slate-700" role="menuitem" data-page="ai-detector">AI Detector</a><a href="#" class="menu-item block px-4 py-2 text-sm text-slate-200 hover:bg-slate-700" role="menuitem" data-page="humanizer">Humanize AI Text</a><a href="#" class="menu-item block px-4 py-2 text-sm text-slate-200 hover:bg-slate-700" role="menuitem" data-page="plagiarism-checker">Plagiarism Checker</a></div>
+                        <div class="py-1" role="menu">
+                            <a href="#" class="menu-item block px-4 py-2 text-sm text-slate-200 hover:bg-slate-700" role="menuitem" data-page="paraphraser">Paraphrasing Tool</a>
+                            <a href="#" class="menu-item block px-4 py-2 text-sm text-slate-200 hover:bg-slate-700" role="menuitem" data-page="ai-detector">AI Detector</a>
+                            <a href="#" class="menu-item block px-4 py-2 text-sm text-slate-200 hover:bg-slate-700" role="menuitem" data-page="humanizer">Humanize AI Text</a>
+                            <a href="#" class="menu-item block px-4 py-2 text-sm text-slate-200 hover:bg-slate-700" role="menuitem" data-page="plagiarism-checker">Plagiarism Checker</a>
+                            <a href="#" class="menu-item block px-4 py-2 text-sm text-slate-200 hover:bg-slate-700" role="menuitem" data-page="text-corrector">Koreksi Teks</a>
+                            </div>
                     </div>
                 </div>
             </div>
@@ -155,7 +161,37 @@
     </div>
 
     <div id="page-plagiarism-checker" class="page-content hidden"><div class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4 text-center"><h2 class="text-3xl font-bold text-slate-300">Plagiarism Checker</h2><p class="text-slate-500 mt-2">Fitur ini sedang dalam pengembangan dan akan segera hadir!</p></div></div>
-</main>
+
+    <div id="page-text-corrector" class="page-content hidden">
+        <div class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4">
+            <div class="w-full max-w-2xl text-center">
+                <h2 class="text-3xl font-bold text-slate-200">Koreksi Teks Otomatis</h2>
+                <p class="text-slate-400 mt-2 mb-8">Tempel teks Anda untuk memperbaiki typo dan mengembangkan singkatan.</p>
+                <div class="glassmorphism rounded-xl p-6 flex flex-col gap-4">
+                    <div class="relative w-full">
+                        <textarea id="text-corrector-input" class="custom-scrollbar w-full h-60 bg-slate-800/50 p-4 pr-10 rounded-lg text-slate-300 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition resize-y" placeholder="Masukkan teks Anda yang perlu diperbaiki di sini..."></textarea>
+                        <div class="text-right text-xs text-slate-500 mt-2">
+                            <span id="text-corrector-word-count">0</span> Kata / <span id="text-corrector-char-count">0</span> Karakter
+                        </div>
+                        <button id="text-corrector-clear-button" title="Bersihkan Teks" class="absolute bottom-4 right-4 text-slate-500 hover:text-white transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                    </div>
+                    <button id="correct-text-button" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-3 px-6 rounded-full shadow-lg flex items-center justify-center gap-3">
+                        <span id="correct-text-button-text">Perbaiki Teks</span>
+                        <div id="correct-text-loader" class="hidden loader w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
+                    </button>
+                </div>
+                <div id="text-corrector-result-container" class="w-full mt-6 glassmorphism rounded-xl p-6 hidden">
+                    <h3 class="text-xl font-semibold text-slate-200 mb-4">Teks yang Sudah Diperbaiki</h3>
+                    <div id="text-corrector-output" class="custom-scrollbar w-full min-h-[100px] bg-slate-800/50 p-4 rounded-lg text-slate-300 overflow-y-auto leading-relaxed text-left"><span class="text-slate-500">Hasil koreksi akan muncul di sini...</span></div>
+                    <button id="text-corrector-copy-button" title="Salin Hasil" class="mt-4 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
+                        <span id="text-corrector-copy-text">Salin</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    </main>
 
 <footer class="bg-slate-900/50 backdrop-blur-lg border-t border-slate-800 py-4 mt-8">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-slate-500 text-sm">
@@ -206,6 +242,7 @@
         // --- Generic Helper ---
         function copyToClipboard(textElement, feedbackElement) {
             const textToCopy = textElement.innerText;
+            // Modifikasi: Pastikan tidak menyalin placeholder jika itu satu-satunya konten
             if (textToCopy && textToCopy.trim() !== '' && !textElement.querySelector('span.text-slate-500')) {
                 const el = document.createElement("textarea");
                 el.value = textToCopy;
@@ -218,6 +255,10 @@
                     feedbackElement.innerText = "Tersalin!";
                     setTimeout(() => { feedbackElement.innerText = originalText }, 2000);
                 }
+            } else if (feedbackElement) { // Tambahkan feedback jika tidak ada teks untuk disalin
+                const originalText = feedbackElement.innerText;
+                feedbackElement.innerText = "Tidak ada teks!";
+                setTimeout(() => { feedbackElement.innerText = originalText }, 2000);
             }
         }
 
@@ -405,6 +446,7 @@
                 let highlightedHtml = '';
 
                 sentences.forEach(sentence => {
+                    // Mengambil rata-rata skor AI, atau jika hanya satu skor yang relevan, gunakan itu
                     const avgScore = (scores.predictability_score + scores.uniformity_score + scores.generality_score) / 3;
 
                     if (avgScore > 70) { 
@@ -543,19 +585,93 @@
             el.clearButton.addEventListener('click', () => { el.input.value = ""; el.output.innerHTML = `<span class="text-slate-500">Hasil teks yang lebih natural akan muncul di sini...</span>`; });
             el.copyButton.addEventListener('click', () => copyToClipboard(el.output, el.copyText));
         };
+
+        // --- Text Corrector App Logic ---
+        function initTextCorrectorApp() {
+            const el = {
+                input: document.getElementById('text-corrector-input'),
+                correctButton: document.getElementById('correct-text-button'),
+                outputContainer: document.getElementById('text-corrector-result-container'),
+                output: document.getElementById('text-corrector-output'),
+                clearButton: document.getElementById('text-corrector-clear-button'),
+                copyButton: document.getElementById('text-corrector-copy-button'),
+                copyText: document.getElementById('text-corrector-copy-text'),
+                loader: document.getElementById('correct-text-loader'),
+                buttonText: document.getElementById('correct-text-button-text'),
+            };
+
+            if (!el.correctButton) return;
+
+            const setLoading = (isLoading) => {
+                el.correctButton.disabled = isLoading;
+                el.loader.classList.toggle('hidden', !isLoading);
+                el.buttonText.classList.toggle('hidden', isLoading);
+            };
+
+            el.correctButton.addEventListener('click', async () => {
+                const text = el.input.value.trim();
+
+                if (!text) {
+                    el.outputContainer.classList.remove('hidden');
+                    el.output.innerHTML = '<span class="text-yellow-400">Silakan masukkan teks untuk dikoreksi.</span>';
+                    return;
+                }
+
+                setLoading(true);
+                el.outputContainer.classList.remove('hidden');
+                el.output.innerHTML = '<span class="text-slate-500">Memproses koreksi...</span>';
+
+                try {
+                    const response = await fetch("/.netlify/functions/text-corrector", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ text: text }),
+                    });
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(result.error || `Error ${response.status}: Gagal mengoreksi teks.`);
+                    }
+
+                    el.output.innerText = result.corrected_text || "Tidak ada hasil koreksi.";
+
+                } catch (err) {
+                    el.output.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`;
+                } finally {
+                    setLoading(false);
+                }
+            });
+
+            el.clearButton.addEventListener('click', () => {
+                el.input.value = "";
+                el.output.innerHTML = `<span class="text-slate-500">Hasil koreksi akan muncul di sini...</span>`;
+                el.outputContainer.classList.add('hidden');
+            });
+
+            el.copyButton.addEventListener('click', () => copyToClipboard(el.output, el.copyText));
+        }
         
         // --- Call setupTextareaCounter for each textarea ---
         setupTextareaCounter('paraphraser-original-text', 'paraphraser-word-count', 'paraphraser-char-count');
         setupTextareaCounter('ai-detector-text', 'ai-detector-word-count', 'ai-detector-char-count');
         setupTextareaCounter('humanizer-input-text', 'humanizer-word-count', 'humanizer-char-count');
+        // TAMBAHAN BARU
+        setupTextareaCounter('text-corrector-input', 'text-corrector-word-count', 'text-corrector-char-count');
+        // AKHIR TAMBAHAN
 
         // Initialize all apps
         initParafraseApp();
         initAiDetectorApp();
         initHumanizerApp();
+        // TAMBAHAN BARU
+        initTextCorrectorApp();
+        // AKHIR TAMBAHAN
 
         // Switch to the correct page ID on load
-        switchPage('page-paraphraser');
+        // Perhatikan: Anda mungkin ingin mengubah ini ke 'page-text-corrector'
+        // jika Anda ingin halaman koreksi teks langsung terbuka saat web dimuat.
+        // Saat ini, akan tetap membuka halaman parafrase secara default.
+        switchPage('page-paraphraser'); 
     });
 </script>
 

@@ -278,28 +278,40 @@
         });
 
         // --- Generic Helper ---
-        function copyToClipboard(textElement, feedbackElement) {
-            // Ambil konten HTML dari elemen, lalu buat elemen sementara untuk mendapatkan teks murni
+        // Diperbarui untuk menggunakan navigator.clipboard.writeText() untuk kompatibilitas yang lebih baik
+        async function copyToClipboard(textElement, feedbackElement) {
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = textElement.innerHTML;
-            // Hapus placeholder span jika masih ada
             const placeholderSpan = tempDiv.querySelector('span.text-slate-500');
             if (placeholderSpan) {
                 placeholderSpan.remove();
             }
-            const textToCopy = tempDiv.innerText; // Gunakan innerText dari elemen sementara
+            const textToCopy = tempDiv.innerText;
 
             if (textToCopy && textToCopy.trim() !== '') {
-                const el = document.createElement("textarea");
-                el.value = textToCopy;
-                document.body.appendChild(el);
-                el.select();
-                document.execCommand("copy");
-                document.body.removeChild(el);
-                if (feedbackElement) {
-                    const originalText = feedbackElement.innerText;
-                    feedbackElement.innerText = "Tersalin!";
-                    setTimeout(() => { feedbackElement.innerText = originalText }, 2000);
+                try {
+                    // Gunakan Clipboard API modern
+                    await navigator.clipboard.writeText(textToCopy);
+                    if (feedbackElement) {
+                        const originalText = feedbackElement.innerText;
+                        feedbackElement.innerText = "Tersalin!";
+                        setTimeout(() => { feedbackElement.innerText = originalText }, 2000);
+                    }
+                } catch (err) {
+                    // Fallback jika Clipboard API tidak didukung atau ada masalah izin
+                    console.error('Gagal menyalin menggunakan navigator.clipboard:', err);
+                    // Coba fallback ke document.execCommand jika masih dibutuhkan
+                    const el = document.createElement("textarea");
+                    el.value = textToCopy;
+                    document.body.appendChild(el);
+                    el.select();
+                    document.execCommand("copy"); // Fallback
+                    document.body.removeChild(el);
+                    if (feedbackElement) {
+                        const originalText = feedbackElement.innerText;
+                        feedbackElement.innerText = "Tersalin (fallback)!";
+                        setTimeout(() => { feedbackElement.innerText = originalText }, 2000);
+                    }
                 }
             } else if (feedbackElement) { 
                 const originalText = feedbackElement.innerText;
@@ -316,7 +328,6 @@
             const charCountSpan = document.getElementById(charCountId);
 
             if (!textarea || !wordCountSpan || !charCountSpan) {
-                // console.warn(`Elemen counter tidak ditemukan untuk ${textareaId}`); // Tidak lagi log warning ini karena memang dihapus
                 return;
             }
 
@@ -552,8 +563,7 @@
                     el.summary.textContent = `Error: ${err.message}`;
                     el.bar.style.width = '0%';
                     el.bar.className = "h-4 rounded-full transition-all duration-500 bg-slate-700"; 
-                } finally { setLoading(false); }
-            });
+                });
 
             el.clearButton.addEventListener('click', () => { 
                 el.textInput.value = ""; 
@@ -687,7 +697,6 @@
             const el = {
                 fileInput: document.getElementById('file-upload'),
                 fileNameDisplay: document.getElementById('file-name-display'),
-                // citation-input textarea removed, so no need for el.input
                 generateButton: document.getElementById('generate-citation-button'),
                 outputContainer: document.getElementById('citation-result-container'),
                 output: document.getElementById('citation-output'),
@@ -721,13 +730,14 @@
                 const file = event.target.files[0];
                 if (file) {
                     // Maximum file size check (5MB = 5 * 1024 * 1024 bytes)
+                    // PENTING: Validasi ini HARUS dilakukan di sini dan langsung menghentikan jika terlalu besar
                     if (file.size > 5 * 1024 * 1024) { 
-                        alert('Ukuran file terlalu besar (maksimum 5MB). Silakan coba konversi dokumen Anda ke format TXT untuk mengurangi ukurannya, atau gunakan dokumen yang lebih singkat.');
+                        alert('Ukuran file terlalu besar (maksimum 5MB). File skripsi/jurnal yang panjang seringkali melebihi batas ini. Silakan coba konversi dokumen Anda ke format TXT untuk mengurangi ukurannya, atau gunakan dokumen yang lebih singkat.');
                         el.fileInput.value = ''; // Clear the input
                         el.fileNameDisplay.classList.add('hidden');
                         uploadedFileBase64 = null;
                         uploadedFileMimeType = null;
-                        return;
+                        return; // PENTING: Langsung RETURN agar tidak memproses file yang terlalu besar
                     }
 
                     // Check file type
@@ -745,7 +755,6 @@
 
                     const reader = new FileReader();
                     reader.onload = (e) => {
-                        // Extract base64 string (remove 'data:mime/type;base64,')
                         uploadedFileBase64 = e.target.result.split(',')[1];
                         uploadedFileMimeType = file.type;
                     };
@@ -790,10 +799,12 @@
                     const result = await response.json();
 
                     if (!response.ok) {
+                        // Jika ada error dari server, pastikan ditampilkan
                         throw new Error(result.error || `Error ${response.status}: Gagal membuat daftar pustaka.`);
                     }
 
                     if (result.citations && result.citations.length > 0) {
+                        // Pastikan output HTML diatur dengan benar agar copyToClipboard bisa berfungsi
                         el.output.innerHTML = result.citations.map(citation => `<p>${citation}</p>`).join('');
                     } else {
                         el.output.innerHTML = '<span class="text-slate-500">Tidak dapat menghasilkan daftar pustaka. Pastikan dokumen valid dan dapat dibaca.</span>';

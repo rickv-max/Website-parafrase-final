@@ -12,76 +12,83 @@ exports.handler = async function(event, context) {
     }
 
     try {
-        const { links, type } = JSON.parse(event.body);
+        const { links, type } = JSON.parse(event.body); // 'links' contains raw text input (document info + optional link)
         if (!links || !type) {
-            return { statusCode: 400, body: JSON.stringify({ error: 'Link dan tipe dokumen dibutuhkan.' }) };
+            return { statusCode: 400, body: JSON.stringify({ error: 'Informasi dokumen dan tipe dibutuhkan.' }) };
         }
 
-        const linkArray = links.split('\n').map(link => link.trim()).filter(link => link.length > 0);
-        if (linkArray.length === 0) {
-            return { statusCode: 400, body: JSON.stringify({ error: 'Link tidak ditemukan.' }) };
+        // Split input by double newline to handle multiple entries
+        const rawEntries = links.split('\n\n').map(entry => entry.trim()).filter(entry => entry.length > 0);
+        if (rawEntries.length === 0) {
+            return { statusCode: 400, body: JSON.stringify({ error: 'Informasi dokumen tidak ditemukan.' }) };
         }
 
         let citations = [];
 
-        for (const link of linkArray) {
+        for (const entry of rawEntries) { // Iterate through each raw text entry
             let prompt = "";
 
             // Base prompt instructions for all types
             const baseInstructions = `
-                Anda adalah seorang spesialis daftar pustaka yang sangat teliti.
-                Tugas utama Anda adalah **ekstraksi informasi secara akurat dari URL yang diberikan** dan kemudian memformatnya menjadi sitasi.
-                **AKURASI data (penulis, judul, tahun, detail publikasi) dari URL adalah PRIORITAS TERTINGGI.**
-                Jangan buat informasi fiktif. Jika data TIDAK dapat ditemukan di URL, tulis "Tidak Tersedia" untuk bagian tersebut.
+                Anda adalah seorang spesialis daftar pustaka yang sangat teliti dan akurat dalam pemformatan.
+                Tugas Anda adalah membaca informasi dokumen mentah yang saya berikan (yang mungkin termasuk URL), mengidentifikasi elemen-elemen kunci (penulis, tahun, judul, publikasi, dll.), dan memformatnya menjadi sitasi standar seperti pada umumnya (mirip APA Style, tapi mengikuti contoh yang diberikan).
 
+                **Fokuslah untuk MENGIDENTIFIKASI dan MENGGUNAKAN data yang DIBERIKAN dalam teks mentah ini untuk akurasi data. Data ini adalah SUMBER UTAMA.**
+                
                 **Sertakan tag HTML <i> atau <em> untuk memiringkan teks yang diperlukan.**
-                **ATURAN MUTLAK: JANGAN PERNAH menyertakan URL/link dari mana pun di hasil akhir sitasi.**
-                Berikan HANYA teks sitasi yang sudah diformat. JANGAN berikan komentar, penjelasan, atau teks pengantar/penutup lainnya.
+
+                **ATURAN MUTLAK:**
+                -   HANYA berikan teks sitasi yang sudah diformat. JANGAN berikan komentar, penjelasan, atau teks pengantar/penutup lainnya.
+                -   **JANGAN PERNAH menyertakan URL/link dari mana pun di hasil akhir sitasi.**
+                -   Jika suatu detail tidak dapat diidentifikasi dari teks input, biarkan bagian tersebut kosong (contoh: jika tidak ada volume jurnal, jangan menulis "volume", cukup lewati). Jangan membuat informasi fiktif.
             `;
 
             if (type === 'jurnal') {
                 prompt = `${baseInstructions}
-                    Format sitasi jurnal PERSIS seperti contoh ini, termasuk penggunaan tanda baca, spasi, dan kapitalisasi:
+                    Format sitasi jurnal PERSIS seperti contoh ini, termasuk penggunaan tanda baca, spasi, dan kapitalisasi.
+                    Perhatikan pembalikan nama penulis dan pemiringan judul jurnal.
 
-                    **Contoh Format Jurnal yang Diinginkan:**
-                    Ibrahim, Anis (2004) "Penyelesaian Sengketa Tanah Kawasan Hutan Negara Di Kabupaten Lumajang". <i>Jurnal Hukum Argumentum</i>. Sekolah Tinggi Ilmu Hukum Jenderal Sudirman, Lumajang, volume 3 nomor 2, Januari-Juni 2004.
+                    **Contoh Format Jurnal yang Diinginkan (Gaya Umum/APA-like):**
+                    Ibrahim, A. (2004). Penyelesaian Sengketa Tanah Kawasan Hutan Negara Di Kabupaten Lumajang. <i>Jurnal Hukum Argumentum</i>, 3(2), Januari-Juni 2004. Sekolah Tinggi Ilmu Hukum Jenderal Sudirman, Lumajang.
 
-                    URL Jurnal untuk dianalisis:
+                    Informasi Jurnal untuk diproses:
                     ---
-                    ${link}
+                    ${entry}
                     ---
                 `;
             } else if (type === 'skripsi') {
                 prompt = `${baseInstructions}
-                    Format sitasi skripsi PERSIS seperti contoh ini, termasuk penggunaan tanda baca, spasi, dan kapitalisasi:
+                    Format sitasi skripsi PERSIS seperti contoh ini, termasuk penggunaan tanda baca, spasi, dan kapitalisasi.
+                    Perhatikan pembalikan nama penulis dan pemiringan jenis dokumen.
 
-                    **Contoh Format Skripsi yang Diinginkan:**
-                    Jalil, Abdul (2007) "Implementasi Asas Keterbukaan Dalam pembentukan Peraturan Daerah Di Kabupaten Lumajang" <i>Skripsi</i>. Sekolah Tinggi Ilmu Hukum Jenderal Sudirman Lumajang.
+                    **Contoh Format Skripsi yang Diinginkan (Gaya Umum/APA-like):**
+                    Jalil, A. (2007). Implementasi Asas Keterbukaan Dalam pembentukan Peraturan Daerah Di Kabupaten Lumajang. <i>Skripsi</i>. Sekolah Tinggi Ilmu Hukum Jenderal Sudirman Lumajang.
 
-                    URL Skripsi untuk dianalisis:
+                    Informasi Skripsi untuk diproses:
                     ---
-                    ${link}
+                    ${entry}
                     ---
                 `;
             } else if (type === 'makalah') {
                 prompt = `${baseInstructions}
-                    Format sitasi makalah PERSIS seperti contoh ini, termasuk penggunaan tanda baca, spasi, dan kapitalisasi:
+                    Format sitasi makalah PERSIS seperti contoh ini, termasuk penggunaan tanda baca, spasi, dan kapitalisasi.
+                    Perhatikan pembalikan nama penulis dan pemiringan jenis dokumen.
 
-                    **Contoh Format Makalah yang Diinginkan:**
-                    Edward, Ferry (2002) "Teknik Penyusunan Peraturan Perundang-undangan Tingkat Daerah". <i>Makalah</i>. Pendidikan dan Latihan Legal Drafting LAN, Jakarta, September 2002.
+                    **Contoh Format Makalah yang Diinginkan (Gaya Umum/APA-like):**
+                    Edward, F. (2002, September). Teknik Penyusunan Peraturan Perundang-undangan Tingkat Daerah. <i>Makalah</i>. Pendidikan dan Latihan Legal Drafting LAN, Jakarta.
 
-                    URL Makalah untuk dianalisis:
+                    Informasi Makalah untuk diproses:
                     ---
-                    ${link}
+                    ${entry}
                     ---
                 `;
-            } else {
+            } else { // Fallback, should not be reached if type is always sent
                 prompt = `${baseInstructions}
-                    Format daftar pustaka dari link ini. Jangan sertakan URL/link di hasil akhir sitasi.
+                    Format daftar pustaka dari informasi yang diberikan dalam gaya umum.
 
-                    Link atau informasi untuk dianalisis:
+                    Informasi untuk diproses:
                     ---
-                    ${link}
+                    ${entry}
                     ---
                 `;
             }
@@ -91,25 +98,13 @@ exports.handler = async function(event, context) {
             const payload = {
                 contents: [{ role: 'user', parts: [{ text: prompt }] }],
                 generationConfig: {
-                    temperature: 0.1, // Kembali ke 0.1, kadang 0.05 terlalu kaku untuk ekstraksi kompleks
+                    temperature: 0.1, // Tetap 0.1 untuk keseimbangan antara kreativitas dan konsistensi
                 },
-                safetySettings: [ // Tambahkan safety settings untuk menghindari blokir respons
-                    {
-                        category: "HARM_CATEGORY_HARASSMENT",
-                        threshold: "BLOCK_NONE"
-                    },
-                    {
-                        category: "HARM_CATEGORY_HATE_SPEECH",
-                        threshold: "BLOCK_NONE"
-                    },
-                    {
-                        category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                        threshold: "BLOCK_NONE"
-                    },
-                    {
-                        category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-                        threshold: "BLOCK_NONE"
-                    },
+                safetySettings: [ 
+                    { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+                    { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+                    { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+                    { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" },
                 ],
             };
 
@@ -121,33 +116,30 @@ exports.handler = async function(event, context) {
 
             const data = await apiResponse.json();
 
-            // Handle potential safety concerns or empty responses
             if (data.promptFeedback && data.promptFeedback.blockReason) {
                 console.error("Prompt diblokir oleh Safety Settings:", data.promptFeedback.blockReason);
-                citations.push(`Gagal menghasilkan sitasi untuk link ini: ${link}. Konten mungkin melanggar kebijakan keamanan AI.`);
+                citations.push(`Gagal menghasilkan sitasi. Konten mungkin melanggar kebijakan keamanan AI.`);
                 continue;
             }
             if (!apiResponse.ok || !data.candidates || !data.candidates[0] || !data.candidates[0].content || !data.candidates[0].content.parts[0]) {
-                console.error(`Error atau respons tidak valid dari Google API untuk link ${link}:`, JSON.stringify(data, null, 2));
-                citations.push(`Gagal menghasilkan sitasi untuk link ini: ${link}. Pastikan link valid dan dapat diakses publik. (Error: ${data.error?.message || 'Respons tidak valid dari AI.'})`);
+                console.error(`Error atau respons tidak valid dari Google API untuk entri: ${entry.substring(0, 100)}...`, JSON.stringify(data, null, 2));
+                citations.push(`Gagal menghasilkan sitasi untuk entri ini. Pastikan informasinya lengkap dan jelas. (Error: ${data.error?.message || 'Respons tidak valid dari AI.'})`);
                 continue; 
             }
 
             const rawAiText = data.candidates[0].content.parts[0].text;
             
-            // Pembersihan agresif untuk memastikan tidak ada URL dan format sesuai
             let cleanedCitation = rawAiText
-                .replace(/^[Ss]itasi:|Daftar Pustaka:|[\n\r]+/g, '') // Menghapus awalan umum dan baris baru berlebihan
-                .replace(/(https?:\/\/[^\s]+)/g, '') // Menghapus URL apa pun yang mungkin tersisa
-                .replace(/["'`]/g, '') // Menghapus tanda kutip yang tidak perlu di awal/akhir
+                .replace(/^[Ss]itasi:|Daftar Pustaka:|[\n\r]+/g, '') 
+                .replace(/(https?:\/\/[^\s]+)/g, '') 
+                .replace(/["'`]/g, '') 
                 .trim();
             
-            // Pastikan tag HTML <i> atau <em> tetap utuh dan benar
             cleanedCitation = cleanedCitation
-                .replace(/<\/?i>/g, '<i>') // Mengganti </i> menjadi <i> jika ada
-                .replace(/<\/?em>/g, '<em>') // Mengganti </em> menjadi <em> jika ada
-                .replace(/<i>\s*<\/i>/g, '') // Menghapus tag <i> kosong
-                .replace(/<em>\s*<\/em>/g, ''); // Menghapus tag <em> kosong
+                .replace(/<\/?i>/g, '<i>') 
+                .replace(/<\/?em>/g, '<em>') 
+                .replace(/<i>\s*<\/i>/g, '') 
+                .replace(/<em>\s*<\/em>/g, '');
 
             citations.push(cleanedCitation);
         }

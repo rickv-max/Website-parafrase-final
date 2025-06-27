@@ -27,7 +27,7 @@ exports.handler = async function(event, context) {
         let partsForModel = []; 
 
         if (file && mimeType) {
-            // Add inlineData part for the file
+            console.log(`Processing file: ${mimeType}, size: ${file.length / 1024 / 1024} MB`); 
             partsForModel.push({
                 inlineData: {
                     data: file,
@@ -37,9 +37,8 @@ exports.handler = async function(event, context) {
         } 
         
         let corePromptText = "";
-        // If text is provided (even if file upload is the primary intent), use it for analysis.
-        // The text input is still useful for debugging or smaller snippets.
         if (text) { 
+            console.log(`Processing text input, length: ${text.length} chars`); 
             corePromptText += `Berikut adalah teks dokumen yang perlu dianalisis dan diformat:\n\n---\n${text}\n---\n\n`;
         }
 
@@ -62,13 +61,17 @@ exports.handler = async function(event, context) {
         if (type === 'jurnal') {
             corePromptText += `${baseInstructions}
                 **Format sitasi jurnal PERSIS seperti contoh ini:**
+                **Jika ada dua penulis atau lebih, gunakan format 'Nama Belakang, Nama Depan <i>et.al.</i>'.** (misal: Ibrahim, Anis <i>et.al.</i>)
 
                 **Contoh Format Jurnal yang Diinginkan:**
                 Ibrahim, Anis (2004) "Penyelesaian Sengketa Tanah Kawasan Hutan Negara Di Kabupaten Lumajang". <i>Jurnal Hukum Argumentum</i>. Sekolah Tinggi Ilmu Hukum Jenderal Sudirman, Lumajang, volume 3 nomor 2, Januari-Juni 2004.
+                **Contoh dengan banyak penulis:**
+                Smith, John <i>et.al.</i> (2020) "Judul Artikel Contoh Penelitian". <i>Nama Jurnal Internasional</i>. Universitas Jakarta, volume 10 nomor 5, Mei-Juni 2020.
             `;
         } else if (type === 'skripsi') {
             corePromptText += `${baseInstructions}
                 **Format sitasi skripsi PERSIS seperti contoh ini:**
+                Identifikasi judul skripsi, nama penulis skripsi, tahun, dan institusi penerbit.
 
                 **Contoh Format Skripsi yang Diinginkan:**
                 Jalil, Abdul (2007) "Implementasi Asas Keterbukaan Dalam pembentukan Peraturan Daerah Di Kabupaten Lumajang" <i>Skripsi</i>. Sekolah Tinggi Ilmu Hukum Jenderal Sudirman Lumajang.
@@ -99,7 +102,7 @@ exports.handler = async function(event, context) {
             ], 
             generationConfig: {
                 temperature: 0.1, 
-                // maxOutputTokens: 500, // Opsional: Batasi panjang output token untuk menghindari output terlalu panjang
+                // maxOutputTokens: 500, 
             },
             safetySettings: [ 
                 { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
@@ -109,6 +112,8 @@ exports.handler = async function(event, context) {
             ],
         };
 
+        console.log("Sending payload to Gemini API. First 500 chars:", JSON.stringify(payload).substring(0, 500)); 
+
         const apiResponse = await fetch(googleApiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -116,6 +121,8 @@ exports.handler = async function(event, context) {
         });
 
         const data = await apiResponse.json();
+        console.log("Received response from Gemini API:", JSON.stringify(data).substring(0, 500)); 
+
 
         if (data.promptFeedback && data.promptFeedback.blockReason) {
             console.error("Prompt diblokir oleh Safety Settings:", data.promptFeedback.blockReason);
@@ -138,11 +145,6 @@ exports.handler = async function(event, context) {
                 .replace(/<i>\s*<\/i>/g, '') 
                 .replace(/<em>\s*<\/em>/g, '');
 
-            // For file input, we expect a single, possibly multi-line, citation output.
-            // For text input (if re-enabled or used for multiple entries), AI might return multiple citations.
-            // However, with "HANYA BUAT SATU SITASI", this logic might need adjustment if AI still provides multiple.
-            // For now, we'll assume it tries to give one main citation.
-            // If AI still gives multiple, we might only take the first paragraph/line.
             citations.push(cleanedCitation);
         }
 

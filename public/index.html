@@ -45,11 +45,12 @@
                             <a href="#" class="menu-item block px-4 py-2 text-sm text-slate-200 hover:bg-slate-700" role="menuitem" data-page="humanizer">Humanize AI Text</a>
                             <a href="#" class="menu-item block px-4 py-2 text-sm text-slate-200 hover:bg-slate-700" role="menuitem" data-page="plagiarism-checker">Plagiarism Checker</a>
                             <a href="#" class="menu-item block px-4 py-2 text-sm text-slate-200 hover:bg-slate-700" role="menuitem" data-page="text-corrector">Koreksi Teks</a>
-                            </div>
+                            <a href="#" class="menu-item block px-4 py-2 text-sm text-slate-200 hover:bg-slate-700" role="menuitem" data-page="citation-generator">Generator Daftar Pustaka</a>
+                        </div>
                     </div>
                 </div>
             </div>
-            </div>
+        </div>
     </div>
 </header>
 
@@ -162,6 +163,43 @@
 
     <div id="page-plagiarism-checker" class="page-content hidden"><div class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4 text-center"><h2 class="text-3xl font-bold text-slate-300">Plagiarism Checker</h2><p class="text-slate-500 mt-2">Fitur ini sedang dalam pengembangan dan akan segera hadir!</p></div></div>
 
+    <div id="page-citation-generator" class="page-content hidden">
+        <div class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4">
+            <div class="w-full max-w-2xl text-center">
+                <h2 class="text-3xl font-bold text-slate-200">Generator Daftar Pustaka</h2>
+                <p class="text-slate-400 mt-2 mb-8">Masukkan link jurnal, skripsi, atau makalah, lalu pilih tipe dokumen untuk membuat daftar pustaka otomatis.</p>
+                <div class="glassmorphism rounded-xl p-6 flex flex-col gap-4">
+                    <div class="flex justify-center mb-4 gap-2">
+                        <button class="citation-type-button mode-button active" data-type="jurnal">Jurnal</button>
+                        <button class="citation-type-button mode-button" data-type="skripsi">Skripsi</button>
+                        <button class="citation-type-button mode-button" data-type="makalah">Makalah</button>
+                    </div>
+                    <div class="relative w-full">
+                        <textarea id="citation-input" class="custom-scrollbar w-full h-40 bg-slate-800/50 p-4 pr-10 rounded-lg text-slate-300 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition resize-y" placeholder="Masukkan satu atau beberapa link jurnal/skripsi/makalah (satu per baris)..."></textarea>
+                        <div class="text-right text-xs text-slate-500 mt-2">
+                            <span id="citation-word-count">0</span> Kata / <span id="citation-char-count">0</span> Karakter
+                        </div>
+                        <button id="citation-clear-button" title="Bersihkan Input" class="absolute bottom-4 right-4 text-slate-500 hover:text-white transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        </button>
+                    </div>
+                    <button id="generate-citation-button" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-3 px-6 rounded-full shadow-lg flex items-center justify-center gap-3">
+                        <span id="generate-citation-button-text">Buat Daftar Pustaka</span>
+                        <div id="generate-citation-loader" class="hidden loader w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
+                    </button>
+                </div>
+                <div id="citation-result-container" class="w-full mt-6 glassmorphism rounded-xl p-6 hidden">
+                    <h3 class="text-xl font-semibold text-slate-200 mb-4">Hasil Daftar Pustaka</h3>
+                    <div id="citation-output" class="custom-scrollbar w-full min-h-[100px] bg-slate-800/50 p-4 rounded-lg text-slate-300 overflow-y-auto leading-relaxed text-left"><span class="text-slate-500">Daftar pustaka akan muncul di sini...</span></div>
+                    <button id="citation-copy-button" title="Salin Hasil" class="mt-4 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
+                        <span id="citation-copy-text">Salin</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="page-text-corrector" class="page-content hidden">
         <div class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4">
             <div class="w-full max-w-2xl text-center">
@@ -200,10 +238,6 @@
 </footer>
 
 <script>
-    // --- Batas Kata Maksimum untuk Pengguna Gratis (DIHAPUS KARENA TIDAK ADA BATAS) ---
-    // const MAX_FREE_WORDS = 200; 
-    // --- Akhir Batas Kata Maksimum ---
-
     document.addEventListener('DOMContentLoaded', () => {
         // --- Navigation Logic ---
         const menuButton = document.getElementById('menu-button');
@@ -276,12 +310,10 @@
             const updateCounter = () => {
                 const text = textarea.value;
                 const charCount = text.length;
-                // Menghitung kata tanpa batas maksimum atau pewarnaan merah
                 const wordCount = text.trim().split(/\s+/).filter(word => word.length > 0).length; 
 
                 charCountSpan.textContent = charCount;
                 wordCountSpan.textContent = wordCount;
-                // Menghapus logika pewarnaan merah
                 wordCountSpan.classList.remove('text-red-500'); 
                 wordCountSpan.classList.add('text-slate-500');
             };
@@ -322,9 +354,6 @@
             
             el.paraphraseButton.addEventListener("click", async () => {
                 const userInput = el.originalTextInput.value.trim();
-                // Menghapus pemeriksaan batas kata
-                // const currentWordCount = userInput.split(/\s+/).filter(word => word.length > 0).length;
-                // if (currentWordCount > MAX_FREE_WORDS) { /* ... */ return; }
 
                 if (!userInput) {
                     el.paraphrasedTextOutput.innerHTML = `<span class="text-yellow-400">Silakan masukkan teks.</span>`;
@@ -369,9 +398,6 @@
 
             el.checkButton.addEventListener('click', async () => {
                 const textToCheck = el.paraphrasedTextOutput.innerText.trim();
-                // Menghapus pemeriksaan batas kata
-                // const currentWordCount = textToCheck.split(/\s+/).filter(word => word.length > 0).length;
-                // if (currentWordCount > MAX_FREE_WORDS) { /* ... */ return; }
 
                 if (!textToCheck || textToCheck.includes("Hasil parafrase akan muncul di sini...")) {
                     el.resultDiv.classList.remove('hidden');
@@ -409,7 +435,6 @@
                     
                     displayHtml += `<p class="mt-2 text-sm text-slate-400">Skor Keaslian: ${result.authenticity_score}% (lebih tinggi lebih baik)</p>`;
 
-
                     el.resultDiv.innerHTML = displayHtml;
 
                 } catch (err) {
@@ -446,7 +471,6 @@
                 let highlightedHtml = '';
 
                 sentences.forEach(sentence => {
-                    // Mengambil rata-rata skor AI, atau jika hanya satu skor yang relevan, gunakan itu
                     const avgScore = (scores.predictability_score + scores.uniformity_score + scores.generality_score) / 3;
 
                     if (avgScore > 70) { 
@@ -462,9 +486,6 @@
 
             el.detectButton.addEventListener('click', async () => {
                 const text = el.textInput.value.trim();
-                // Menghapus pemeriksaan batas kata
-                // const currentWordCount = text.split(/\s+/).filter(word => word.length > 0).length;
-                // if (currentWordCount > MAX_FREE_WORDS) { /* ... */ return; }
 
                 if (!text) { 
                     el.resultContainer.classList.remove('hidden'); 
@@ -552,9 +573,6 @@
 
             el.humanizeButton.addEventListener('click', async () => {
                 const text = el.input.value.trim();
-                // Menghapus pemeriksaan batas kata
-                // const currentWordCount = text.split(/\s+/).filter(word => word.length > 0).length;
-                // if (currentWordCount > MAX_FREE_WORDS) { /* ... */ return; }
 
                 if (!text) { 
                     el.output.innerHTML = '<span class="text-yellow-400">Silakan masukkan teks AI.</span>'; 
@@ -650,27 +668,106 @@
 
             el.copyButton.addEventListener('click', () => copyToClipboard(el.output, el.copyText));
         }
-        
+
+        // --- Citation Generator App Logic ---
+        function initCitationGeneratorApp() {
+            const el = {
+                input: document.getElementById('citation-input'),
+                generateButton: document.getElementById('generate-citation-button'),
+                outputContainer: document.getElementById('citation-result-container'),
+                output: document.getElementById('citation-output'),
+                clearButton: document.getElementById('citation-clear-button'),
+                copyButton: document.getElementById('citation-copy-button'),
+                copyText: document.getElementById('citation-copy-text'),
+                loader: document.getElementById('generate-citation-loader'),
+                buttonText: document.getElementById('generate-citation-button-text'),
+                typeButtons: document.querySelectorAll('.citation-type-button'),
+            };
+
+            if (!el.generateButton) return; 
+
+            let currentCitationType = 'jurnal'; // Default tipe
+
+            const setLoading = (isLoading) => {
+                el.generateButton.disabled = isLoading;
+                el.loader.classList.toggle('hidden', !isLoading);
+                el.buttonText.classList.toggle('hidden', isLoading);
+            };
+
+            const updateActiveTypeButton = (activeButton) => {
+                el.typeButtons.forEach(button => button.classList.remove('active'));
+                activeButton.classList.add('active');
+            };
+
+            el.typeButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    currentCitationType = button.dataset.type;
+                    updateActiveTypeButton(button);
+                });
+            });
+
+            el.generateButton.addEventListener('click', async () => {
+                const links = el.input.value.trim();
+
+                if (!links) {
+                    el.outputContainer.classList.remove('hidden');
+                    el.output.innerHTML = '<span class="text-yellow-400">Silakan masukkan link.</span>';
+                    return;
+                }
+
+                setLoading(true);
+                el.outputContainer.classList.remove('hidden');
+                el.output.innerHTML = '<span class="text-slate-500">Menganalisis link dan membuat daftar pustaka...</span>';
+
+                try {
+                    const response = await fetch("/.netlify/functions/generate-citation", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ links: links, type: currentCitationType }),
+                    });
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(result.error || `Error ${response.status}: Gagal membuat daftar pustaka.`);
+                    }
+
+                    if (result.citations && result.citations.length > 0) {
+                        el.output.innerHTML = result.citations.map(citation => `<p>${citation}</p>`).join('');
+                    } else {
+                        el.output.innerHTML = '<span class="text-slate-500">Tidak dapat menghasilkan daftar pustaka dari link yang diberikan. Pastikan link valid dan dapat diakses.</span>';
+                    }
+
+                } catch (err) {
+                    el.output.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`;
+                } finally {
+                    setLoading(false);
+                }
+            });
+
+            el.clearButton.addEventListener('click', () => {
+                el.input.value = "";
+                el.output.innerHTML = `<span class="text-slate-500">Daftar pustaka akan muncul di sini...</span>`;
+                el.outputContainer.classList.add('hidden');
+            });
+
+            el.copyButton.addEventListener('click', () => copyToClipboard(el.output, el.copyText));
+        }
+
         // --- Call setupTextareaCounter for each textarea ---
         setupTextareaCounter('paraphraser-original-text', 'paraphraser-word-count', 'paraphraser-char-count');
         setupTextareaCounter('ai-detector-text', 'ai-detector-word-count', 'ai-detector-char-count');
         setupTextareaCounter('humanizer-input-text', 'humanizer-word-count', 'humanizer-char-count');
-        // TAMBAHAN BARU
         setupTextareaCounter('text-corrector-input', 'text-corrector-word-count', 'text-corrector-char-count');
-        // AKHIR TAMBAHAN
+        setupTextareaCounter('citation-input', 'citation-word-count', 'citation-char-count'); // Tambahan baru untuk generator sitasi
 
         // Initialize all apps
         initParafraseApp();
         initAiDetectorApp();
         initHumanizerApp();
-        // TAMBAHAN BARU
         initTextCorrectorApp();
-        // AKHIR TAMBAHAN
+        initCitationGeneratorApp(); // Panggil fungsi inisialisasi untuk fitur baru
 
         // Switch to the correct page ID on load
-        // Perhatikan: Anda mungkin ingin mengubah ini ke 'page-text-corrector'
-        // jika Anda ingin halaman koreksi teks langsung terbuka saat web dimuat.
-        // Saat ini, akan tetap membuka halaman parafrase secara default.
         switchPage('page-paraphraser'); 
     });
 </script>

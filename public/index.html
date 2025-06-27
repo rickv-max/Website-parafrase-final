@@ -279,9 +279,17 @@
 
         // --- Generic Helper ---
         function copyToClipboard(textElement, feedbackElement) {
-            const textToCopy = textElement.innerText;
-            // Modifikasi: Pastikan tidak menyalin placeholder jika itu satu-satunya konten
-            if (textToCopy && textToCopy.trim() !== '' && !textElement.querySelector('span.text-slate-500')) {
+            // Ambil konten HTML dari elemen, lalu buat elemen sementara untuk mendapatkan teks murni
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = textElement.innerHTML;
+            // Hapus placeholder span jika masih ada
+            const placeholderSpan = tempDiv.querySelector('span.text-slate-500');
+            if (placeholderSpan) {
+                placeholderSpan.remove();
+            }
+            const textToCopy = tempDiv.innerText; // Gunakan innerText dari elemen sementara
+
+            if (textToCopy && textToCopy.trim() !== '') {
                 const el = document.createElement("textarea");
                 el.value = textToCopy;
                 document.body.appendChild(el);
@@ -293,7 +301,7 @@
                     feedbackElement.innerText = "Tersalin!";
                     setTimeout(() => { feedbackElement.innerText = originalText }, 2000);
                 }
-            } else if (feedbackElement) { // Tambahkan feedback jika tidak ada teks untuk disalin
+            } else if (feedbackElement) { 
                 const originalText = feedbackElement.innerText;
                 feedbackElement.innerText = "Tidak ada teks!";
                 setTimeout(() => { feedbackElement.innerText = originalText }, 2000);
@@ -714,7 +722,7 @@
                 if (file) {
                     // Maximum file size check (5MB = 5 * 1024 * 1024 bytes)
                     if (file.size > 5 * 1024 * 1024) { 
-                        alert('Ukuran file terlalu besar. Maksimum 5MB.');
+                        alert('Ukuran file terlalu besar (maksimum 5MB). Silakan coba konversi dokumen Anda ke format TXT untuk mengurangi ukurannya, atau gunakan dokumen yang lebih singkat.');
                         el.fileInput.value = ''; // Clear the input
                         el.fileNameDisplay.classList.add('hidden');
                         uploadedFileBase64 = null;

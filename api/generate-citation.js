@@ -27,6 +27,7 @@ exports.handler = async function(event, context) {
         let partsForModel = []; 
 
         if (file && mimeType) {
+            // Add inlineData part for the file
             partsForModel.push({
                 inlineData: {
                     data: file,
@@ -36,22 +37,26 @@ exports.handler = async function(event, context) {
         } 
         
         let corePromptText = "";
+        // If text is provided (even if file upload is the primary intent), use it for analysis.
+        // The text input is still useful for debugging or smaller snippets.
         if (text) { 
-            corePromptText += `Berikut adalah teks dokumen yang perlu dianalisis dan diformat. Jika ada beberapa entri, harap format masing-masing secara terpisah:\n\n---\n${text}\n---\n\n`;
+            corePromptText += `Berikut adalah teks dokumen yang perlu dianalisis dan diformat:\n\n---\n${text}\n---\n\n`;
         }
 
         const baseInstructions = `
             Anda adalah seorang spesialis daftar pustaka yang sangat teliti.
-            Tugas Anda adalah membaca informasi dokumen yang saya berikan (baik dari file yang diunggah atau teks yang ditempel), mengidentifikasi elemen-elemen kunci (penulis, tahun, judul, publikasi, dll.), dan memformatnya menjadi sitasi.
+            Tugas Anda adalah membaca KONTEN DOKUMEN ini, MENGIDENTIFIKASI informasi utama dari DOKUMEN INI (penulis, tahun, judul dokumen, nama jurnal/institusi/acara), dan memformatnya menjadi sitasi.
+            **HANYA BUAT SATU SITASI UNTUK DOKUMEN INI.**
+            **JANGAN MEMBUAT DAFTAR PUSTAKA DARI KONTEN DOKUMEN. HANYA SATU SITASI UNTUK DOKUMEN YANG SAYA BERIKAN INI SAJA.**
 
             **Sangat penting: Anda harus meniru format yang diberikan dalam CONTOH dengan SANGAT PRESISI. Perhatikan detail seperti pembalikan nama, tanda kutip, pemiringan (gunakan tag HTML <i> atau <em>), spasi, dan tanda baca.**
 
             **Fokuslah untuk MENGIDENTIFIKASI dan MENGGUNAKAN data yang DITEMUKAN dalam dokumen/teks ini untuk akurasi data. Dokumen/teks ini adalah SUMBER UTAMA.**
             
             **ATURAN MUTLAK:**
-            -   HANYA berikan teks sitasi yang sudah diformat. JANGAN berikan komentar, penjelasan, atau teks pengantar/penutup lainnya.
+            -   HANYA berikan SATU teks sitasi yang sudah diformat. JANGAN berikan komentar, penjelasan, atau teks pengantar/penutup lainnya.
             -   **JANGAN PERNAH menyertakan URL/link dari mana pun di hasil akhir sitasi.**
-            -   Jika suatu detail tidak dapat diidentifikasi dari dokumen/teks, biarkan bagian tersebut kosong (misalnya, jika tidak ada volume jurnal, cukup lewati bagian tersebut). Jangan membuat informasi fiktif atau menebak.
+            -   Jika suatu detail tidak dapat diidentifikasi dari dokumen/teks, biarkan bagian tersebut kosong. Jangan membuat informasi fiktif atau menebak.
         `;
 
         if (type === 'jurnal') {
@@ -93,7 +98,8 @@ exports.handler = async function(event, context) {
                 }
             ], 
             generationConfig: {
-                temperature: 0.1, // Tetap 0.1
+                temperature: 0.1, 
+                // maxOutputTokens: 500, // Opsional: Batasi panjang output token untuk menghindari output terlalu panjang
             },
             safetySettings: [ 
                 { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
@@ -126,18 +132,18 @@ exports.handler = async function(event, context) {
                 .replace(/["'`]/g, '') 
                 .trim();
             
-            // Perbaikan agar tag <i> atau <em> tidak terpotong atau rusak
             cleanedCitation = cleanedCitation
                 .replace(/<\s*i\s*>/g, '<i>').replace(/<\s*\/\s*i\s*>/g, '</i>')
                 .replace(/<\s*em\s*>/g, '<em>').replace(/<\s*\/\s*em\s*>/g, '</em>')
                 .replace(/<i>\s*<\/i>/g, '') 
                 .replace(/<em>\s*<\/em>/g, '');
 
-            if (text) { 
-                 citations = cleanedCitation.split('\n').filter(c => c.trim().length > 0);
-            } else { 
-                citations.push(cleanedCitation);
-            }
+            // For file input, we expect a single, possibly multi-line, citation output.
+            // For text input (if re-enabled or used for multiple entries), AI might return multiple citations.
+            // However, with "HANYA BUAT SATU SITASI", this logic might need adjustment if AI still provides multiple.
+            // For now, we'll assume it tries to give one main citation.
+            // If AI still gives multiple, we might only take the first paragraph/line.
+            citations.push(cleanedCitation);
         }
 
     } catch (error) {

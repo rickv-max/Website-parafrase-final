@@ -24,10 +24,9 @@ exports.handler = async function(event, context) {
             };
         }
 
-        let partsForModel = []; // This array will hold all 'parts' for a single 'user' role
+        let partsForModel = []; 
 
         if (file && mimeType) {
-            // Add inlineData part for the file
             partsForModel.push({
                 inlineData: {
                     data: file,
@@ -36,58 +35,52 @@ exports.handler = async function(event, context) {
             });
         } 
         
-        // Always add the prompt text. If 'text' is provided, it's part of the prompt.
-        // Otherwise, it's just the core formatting prompt.
         let corePromptText = "";
-        if (text) { // If text was pasted, prepend it to the prompt for AI to analyze
+        if (text) { 
             corePromptText += `Berikut adalah teks dokumen yang perlu dianalisis dan diformat. Jika ada beberapa entri, harap format masing-masing secara terpisah:\n\n---\n${text}\n---\n\n`;
         }
 
         const baseInstructions = `
-            Anda adalah seorang spesialis daftar pustaka yang sangat teliti dan akurat dalam pemformatan.
-            Tugas Anda adalah membaca informasi dokumen yang saya berikan (baik dari file yang diunggah atau teks yang ditempel), mengidentifikasi elemen-elemen kunci (penulis, tahun, judul, publikasi, dll.), dan memformatnya menjadi sitasi standar seperti pada umumnya (mirip APA Style, tapi mengikuti contoh yang diberikan).
+            Anda adalah seorang spesialis daftar pustaka yang sangat teliti.
+            Tugas Anda adalah membaca informasi dokumen yang saya berikan (baik dari file yang diunggah atau teks yang ditempel), mengidentifikasi elemen-elemen kunci (penulis, tahun, judul, publikasi, dll.), dan memformatnya menjadi sitasi.
+
+            **Sangat penting: Anda harus meniru format yang diberikan dalam CONTOH dengan SANGAT PRESISI. Perhatikan detail seperti pembalikan nama, tanda kutip, pemiringan (gunakan tag HTML <i> atau <em>), spasi, dan tanda baca.**
 
             **Fokuslah untuk MENGIDENTIFIKASI dan MENGGUNAKAN data yang DITEMUKAN dalam dokumen/teks ini untuk akurasi data. Dokumen/teks ini adalah SUMBER UTAMA.**
             
-            **Sertakan tag HTML <i> atau <em> untuk memiringkan teks yang diperlukan.**
-
             **ATURAN MUTLAK:**
             -   HANYA berikan teks sitasi yang sudah diformat. JANGAN berikan komentar, penjelasan, atau teks pengantar/penutup lainnya.
             -   **JANGAN PERNAH menyertakan URL/link dari mana pun di hasil akhir sitasi.**
-            -   Jika suatu detail tidak dapat diidentifikasi dari dokumen/teks, biarkan bagian tersebut kosong (contoh: jika tidak ada volume jurnal, jangan menulis "volume", cukup lewati). Jangan membuat informasi fiktif atau menebak.
+            -   Jika suatu detail tidak dapat diidentifikasi dari dokumen/teks, biarkan bagian tersebut kosong (misalnya, jika tidak ada volume jurnal, cukup lewati bagian tersebut). Jangan membuat informasi fiktif atau menebak.
         `;
 
         if (type === 'jurnal') {
             corePromptText += `${baseInstructions}
-                Format sitasi jurnal PERSIS seperti contoh ini, termasuk penggunaan tanda baca, spasi, dan kapitalisasi.
-                Perhatikan pembalikan nama penulis dan pemiringan judul jurnal.
+                **Format sitasi jurnal PERSIS seperti contoh ini:**
 
-                **Contoh Format Jurnal yang Diinginkan (Gaya Umum/APA-like):**
-                Ibrahim, A. (2004). Penyelesaian Sengketa Tanah Kawasan Hutan Negara Di Kabupaten Lumajang. <i>Jurnal Hukum Argumentum</i>, 3(2), Januari-Juni 2004. Sekolah Tinggi Ilmu Hukum Jenderal Sudirman, Lumajang.
+                **Contoh Format Jurnal yang Diinginkan:**
+                Ibrahim, Anis (2004) "Penyelesaian Sengketa Tanah Kawasan Hutan Negara Di Kabupaten Lumajang". <i>Jurnal Hukum Argumentum</i>. Sekolah Tinggi Ilmu Hukum Jenderal Sudirman, Lumajang, volume 3 nomor 2, Januari-Juni 2004.
             `;
         } else if (type === 'skripsi') {
             corePromptText += `${baseInstructions}
-                Format sitasi skripsi PERSIS seperti contoh ini, termasuk penggunaan tanda baca, spasi, dan kapitalisasi.
-                Perhatikan pembalikan nama penulis dan pemiringan jenis dokumen.
+                **Format sitasi skripsi PERSIS seperti contoh ini:**
 
-                **Contoh Format Skripsi yang Diinginkan (Gaya Umum/APA-like):**
-                Jalil, A. (2007). Implementasi Asas Keterbukaan Dalam pembentukan Peraturan Daerah Di Kabupaten Lumajang. <i>Skripsi</i>. Sekolah Tinggi Ilmu Hukum Jenderal Sudirman Lumajang.
+                **Contoh Format Skripsi yang Diinginkan:**
+                Jalil, Abdul (2007) "Implementasi Asas Keterbukaan Dalam pembentukan Peraturan Daerah Di Kabupaten Lumajang" <i>Skripsi</i>. Sekolah Tinggi Ilmu Hukum Jenderal Sudirman Lumajang.
             `;
         } else if (type === 'makalah') {
             corePromptText += `${baseInstructions}
-                Format sitasi makalah PERSIS seperti contoh ini, termasuk penggunaan tanda baca, spasi, dan kapitalisasi.
-                Perhatikan pembalikan nama penulis dan pemiringan jenis dokumen.
+                **Format sitasi makalah PERSIS seperti contoh ini:**
 
-                **Contoh Format Makalah yang Diinginkan (Gaya Umum/APA-like):**
-                Edward, F. (2002, September). Teknik Penyusunan Peraturan Perundang-undangan Tingkat Daerah. <i>Makalah</i>. Pendidikan dan Latihan Legal Drafting LAN, Jakarta.
+                **Contoh Format Makalah yang Diinginkan:**
+                Edward, Ferry (2002) "Teknik Penyusunan Peraturan Perundang-undangan Tingkat Daerah". <i>Makalah</i>. Pendidikan dan Latihan Legal Drafting LAN, Jakarta, September 2002.
             `;
         } else { 
             corePromptText += `${baseInstructions}
-                Format daftar pustaka dari informasi yang diberikan dalam gaya umum.
+                Format daftar pustaka dari informasi yang diberikan.
             `;
         }
         
-        // Add the combined prompt text as a 'text' part
         partsForModel.push({ text: corePromptText });
 
         const googleApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
@@ -95,12 +88,12 @@ exports.handler = async function(event, context) {
         const payload = {
             contents: [
                 {
-                    role: "user", // THIS IS THE CRUCIAL FIX: define the role for the parts
-                    parts: partsForModel // All parts (file + prompt) are now under one user role
+                    role: "user", 
+                    parts: partsForModel 
                 }
             ], 
             generationConfig: {
-                temperature: 0.1, 
+                temperature: 0.1, // Tetap 0.1
             },
             safetySettings: [ 
                 { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
@@ -133,17 +126,16 @@ exports.handler = async function(event, context) {
                 .replace(/["'`]/g, '') 
                 .trim();
             
+            // Perbaikan agar tag <i> atau <em> tidak terpotong atau rusak
             cleanedCitation = cleanedCitation
-                .replace(/<\/?i>/g, '<i>') 
-                .replace(/<\/?em>/g, '<em>') 
+                .replace(/<\s*i\s*>/g, '<i>').replace(/<\s*\/\s*i\s*>/g, '</i>')
+                .replace(/<\s*em\s*>/g, '<em>').replace(/<\s*\/\s*em\s*>/g, '</em>')
                 .replace(/<i>\s*<\/i>/g, '') 
                 .replace(/<em>\s*<\/em>/g, '');
 
-            // For file input, we expect a single, possibly multi-line, citation output.
-            // For text input (if it's ever re-enabled or used for multiple entries), AI might return multiple citations.
-            if (text) { // This condition is true if original input was from textarea (though textarea is currently removed)
+            if (text) { 
                  citations = cleanedCitation.split('\n').filter(c => c.trim().length > 0);
-            } else { // This condition is true if original input was from file upload
+            } else { 
                 citations.push(cleanedCitation);
             }
         }

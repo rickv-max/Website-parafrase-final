@@ -14,7 +14,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        body{font-family:'Inter',sans-serif;background-color:#0f172a}.glassmorphism{background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2)}textarea::placeholder{color:#94a3b8}.custom-scrollbar::-webkit-scrollbar{width:8px}.custom-scrollbar::-webkit-scrollbar-track{background:transparent}.custom-scrollbar::-webkit-scrollbar-thumb{background-color:#475569;border-radius:10px;border:2px solid transparent;background-clip:content-contentbox}@keyframes spin{to{transform:rotate(360deg)}}.loader{animation:spin 1s linear infinite}
+        /* PERBAIKAN: Mengoreksi syntax CSS pada background-clip */
+        body{font-family:'Inter',sans-serif;background-color:#0f172a}.glassmorphism{background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2)}textarea::placeholder{color:#94a3b8}.custom-scrollbar::-webkit-scrollbar{width:8px}.custom-scrollbar::-webkit-scrollbar-track{background:transparent}.custom-scrollbar::-webkit-scrollbar-thumb{background-color:#475569;border-radius:10px;border:2px solid transparent;background-clip:content-box}@keyframes spin{to{transform:rotate(360deg)}}.loader{animation:spin 1s linear infinite}
         .highlight-plagiat { background-color: rgba(192, 132, 252, 0.3); color: #e9d5ff; border-radius: 4px; padding: 2px 1px; }
         .highlight{background-color:rgba(99,102,241,0.3);color:#c7d2fe;border-radius:4px;padding:2px 1px;font-weight:500}
         .highlight-risk{background-color: rgba(251, 191, 36, 0.3); color: #fef3c7; border-radius: 4px; padding: 2px 1px; font-weight: 500;}
@@ -116,742 +117,742 @@
                     <button id="detect-ai-button" class="w-full bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white font-bold py-3 px-6 rounded-full shadow-lg flex items-center justify-center gap-3"><span id="detect-ai-button-text">Deteksi Konten AI</span><div id="detect-ai-loader" class="hidden loader w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div></button>
                 </div>
                 <div id="ai-detector-result-container" class="w-full mt-6 hidden">
-                    <div class="glassmorphism rounded-xl p-6">
-                        <h3 class="text-xl font-semibold text-slate-200 mb-4">Hasil Analisis</h3>
-                        <div id="ai-detector-summary" class="text-center text-lg mb-4 font-medium"></div>
-                        <div class="w-full bg-slate-700 rounded-full h-4 mb-2 overflow-hidden">
-                            <div id="ai-detector-bar" class="h-4 rounded-full transition-all duration-500"></div>
-                        </div>
-                        <div class="flex justify-between text-xs text-slate-400"><span>Manusia</span><span>AI</span></div>
-                        <div id="ai-detector-details" class="mt-4 text-left text-sm text-slate-400 border-t border-slate-700 pt-4"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div id="page-humanizer" class="page-content hidden">
-        <div class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4">
-            <main class="w-full max-w-6xl flex flex-col lg:flex-row items-start gap-6">
-                <div class="w-full lg:w-1/2 flex flex-col gap-4">
-                    <div class="glassmorphism rounded-xl p-6 h-full flex-grow flex-col">
-                        <div class="flex justify-between items-center mb-4">
-                            <h2 class="text-xl font-semibold text-slate-200">Teks AI</h2>
-                            <button id="humanizer-clear-button" title="Bersihkan Teks" class="text-slate-400 hover:text-white transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
-                        </div>
-                        <textarea id="humanizer-input-text" class="custom-scrollbar w-full h-80 flex-grow bg-slate-800/50 p-4 rounded-lg text-slate-300 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition resize-y" placeholder="Masukkan atau tempel teks hasil AI di sini..."></textarea>
-                        <div class="text-right text-xs text-slate-500 mt-2">
-                            <span id="humanizer-word-count">0</span> Kata / <span id="humanizer-char-count">0</span> Karakter
-                        </div>
-                    </div>
-                </div>
-                <div class="w-full lg:w-auto flex items-center justify-center py-4 lg:py-0 lg:self-center">
-                    <button id="humanize-button" class="w-full lg:w-auto bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold py-3 px-6 rounded-full shadow-lg flex items-center justify-center gap-3"><span id="humanize-button-text">Humanize</span><div id="humanize-loader" class="hidden loader w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div></button>
-                </div>
-                <div class="w-full lg:w-1/2 flex flex-col gap-4">
-                    <div class="glassmorphism rounded-xl p-6 h-full flex flex-col flex-grow">
-                        <div class="flex justify-between items-center mb-4">
-                            <h2 class="text-xl font-semibold text-slate-200">Teks Humanized</h2>
-                            <button id="humanizer-copy-button" title="Salin Hasil" class="text-slate-400 hover:text-white transition-colors flex items-center gap-2"><span id="humanizer-copy-text">Salin</span><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
-                        </div>
-                        <div id="humanizer-output-text" class="custom-scrollbar w-full h-80 flex-grow bg-slate-800/50 p-4 rounded-lg text-slate-300 overflow-y-auto leading-relaxed"><span class="text-slate-500">Hasil teks yang lebih natural akan muncul di sini...</span></div>
-                    </div>
-                </div>
-            </main>
-        </div>
-    </div>
+                    <div class="glassmorphism rounded-xl p-6">
+                        <h3 class="text-xl font-semibold text-slate-200 mb-4">Hasil Analisis</h3>
+                        <div id="ai-detector-summary" class="text-center text-lg mb-4 font-medium"></div>
+                        <div class="w-full bg-slate-700 rounded-full h-4 mb-2 overflow-hidden">
+                            <div id="ai-detector-bar" class="h-4 rounded-full transition-all duration-500"></div>
+                        </div>
+                        <div class="flex justify-between text-xs text-slate-400"><span>Manusia</span><span>AI</span></div>
+                        <div id="ai-detector-details" class="mt-4 text-left text-sm text-slate-400 border-t border-slate-700 pt-4"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="page-humanizer" class="page-content hidden">
+        <div class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4">
+            <main class="w-full max-w-6xl flex flex-col lg:flex-row items-start gap-6">
+                <div class="w-full lg:w-1/2 flex flex-col gap-4">
+                    <div class="glassmorphism rounded-xl p-6 h-full flex-grow flex-col">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold text-slate-200">Teks AI</h2>
+                            <button id="humanizer-clear-button" title="Bersihkan Teks" class="text-slate-400 hover:text-white transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                        </div>
+                        <textarea id="humanizer-input-text" class="custom-scrollbar w-full h-80 flex-grow bg-slate-800/50 p-4 rounded-lg text-slate-300 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition resize-y" placeholder="Masukkan atau tempel teks hasil AI di sini..."></textarea>
+                        <div class="text-right text-xs text-slate-500 mt-2">
+                            <span id="humanizer-word-count">0</span> Kata / <span id="humanizer-char-count">0</span> Karakter
+                        </div>
+                    </div>
+                </div>
+                <div class="w-full lg:w-auto flex items-center justify-center py-4 lg:py-0 lg:self-center">
+                    <button id="humanize-button" class="w-full lg:w-auto bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold py-3 px-6 rounded-full shadow-lg flex items-center justify-center gap-3"><span id="humanize-button-text">Humanize</span><div id="humanize-loader" class="hidden loader w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div></button>
+                </div>
+                <div class="w-full lg:w-1/2 flex flex-col gap-4">
+                    <div class="glassmorphism rounded-xl p-6 h-full flex flex-col flex-grow">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-semibold text-slate-200">Teks Humanized</h2>
+                            <button id="humanizer-copy-button" title="Salin Hasil" class="text-slate-400 hover:text-white transition-colors flex items-center gap-2"><span id="humanizer-copy-text">Salin</span><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+                        </div>
+                        <div id="humanizer-output-text" class="custom-scrollbar w-full h-80 flex-grow bg-slate-800/50 p-4 rounded-lg text-slate-300 overflow-y-auto leading-relaxed"><span class="text-slate-500">Hasil teks yang lebih natural akan muncul di sini...</span></div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
 
-    <div id="page-plagiarism-checker" class="page-content hidden"><div class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4 text-center"><h2 class="text-3xl font-bold text-slate-300">Plagiarism Checker</h2><p class="text-slate-500 mt-2">Fitur ini sedang dalam pengembangan dan akan segera hadir!</p></div></div>
+    <div id="page-plagiarism-checker" class="page-content hidden"><div class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4 text-center"><h2 class="text-3xl font-bold text-slate-300">Plagiarism Checker</h2><p class="text-slate-500 mt-2">Fitur ini sedang dalam pengembangan dan akan segera hadir!</p></div></div>
 
-    <div id="page-citation-generator" class="page-content hidden">
-        <div class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4">
-            <div class="w-full max-w-2xl text-center">
-                <h2 class="text-3xl font-bold text-slate-200">Generator Daftar Pustaka</h2>
-                <p class="text-slate-400 mt-2 mb-8">Pilih tipe dokumen, lalu unggah file (PDF/TXT) untuk membuat daftar pustaka otomatis.</p>
-                <div class="glassmorphism rounded-xl p-6 flex flex-col gap-4">
-                    <div class="flex justify-center mb-4 gap-2">
-                        <button class="citation-type-button mode-button active" data-type="jurnal">Jurnal</button>
-                        <button class="citation-type-button mode-button" data-type="skripsi">Skripsi</button>
-                        <button class="citation-type-button mode-button" data-type="makalah">Makalah</button>
-                    </div>
-                    
-                    <div class="relative w-full text-left p-4 bg-slate-800/50 rounded-lg border border-slate-700">
-                        <label for="file-upload" class="block text-slate-300 text-sm font-semibold mb-2">Unggah File (PDF/TXT):</label>
-                        <input type="file" id="file-upload" accept=".pdf,.txt" class="block w-full text-sm text-slate-400
-                            file:mr-4 file:py-2 file:px-4
-                            file:rounded-full file:border-0
-                            file:text-sm file:font-semibold
-                            file:bg-indigo-500 file:text-white
-                            hover:file:bg-indigo-600 transition-colors
-                        ">
-                        <p id="file-name-display" class="text-xs text-slate-500 mt-2 hidden"></p>
-                    </div>
+    <div id="page-citation-generator" class="page-content hidden">
+        <div class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4">
+            <div class="w-full max-w-2xl text-center">
+                <h2 class="text-3xl font-bold text-slate-200">Generator Daftar Pustaka</h2>
+                <p class="text-slate-400 mt-2 mb-8">Pilih tipe dokumen, lalu unggah file (PDF/TXT) untuk membuat daftar pustaka otomatis.</p>
+                <div class="glassmorphism rounded-xl p-6 flex flex-col gap-4">
+                    <div class="flex justify-center mb-4 gap-2">
+                        <button class="citation-type-button mode-button active" data-type="jurnal">Jurnal</button>
+                        <button class="citation-type-button mode-button" data-type="skripsi">Skripsi</button>
+                        <button class="citation-type-button mode-button" data-type="makalah">Makalah</button>
+                    </div>
+                    
+                    <div class="relative w-full text-left p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+                        <label for="file-upload" class="block text-slate-300 text-sm font-semibold mb-2">Unggah File (PDF/TXT):</label>
+                        <input type="file" id="file-upload" accept=".pdf,.txt" class="block w-full text-sm text-slate-400
+                            file:mr-4 file:py-2 file:px-4
+                            file:rounded-full file:border-0
+                            file:text-sm file:font-semibold
+                            file:bg-indigo-500 file:text-white
+                            hover:file:bg-indigo-600 transition-colors
+                        ">
+                        <p id="file-name-display" class="text-xs text-slate-500 mt-2 hidden"></p>
+                    </div>
 
-                    <button id="generate-citation-button" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-3 px-6 rounded-full shadow-lg flex items-center justify-center gap-3">
-                        <span id="generate-citation-button-text">Buat Daftar Pustaka</span>
-                        <div id="generate-citation-loader" class="hidden loader w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
-                    </button>
-                </div>
-                <div id="citation-result-container" class="w-full mt-6 glassmorphism rounded-xl p-6 hidden">
-                    <h3 class="text-xl font-semibold text-slate-200 mb-4">Hasil Daftar Pustaka</h3>
-                    <div id="citation-output" class="custom-scrollbar w-full min-h-[100px] bg-slate-800/50 p-4 rounded-lg text-slate-300 overflow-y-auto leading-relaxed text-left"><span class="text-slate-500">Daftar pustaka akan muncul di sini...</span></div>
-                    <button id="citation-copy-button" title="Salin Hasil" class="mt-4 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
-                        <span id="citation-copy-text">Salin</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+                    <button id="generate-citation-button" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-3 px-6 rounded-full shadow-lg flex items-center justify-center gap-3">
+                        <span id="generate-citation-button-text">Buat Daftar Pustaka</span>
+                        <div id="generate-citation-loader" class="hidden loader w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
+                    </button>
+                </div>
+                <div id="citation-result-container" class="w-full mt-6 glassmorphism rounded-xl p-6 hidden">
+                    <h3 class="text-xl font-semibold text-slate-200 mb-4">Hasil Daftar Pustaka</h3>
+                    <div id="citation-output" class="custom-scrollbar w-full min-h-[100px] bg-slate-800/50 p-4 rounded-lg text-slate-300 overflow-y-auto leading-relaxed text-left"><span class="text-slate-500">Daftar pustaka akan muncul di sini...</span></div>
+                    <button id="citation-copy-button" title="Salin Hasil" class="mt-4 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
+                        <span id="citation-copy-text">Salin</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <div id="page-text-corrector" class="page-content hidden">
-        <div class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4">
-            <div class="w-full max-w-2xl text-center">
-                <h2 class="text-3xl font-bold text-slate-200">Koreksi Teks Otomatis</h2>
-                <p class="text-slate-400 mt-2 mb-8">Tempel teks Anda untuk memperbaiki typo dan mengembangkan singkatan.</p>
-                <div class="glassmorphism rounded-xl p-6 flex flex-col gap-4">
-                    <div class="relative w-full">
-                        <textarea id="text-corrector-input" class="custom-scrollbar w-full h-60 bg-slate-800/50 p-4 pr-10 rounded-lg text-slate-300 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition resize-y" placeholder="Masukkan teks Anda yang perlu diperbaiki di sini..."></textarea>
-                        <div class="text-right text-xs text-slate-500 mt-2">
-                            <span id="text-corrector-word-count">0</span> Kata / <span id="text-corrector-char-count">0</span> Karakter
-                        </div>
-                        <button id="text-corrector-clear-button" title="Bersihkan Teks" class="absolute bottom-4 right-4 text-slate-500 hover:text-white transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
-                    </div>
-                    <button id="correct-text-button" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-3 px-6 rounded-full shadow-lg flex items-center justify-center gap-3">
-                        <span id="correct-text-button-text">Perbaiki Teks</span>
-                        <div id="correct-text-loader" class="hidden loader w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
-                    </button>
-                </div>
-                <div id="text-corrector-result-container" class="w-full mt-6 glassmorphism rounded-xl p-6 hidden">
-                    <h3 class="text-xl font-semibold text-slate-200 mb-4">Teks yang Sudah Diperbaiki</h3>
-                    <div id="text-corrector-output" class="custom-scrollbar w-full min-h-[100px] bg-slate-800/50 p-4 rounded-lg text-slate-300 overflow-y-auto leading-relaxed text-left"><span class="text-slate-500">Hasil koreksi akan muncul di sini...</span></div>
-                    <button id="text-corrector-copy-button" title="Salin Hasil" class="mt-4 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
-                        <span id="text-corrector-copy-text">Salin</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    </main>
+    <div id="page-text-corrector" class="page-content hidden">
+        <div class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4">
+            <div class="w-full max-w-2xl text-center">
+                <h2 class="text-3xl font-bold text-slate-200">Koreksi Teks Otomatis</h2>
+                <p class="text-slate-400 mt-2 mb-8">Tempel teks Anda untuk memperbaiki typo dan mengembangkan singkatan.</p>
+                <div class="glassmorphism rounded-xl p-6 flex flex-col gap-4">
+                    <div class="relative w-full">
+                        <textarea id="text-corrector-input" class="custom-scrollbar w-full h-60 bg-slate-800/50 p-4 pr-10 rounded-lg text-slate-300 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition resize-y" placeholder="Masukkan teks Anda yang perlu diperbaiki di sini..."></textarea>
+                        <div class="text-right text-xs text-slate-500 mt-2">
+                            <span id="text-corrector-word-count">0</span> Kata / <span id="text-corrector-char-count">0</span> Karakter
+                        </div>
+                        <button id="text-corrector-clear-button" title="Bersihkan Teks" class="absolute bottom-4 right-4 text-slate-500 hover:text-white transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                    </div>
+                    <button id="correct-text-button" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-3 px-6 rounded-full shadow-lg flex items-center justify-center gap-3">
+                        <span id="correct-text-button-text">Perbaiki Teks</span>
+                        <div id="correct-text-loader" class="hidden loader w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
+                    </button>
+                </div>
+                <div id="text-corrector-result-container" class="w-full mt-6 glassmorphism rounded-xl p-6 hidden">
+                    <h3 class="text-xl font-semibold text-slate-200 mb-4">Teks yang Sudah Diperbaiki</h3>
+                    <div id="text-corrector-output" class="custom-scrollbar w-full min-h-[100px] bg-slate-800/50 p-4 rounded-lg text-slate-300 overflow-y-auto leading-relaxed text-left"><span class="text-slate-500">Hasil koreksi akan muncul di sini...</span></div>
+                    <button id="text-corrector-copy-button" title="Salin Hasil" class="mt-4 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
+                        <span id="text-corrector-copy-text">Salin</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    </main>
 
 <footer class="bg-slate-900/50 backdrop-blur-lg border-t border-slate-800 py-4 mt-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-slate-500 text-sm">
-        <p>&copy; <span id="current-year"></span> Parafraser Pro. Alat ini dirancang oleh Ricky Maulana⚡️</p>
-    </div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-slate-500 text-sm">
+        <p>&copy; <span id="current-year"></span> Parafraser Pro. Alat ini dirancang oleh Ricky Maulana⚡️</p>
+    </div>
 </footer>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // --- Navigation Logic ---
-        const menuButton = document.getElementById('menu-button');
-        const menuPanel = document.getElementById('menu-panel');
-        const menuItems = document.querySelectorAll('.menu-item');
-        const pages = document.querySelectorAll('.page-content');
-        
-        function switchPage(pageId) {
-            pages.forEach(page => page.classList.add('hidden'));
-            const targetPage = document.getElementById(pageId);
-            if (targetPage) {
-                targetPage.classList.remove('hidden');
-            }
-            if(menuPanel) menuPanel.classList.add('hidden');
-        };
-
-        menuButton.addEventListener('click', (e) => {
-            e.stopPropagation();
-            menuPanel.classList.toggle('hidden');
-        });
-
-        document.addEventListener('click', (e) => {
-            if (menuPanel && !menuButton.contains(e.target) && !menuPanel.contains(e.target)) {
-                menuPanel.classList.add('hidden');
-            }
-        });
-
-        menuItems.forEach(item => {
-            item.addEventListener('click', (event) => {
-                event.preventDefault();
-                const pageId = 'page-' + item.dataset.page;
-                switchPage(pageId);
-            });
-        });
-
-        // --- Generic Helper ---
-        // Diperbarui untuk menggunakan navigator.clipboard.writeText() untuk kompatibilitas yang lebih baik
-        async function copyToClipboard(textElement, feedbackElement) {
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = textElement.innerHTML;
-            const placeholderSpan = tempDiv.querySelector('span.text-slate-500');
-            if (placeholderSpan) {
-                placeholderSpan.remove();
-            }
-            const textToCopy = tempDiv.innerText;
-
-            if (textToCopy && textToCopy.trim() !== '') {
-                try {
-                    // Gunakan Clipboard API modern
-                    await navigator.clipboard.writeText(textToCopy);
-                    if (feedbackElement) {
-                        const originalText = feedbackElement.innerText;
-                        feedbackElement.innerText = "Tersalin!";
-                        setTimeout(() => { feedbackElement.innerText = originalText }, 2000);
-                    }
-                } catch (err) {
-                    // Fallback jika Clipboard API tidak didukung atau ada masalah izin
-                    console.error('Gagal menyalin menggunakan navigator.clipboard:', err);
-                    // Coba fallback ke document.execCommand jika masih dibutuhkan
-                    const el = document.createElement("textarea");
-                    el.value = textToCopy;
-                    document.body.appendChild(el);
-                    el.select();
-                    document.execCommand("copy"); // Fallback
-                    document.body.removeChild(el);
-                    if (feedbackElement) {
-                        const originalText = feedbackElement.innerText;
-                        feedbackElement.innerText = "Tersalin (fallback)!";
-                        setTimeout(() => { feedbackElement.innerText = originalText }, 2000);
-                    }
-                }
-            } else if (feedbackElement) { 
-                const originalText = feedbackElement.innerText;
-                feedbackElement.innerText = "Tidak ada teks!";
-                setTimeout(() => { feedbackElement.innerText = originalText }, 2000);
-            }
-        }
-
-        // --- Function to setup real-time word/character counter ---
-        // (Tidak lagi digunakan untuk citation-input karena sudah dihapus)
-        function setupTextareaCounter(textareaId, wordCountId, charCountId) {
-            const textarea = document.getElementById(textareaId);
-            const wordCountSpan = document.getElementById(wordCountId);
-            const charCountSpan = document.getElementById(charCountId);
-
-            if (!textarea || !wordCountSpan || !charCountSpan) {
-                return;
-            }
-
-            const updateCounter = () => {
-                const text = textarea.value;
-                const charCount = text.length;
-                const wordCount = text.trim().split(/\s+/).filter(word => word.length > 0).length; 
-
-                charCountSpan.textContent = charCount;
-                wordCountSpan.textContent = wordCount;
-                wordCountSpan.classList.remove('text-red-500'); 
-                wordCountSpan.classList.add('text-slate-500');
-            };
-
-            textarea.addEventListener('input', updateCounter);
-            updateCounter(); // Initial update
-        }
-
-        // --- Parafrase App Logic ---
-        function initParafraseApp() {
-            const el = {
-                originalTextInput: document.getElementById('paraphraser-original-text'),
-                paraphrasedTextOutput: document.getElementById('paraphraser-output-text'),
-                paraphraseButton: document.getElementById('paraphrase-button'),
-                copyButton: document.getElementById('paraphraser-copy-button'),
-                clearButton: document.getElementById('paraphraser-clear-button'),
-                loader: document.getElementById('paraphrase-loader'),
-                buttonText: document.getElementById('paraphrase-button-text'),
-                copyText: document.getElementById('paraphraser-copy-text'),
-                modeButtons: document.querySelectorAll('#page-paraphraser .mode-button'),
-                authenticityContainer: document.getElementById('authenticity-container'),
-                checkButton: document.getElementById('check-authenticity-button'),
-                resultDiv: document.getElementById('authenticity-result'),
-            };
-            
-            if (!el.paraphraseButton) return; 
-            
-            let currentMode = 'standard';
-            const setLoading = (isLoading) => {
-                el.paraphraseButton.disabled = isLoading;
-                el.loader.classList.toggle('hidden', !isLoading);
-                el.buttonText.classList.toggle('hidden', isLoading);
-            };
-            const updateActiveButton = (activeButton) => {
-                el.modeButtons.forEach(button => button.classList.remove('active'));
-                activeButton.classList.add('active');
-            };
-            
-            el.paraphraseButton.addEventListener("click", async () => {
-                const userInput = el.originalTextInput.value.trim();
-
-                if (!userInput) {
-                    el.paraphrasedTextOutput.innerHTML = `<span class="text-yellow-400">Silakan masukkan teks.</span>`;
-                    return;
-                }
-                setLoading(true);
-                el.paraphrasedTextOutput.innerHTML = `<span class="text-slate-500">Memproses...</span>`;
-                if(el.authenticityContainer) el.authenticityContainer.classList.add("hidden");
-                el.resultDiv.classList.add("hidden"); 
-
-                try {
-                    const response = await fetch("/.netlify/functions/paraphrase", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ mode: currentMode, text: userInput }),
-                    });
-                    const result = await response.json();
-                    
-                    if (!response.ok) {
-                        throw new Error(result.error || `Error ${response.status}: Gagal memparafrase.`);
-                    }
-                    
-                    el.paraphrasedTextOutput.innerText = result.paraphrased_text || "Tidak ada hasil parafrase.";
-                    
-                    if(el.authenticityContainer) el.authenticityContainer.classList.remove("hidden");
-
-                } catch (err) {
-                    el.paraphrasedTextOutput.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`;
-                } finally { setLoading(false); }
-            });
-
-            el.clearButton.addEventListener('click', () => { el.originalTextInput.value = ""; el.paraphrasedTextOutput.innerHTML = `<span class="text-slate-500">Hasil parafrase akan muncul di sini...</span>`; if(el.authenticityContainer) el.authenticityContainer.classList.add("hidden"); el.resultDiv.classList.add("hidden"); });
-            el.copyButton.addEventListener('click', () => copyToClipboard(el.paraphrasedTextOutput, el.copyText));
-            
-            el.modeButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    currentMode = button.dataset.mode;
-                    updateActiveButton(button);
-                });
-            });
-            updateActiveButton(document.querySelector('#page-paraphraser .mode-button[data-mode="standard"]'));
-
-            el.checkButton.addEventListener('click', async () => {
-                const textToCheck = el.paraphrasedTextOutput.innerText.trim();
-
-                if (!textToCheck || textToCheck.includes("Hasil parafrase akan muncul di sini...")) {
-                    el.resultDiv.classList.remove('hidden');
-                    el.resultDiv.innerHTML = '<span class="text-yellow-400">Silakan parafrase teks terlebih dahulu.</span>';
-                    return;
-                }
-
-                el.resultDiv.classList.remove('hidden');
-                el.resultDiv.innerHTML = `<span class="text-slate-500">Memeriksa keaslian...</span>`;
-                el.checkButton.disabled = true; 
-
-                try {
-                    const response = await fetch("/.netlify/functions/check-authenticity", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ text: textToCheck }),
-                    });
-                    const result = await response.json();
-
-                    if (!response.ok) {
-                        throw new Error(result.error || `Error ${response.status}: Gagal memeriksa keaslian.`);
-                    }
-
-                    let displayHtml = `<p class="mb-2"><strong>Analisis:</strong> ${result.overall_impression}</p>`;
-                    if (result.problematic_sentences && result.problematic_sentences.length > 0) {
-                        let highlightedText = textToCheck;
-                        result.problematic_sentences.forEach(sentence => {
-                            const regex = new RegExp(sentence.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
-                            highlightedText = highlightedText.replace(regex, `<span class="highlight-risk">${sentence}</span>`);
-                        });
-                        displayHtml += `<p class="mt-4">Bagian yang berpotensi bermasalah:</p><div class="p-2 bg-slate-700 rounded mt-2">${highlightedText}</div>`;
-                    } else {
-                        displayHtml += `<p class="mt-4 text-emerald-400">Teks ini terlihat asli dan unik.</p>`;
-                    }
-                    
-                    displayHtml += `<p class="mt-2 text-sm text-slate-400">Skor Keaslian: ${result.authenticity_score}% (lebih tinggi lebih baik)</p>`;
-
-                    el.resultDiv.innerHTML = displayHtml;
-
-                } catch (err) {
-                    el.resultDiv.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`;
-                } finally {
-                    el.checkButton.disabled = false;
-                }
-            });
-        };
-
-        // --- AI Detector App Logic ---
-        function initAiDetectorApp() {
-            const el = {
-                detectButton: document.getElementById('detect-ai-button'),
-                textInput: document.getElementById('ai-detector-text'),
-                clearButton: document.getElementById('ai-detector-clear-button'),
-                resultContainer: document.getElementById('ai-detector-result-container'),
-                summary: document.getElementById('ai-detector-summary'),
-                bar: document.getElementById('ai-detector-bar'),
-                details: document.getElementById('ai-detector-details'),
-                buttonText: document.getElementById('detect-ai-button-text'),
-                loader: document.getElementById('detect-ai-loader'),
-            };
-            if(!el.detectButton) return;
-
-            const setLoading = (isLoading) => {
-                el.detectButton.disabled = isLoading;
-                el.loader.classList.toggle('hidden', !isLoading);
-                el.buttonText.classList.toggle('hidden', isLoading);
-            };
-
-            const highlightText = (text, scores) => {
-                const sentences = text.split(/(?<=[.!?])\s+/); 
-                let highlightedHtml = '';
-
-                sentences.forEach(sentence => {
-                    const avgScore = (scores.predictability_score + scores.uniformity_score + scores.generality_score) / 3;
-
-                    if (avgScore > 70) { 
-                        highlightedHtml += `<span class="highlight-ai">${sentence}</span> `;
-                    } else if (avgScore > 40) { 
-                        highlightedHtml += `<span class="highlight-risk">${sentence}</span> `;
-                    } else { 
-                        highlightedHtml += `${sentence} `;
-                    }
-                });
-                return highlightedHtml.trim();
-            };
-
-            el.detectButton.addEventListener('click', async () => {
-                const text = el.textInput.value.trim();
-
-                if (!text) { 
-                    el.resultContainer.classList.remove('hidden'); 
-                    el.summary.textContent = 'Silakan masukkan teks untuk dianalisis.'; 
-                    el.details.innerHTML = '';
-                    el.bar.style.width = '0%';
-                    el.bar.className = "h-4 rounded-full transition-all duration-500 bg-slate-700"; 
-                    return; 
-                }
-                setLoading(true);
-                el.resultContainer.classList.add('hidden');
-                
-                try {
-                    const response = await fetch("/.netlify/functions/ai-detector", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ text: text }),
-                    });
-                    const result = await response.json();
-                    
-                    if (!response.ok) {
-                        throw new Error(result.error || `Error ${response.status}: Gagal mendeteksi AI.`);
-                    }
-
-                    const { predictability_score, uniformity_score, generality_score, analysis_summary } = result;
-                    const overallAiLikelihood = Math.round((predictability_score + uniformity_score + generality_score) / 3);
-
-                    let summaryText, barClass;
-                    
-                    if (overallAiLikelihood > 75) {
-                        summaryText = `Sangat Mungkin Ditulis AI (${overallAiLikelihood}%)`;
-                        barClass = "h-4 rounded-full transition-all duration-500 bg-gradient-to-r from-red-500 to-orange-400";
-                    } else if (overallAiLikelihood > 40) {
-                        summaryText = `Kemungkinan Ditulis AI (${overallAiLikelihood}%)`;
-                        barClass = "h-4 rounded-full transition-all duration-500 bg-gradient-to-r from-amber-500 to-yellow-400";
-                    } else {
-                        summaryText = `Kemungkinan Ditulis Manusia (${100-overallAiLikelihood}%)`; 
-                        barClass = "h-4 rounded-full transition-all duration-500 bg-gradient-to-r from-emerald-500 to-teal-400";
-                    }
-
-                    el.resultContainer.classList.remove('hidden');
-                    el.summary.textContent = summaryText;
-                    el.bar.style.width = `${overallAiLikelihood}%`;
-                    el.bar.className = barClass;
-                    
-                    const highlightedContent = highlightText(text, result); 
-                    el.details.innerHTML = `<strong>Ringkasan Analisis AI:</strong> ${analysis_summary}<br/><br/>Teks yang dianalisis:<br/><div class="p-2 bg-slate-700 rounded mt-2">${highlightedContent}</div>`;
-
-                } catch(err) {
-                    el.resultContainer.classList.remove('hidden');
-                    el.summary.textContent = `Error: ${err.message}`;
-                    el.bar.style.width = '0%';
-                    el.bar.className = "h-4 rounded-full transition-all duration-500 bg-slate-700"; 
-                } finally { setLoading(false); }
-            });
-
-            el.clearButton.addEventListener('click', () => { 
-                el.textInput.value = ""; 
-                el.resultContainer.classList.add('hidden'); 
-                el.bar.style.width = '0%';
-                el.bar.className = "h-4 rounded-full transition-all duration-500 bg-slate-700"; 
-            });
-        };
-
-        // --- Humanizer App Logic ---
-        function initHumanizerApp() {
-            const el = {
-                humanizeButton: document.getElementById("humanize-button"),
-                input: document.getElementById("humanizer-input-text"),
-                output: document.getElementById("humanizer-output-text"),
-                clearButton: document.getElementById("humanizer-clear-button"),
-                copyButton: document.getElementById("humanizer-copy-button"),
-                copyText: document.getElementById("humanizer-copy-text"),
-                loader: document.getElementById("humanize-loader"),
-                buttonText: document.getElementById("humanize-button-text"),
-            };
-
-            if(!el.humanizeButton) return;
-
-            const setLoading = (isLoading) => {
-                el.humanizeButton.disabled = isLoading;
-                el.loader.classList.toggle('hidden', !isLoading);
-                el.buttonText.classList.toggle('hidden', isLoading);
-            };
-
-            el.humanizeButton.addEventListener('click', async () => {
-                const text = el.input.value.trim();
-
-                if (!text) { 
-                    el.output.innerHTML = '<span class="text-yellow-400">Silakan masukkan teks AI.</span>'; 
-                    return; 
-                }
-                setLoading(true);
-                el.output.innerHTML = '<span class="text-slate-500">Memproses...</span>';
-                
-                try {
-                    const response = await fetch("/.netlify/functions/humanize-text", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ text: text }),
-                    });
-                    const result = await response.json();
-                    
-                    if (!response.ok) {
-                        throw new Error(result.error || `Error ${response.status}: Gagal menghumanisasi teks.`);
-                    }
-                    
-                    el.output.innerText = result.humanized_text || "Tidak ada hasil humanisasi.";
-
-                } catch (err) {
-                    el.output.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`;
-                } finally { setLoading(false); }
-            });
-
-            el.clearButton.addEventListener('click', () => { el.input.value = ""; el.output.innerHTML = `<span class="text-slate-500">Hasil teks yang lebih natural akan muncul di sini...</span>`; });
-            el.copyButton.addEventListener('click', () => copyToClipboard(el.output, el.copyText));
-        };
-
-        // --- Text Corrector App Logic ---
-        function initTextCorrectorApp() {
-            const el = {
-                input: document.getElementById('text-corrector-input'),
-                correctButton: document.getElementById('correct-text-button'),
-                outputContainer: document.getElementById('text-corrector-result-container'),
-                output: document.getElementById('text-corrector-output'),
-                clearButton: document.getElementById('text-corrector-clear-button'),
-                copyButton: document.getElementById('text-corrector-copy-button'),
-                copyText: document.getElementById('text-corrector-copy-text'),
-                loader: document.getElementById('correct-text-loader'),
-                buttonText: document.getElementById('correct-text-button-text'),
-            };
-
-            if (!el.correctButton) return;
-
-            const setLoading = (isLoading) => {
-                el.correctButton.disabled = isLoading;
-                el.loader.classList.toggle('hidden', !isLoading);
-                el.buttonText.classList.toggle('hidden', isLoading);
-            };
-
-            el.correctButton.addEventListener('click', async () => {
-                const text = el.input.value.trim();
-
-                if (!text) {
-                    el.outputContainer.classList.remove('hidden');
-                    el.output.innerHTML = '<span class="text-yellow-400">Silakan masukkan teks untuk dikoreksi.</span>';
-                    return;
-                }
-
-                setLoading(true);
-                el.outputContainer.classList.remove('hidden');
-                el.output.innerHTML = '<span class="text-slate-500">Memproses koreksi...</span>';
-
-                try {
-                    const response = await fetch("/.netlify/functions/text-corrector", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ text: text }),
-                    });
-                    const result = await response.json();
-
-                    if (!response.ok) {
-                        throw new Error(result.error || `Error ${response.status}: Gagal mengoreksi teks.`);
-                    }
-
-                    el.output.innerText = result.corrected_text || "Tidak ada hasil koreksi.";
-
-                } catch (err) {
-                    el.output.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`;
-                } finally {
-                    setLoading(false);
-                }
-            });
-
-            el.clearButton.addEventListener('click', () => {
-                el.input.value = "";
-                el.output.innerHTML = `<span class="text-slate-500">Hasil koreksi akan muncul di sini...</span>`;
-                el.outputContainer.classList.add('hidden');
-            });
-
-            el.copyButton.addEventListener('click', () => copyToClipboard(el.output, el.copyText));
-        }
-
-        // --- Citation Generator App Logic ---
-        function initCitationGeneratorApp() {
-            const el = {
-                fileInput: document.getElementById('file-upload'),
-                fileNameDisplay: document.getElementById('file-name-display'),
-                generateButton: document.getElementById('generate-citation-button'),
-                outputContainer: document.getElementById('citation-result-container'),
-                output: document.getElementById('citation-output'),
-                clearButton: document.getElementById('citation-clear-button'),
-                copyButton: document.getElementById('citation-copy-button'),
-                copyText: document.getElementById('citation-copy-text'),
-                loader: document.getElementById('generate-citation-loader'),
-                buttonText: document.getElementById('generate-citation-button-text'),
-                typeButtons: document.querySelectorAll('.citation-type-button'),
-            };
-
-            if (!el.generateButton) return; 
-
-            let currentCitationType = 'jurnal'; // Default tipe
-            let uploadedFileBase64 = null;
-            let uploadedFileMimeType = null;
-
-            const setLoading = (isLoading) => {
-                el.generateButton.disabled = isLoading;
-                el.loader.classList.toggle('hidden', !isLoading);
-                el.buttonText.classList.toggle('hidden', isLoading);
-            };
-
-            const updateActiveTypeButton = (activeButton) => {
-                el.typeButtons.forEach(button => button.classList.remove('active'));
-                activeButton.classList.add('active');
-            };
-
-            // Event listener for file input change
-            el.fileInput.addEventListener('change', (event) => {
-                const file = event.target.files[0];
-                if (file) {
-                    // Maximum file size check (5MB = 5 * 1024 * 1024 bytes)
-                    // PENTING: Validasi ini HARUS dilakukan di sini dan langsung menghentikan jika terlalu besar
-                    if (file.size > 5 * 1024 * 1024) { 
-                        alert('Ukuran file terlalu besar (maksimum 5MB). File skripsi/jurnal yang panjang seringkali melebihi batas ini. Silakan coba konversi dokumen Anda ke format TXT untuk mengurangi ukurannya, atau gunakan dokumen yang lebih singkat.');
-                        el.fileInput.value = ''; // Clear the input
-                        el.fileNameDisplay.classList.add('hidden');
-                        uploadedFileBase64 = null;
-                        uploadedFileMimeType = null;
-                        return; // PENTING: Langsung RETURN agar tidak memproses file yang terlalu besar
-                    }
-
-                    // Check file type
-                    if (!['application/pdf', 'text/plain'].includes(file.type)) {
-                        alert('Hanya file PDF atau TXT yang diizinkan.');
-                        el.fileInput.value = '';
-                        el.fileNameDisplay.classList.add('hidden');
-                        uploadedFileBase64 = null;
-                        uploadedFileMimeType = null;
-                        return;
-                    }
-
-                    el.fileNameDisplay.textContent = `File dipilih: ${file.name}`;
-                    el.fileNameDisplay.classList.remove('hidden');
-
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        uploadedFileBase64 = e.target.result.split(',')[1];
-                        uploadedFileMimeType = file.type;
-                    };
-                    reader.readAsDataURL(file);
-                } else {
-                    el.fileNameDisplay.classList.add('hidden');
-                    el.fileNameDisplay.textContent = '';
-                    uploadedFileBase64 = null;
-                    uploadedFileMimeType = null;
-                }
-            });
-
-            el.typeButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    currentCitationType = button.dataset.type;
-                    updateActiveTypeButton(button);
-                });
-            });
-
-            el.generateButton.addEventListener('click', async () => {
-                let requestPayload = { type: currentCitationType };
-
-                if (uploadedFileBase64 && uploadedFileMimeType) {
-                    requestPayload.file = uploadedFileBase64;
-                    requestPayload.mimeType = uploadedFileMimeType;
-                } else {
-                    el.outputContainer.classList.remove('hidden');
-                    el.output.innerHTML = '<span class="text-yellow-400">Silakan unggah file PDF/TXT terlebih dahulu.</span>';
-                    return;
-                }
-
-                setLoading(true);
-                el.outputContainer.classList.remove('hidden');
-                el.output.innerHTML = '<span class="text-slate-500">Menganalisis dokumen dan membuat daftar pustaka...</span>';
-
-                try {
-                    const response = await fetch("/.netlify/functions/generate-citation", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(requestPayload),
-                    });
-                    const result = await response.json();
-
-                    if (!response.ok) {
-                        // Jika ada error dari server, pastikan ditampilkan
-                        throw new Error(result.error || `Error ${response.status}: Gagal membuat daftar pustaka.`);
-                    }
-
-                    if (result.citations && result.citations.length > 0) {
-                        // Pastikan output HTML diatur dengan benar agar copyToClipboard bisa berfungsi
-                        el.output.innerHTML = result.citations.map(citation => `<p>${citation}</p>`).join('');
-                    } else {
-                        el.output.innerHTML = '<span class="text-slate-500">Tidak dapat menghasilkan daftar pustaka. Pastikan dokumen valid dan dapat dibaca.</span>';
-                    }
-
-                } catch (err) {
-                    el.output.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`;
-                } finally {
-                    setLoading(false);
-                }
-            });
-
-            el.clearButton.addEventListener('click', () => {
-                el.output.innerHTML = `<span class="text-slate-500">Daftar pustaka akan muncul di sini...</span>`;
-                el.outputContainer.classList.add('hidden');
-                // Clear file input and its display
-                el.fileInput.value = ''; 
-                el.fileNameDisplay.classList.add('hidden');
-                uploadedFileBase64 = null;
-                uploadedFileMimeType = null;
-            });
-
-            el.copyButton.addEventListener('click', () => copyToClipboard(el.output, el.copyText));
-        }
-
-        // --- Call setupTextareaCounter for each textarea ---
-        setupTextareaCounter('paraphraser-original-text', 'paraphraser-word-count', 'paraphraser-char-count');
-        setupTextareaCounter('ai-detector-text', 'ai-detector-word-count', 'ai-detector-char-count');
-        setupTextareaCounter('humanizer-input-text', 'humanizer-word-count', 'humanizer-char-count');
-        setupTextareaCounter('text-corrector-input', 'text-corrector-word-count', 'text-corrector-char-count');
-        // setupTextareaCounter for citation-input is removed as the textarea is removed.
-
-        // Initialize all apps
-        initParafraseApp();
-        initAiDetectorApp();
-        initHumanizerApp();
-        initTextCorrectorApp();
-        initCitationGeneratorApp(); // Panggil fungsi inisialisasi untuk fitur baru
-
-        // Switch to the correct page ID on load
-        switchPage('page-paraphraser'); 
-    });
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- Navigation Logic ---
+        const menuButton = document.getElementById('menu-button');
+        const menuPanel = document.getElementById('menu-panel');
+        const menuItems = document.querySelectorAll('.menu-item');
+        const pages = document.querySelectorAll('.page-content');
+        
+        function switchPage(pageId) {
+            pages.forEach(page => page.classList.add('hidden'));
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) {
+                targetPage.classList.remove('hidden');
+            }
+            if(menuPanel) menuPanel.classList.add('hidden');
+        };
+
+        menuButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            menuPanel.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (menuPanel && !menuButton.contains(e.target) && !menuPanel.contains(e.target)) {
+                menuPanel.classList.add('hidden');
+            }
+        });
+
+        menuItems.forEach(item => {
+            item.addEventListener('click', (event) => {
+                event.preventDefault();
+                const pageId = 'page-' + item.dataset.page;
+                switchPage(pageId);
+            });
+        });
+
+        // --- Generic Helper ---
+        // Diperbarui untuk menggunakan navigator.clipboard.writeText() untuk kompatibilitas yang lebih baik
+        async function copyToClipboard(textElement, feedbackElement) {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = textElement.innerHTML;
+            const placeholderSpan = tempDiv.querySelector('span.text-slate-500');
+            if (placeholderSpan) {
+                placeholderSpan.remove();
+            }
+            const textToCopy = tempDiv.innerText;
+
+            if (textToCopy && textToCopy.trim() !== '') {
+                try {
+                    // Gunakan Clipboard API modern
+                    await navigator.clipboard.writeText(textToCopy);
+                    if (feedbackElement) {
+                        const originalText = feedbackElement.innerText;
+                        feedbackElement.innerText = "Tersalin!";
+                        setTimeout(() => { feedbackElement.innerText = originalText }, 2000);
+                    }
+                } catch (err) {
+                    // Fallback jika Clipboard API tidak didukung atau ada masalah izin
+                    console.error('Gagal menyalin menggunakan navigator.clipboard:', err);
+                    // Coba fallback ke document.execCommand jika masih dibutuhkan
+                    const el = document.createElement("textarea");
+                    el.value = textToCopy;
+                    document.body.appendChild(el);
+                    el.select();
+                    document.execCommand("copy"); // Fallback
+                    document.body.removeChild(el);
+                    if (feedbackElement) {
+                        const originalText = feedbackElement.innerText;
+                        feedbackElement.innerText = "Tersalin (fallback)!";
+                        setTimeout(() => { feedbackElement.innerText = originalText }, 2000);
+                    }
+                }
+            } else if (feedbackElement) { 
+                const originalText = feedbackElement.innerText;
+                feedbackElement.innerText = "Tidak ada teks!";
+                setTimeout(() => { feedbackElement.innerText = originalText }, 2000);
+            }
+        }
+
+        // --- Function to setup real-time word/character counter ---
+        // (Tidak lagi digunakan untuk citation-input karena sudah dihapus)
+        function setupTextareaCounter(textareaId, wordCountId, charCountId) {
+            const textarea = document.getElementById(textareaId);
+            const wordCountSpan = document.getElementById(wordCountId);
+            const charCountSpan = document.getElementById(charCountId);
+
+            if (!textarea || !wordCountSpan || !charCountSpan) {
+                return;
+            }
+
+            const updateCounter = () => {
+                const text = textarea.value;
+                const charCount = text.length;
+                const wordCount = text.trim().split(/\s+/).filter(word => word.length > 0).length; 
+
+                charCountSpan.textContent = charCount;
+                wordCountSpan.textContent = wordCount;
+                wordCountSpan.classList.remove('text-red-500'); 
+                wordCountSpan.classList.add('text-slate-500');
+            };
+
+            textarea.addEventListener('input', updateCounter);
+            updateCounter(); // Initial update
+        }
+
+        // --- Parafrase App Logic ---
+        function initParafraseApp() {
+            const el = {
+                originalTextInput: document.getElementById('paraphraser-original-text'),
+                paraphrasedTextOutput: document.getElementById('paraphraser-output-text'),
+                paraphraseButton: document.getElementById('paraphrase-button'),
+                copyButton: document.getElementById('paraphraser-copy-button'),
+                clearButton: document.getElementById('paraphraser-clear-button'),
+                loader: document.getElementById('paraphrase-loader'),
+                buttonText: document.getElementById('paraphrase-button-text'),
+                copyText: document.getElementById('paraphraser-copy-text'),
+                modeButtons: document.querySelectorAll('#page-paraphraser .mode-button'),
+                authenticityContainer: document.getElementById('authenticity-container'),
+                checkButton: document.getElementById('check-authenticity-button'),
+                resultDiv: document.getElementById('authenticity-result'),
+            };
+            
+            if (!el.paraphraseButton) return; 
+            
+            let currentMode = 'standard';
+            const setLoading = (isLoading) => {
+                el.paraphraseButton.disabled = isLoading;
+                el.loader.classList.toggle('hidden', !isLoading);
+                el.buttonText.classList.toggle('hidden', isLoading);
+            };
+            const updateActiveButton = (activeButton) => {
+                el.modeButtons.forEach(button => button.classList.remove('active'));
+                activeButton.classList.add('active');
+            };
+            
+            el.paraphraseButton.addEventListener("click", async () => {
+                const userInput = el.originalTextInput.value.trim();
+
+                if (!userInput) {
+                    el.paraphrasedTextOutput.innerHTML = `<span class="text-yellow-400">Silakan masukkan teks.</span>`;
+                    return;
+                }
+                setLoading(true);
+                el.paraphrasedTextOutput.innerHTML = `<span class="text-slate-500">Memproses...</span>`;
+                if(el.authenticityContainer) el.authenticityContainer.classList.add("hidden");
+                el.resultDiv.classList.add("hidden"); 
+
+                try {
+                    const response = await fetch("/.netlify/functions/paraphrase", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ mode: currentMode, text: userInput }),
+                    });
+                    const result = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(result.error || `Error ${response.status}: Gagal memparafrase.`);
+                    }
+                    
+                    el.paraphrasedTextOutput.innerText = result.paraphrased_text || "Tidak ada hasil parafrase.";
+                    
+                    if(el.authenticityContainer) el.authenticityContainer.classList.remove("hidden");
+
+                } catch (err) {
+                    el.paraphrasedTextOutput.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`;
+                } finally { setLoading(false); }
+            });
+
+            el.clearButton.addEventListener('click', () => { el.originalTextInput.value = ""; el.paraphrasedTextOutput.innerHTML = `<span class="text-slate-500">Hasil parafrase akan muncul di sini...</span>`; if(el.authenticityContainer) el.authenticityContainer.classList.add("hidden"); el.resultDiv.classList.add("hidden"); });
+            el.copyButton.addEventListener('click', () => copyToClipboard(el.paraphrasedTextOutput, el.copyText));
+            
+            el.modeButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    currentMode = button.dataset.mode;
+                    updateActiveButton(button);
+                });
+            });
+            updateActiveButton(document.querySelector('#page-paraphraser .mode-button[data-mode="standard"]'));
+
+            el.checkButton.addEventListener('click', async () => {
+                const textToCheck = el.paraphrasedTextOutput.innerText.trim();
+
+                if (!textToCheck || textToCheck.includes("Hasil parafrase akan muncul di sini...")) {
+                    el.resultDiv.classList.remove('hidden');
+                    el.resultDiv.innerHTML = '<span class="text-yellow-400">Silakan parafrase teks terlebih dahulu.</span>';
+                    return;
+                }
+
+                el.resultDiv.classList.remove('hidden');
+                el.resultDiv.innerHTML = `<span class="text-slate-500">Memeriksa keaslian...</span>`;
+                el.checkButton.disabled = true; 
+
+                try {
+                    const response = await fetch("/.netlify/functions/check-authenticity", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ text: textToCheck }),
+                    });
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(result.error || `Error ${response.status}: Gagal memeriksa keaslian.`);
+                    }
+
+                    let displayHtml = `<p class="mb-2"><strong>Analisis:</strong> ${result.overall_impression}</p>`;
+                    if (result.problematic_sentences && result.problematic_sentences.length > 0) {
+                        let highlightedText = textToCheck;
+                        result.problematic_sentences.forEach(sentence => {
+                            const regex = new RegExp(sentence.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+                            highlightedText = highlightedText.replace(regex, `<span class="highlight-risk">${sentence}</span>`);
+                        });
+                        displayHtml += `<p class="mt-4">Bagian yang berpotensi bermasalah:</p><div class="p-2 bg-slate-700 rounded mt-2">${highlightedText}</div>`;
+                    } else {
+                        displayHtml += `<p class="mt-4 text-emerald-400">Teks ini terlihat asli dan unik.</p>`;
+                    }
+                    
+                    displayHtml += `<p class="mt-2 text-sm text-slate-400">Skor Keaslian: ${result.authenticity_score}% (lebih tinggi lebih baik)</p>`;
+
+                    el.resultDiv.innerHTML = displayHtml;
+
+                } catch (err) {
+                    el.resultDiv.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`;
+                } finally {
+                    el.checkButton.disabled = false;
+                }
+            });
+        };
+
+        // --- AI Detector App Logic ---
+        function initAiDetectorApp() {
+            const el = {
+                detectButton: document.getElementById('detect-ai-button'),
+                textInput: document.getElementById('ai-detector-text'),
+                clearButton: document.getElementById('ai-detector-clear-button'),
+                resultContainer: document.getElementById('ai-detector-result-container'),
+                summary: document.getElementById('ai-detector-summary'),
+                bar: document.getElementById('ai-detector-bar'),
+                details: document.getElementById('ai-detector-details'),
+                buttonText: document.getElementById('detect-ai-button-text'),
+                loader: document.getElementById('detect-ai-loader'),
+            };
+            if(!el.detectButton) return;
+
+            const setLoading = (isLoading) => {
+                el.detectButton.disabled = isLoading;
+                el.loader.classList.toggle('hidden', !isLoading);
+                el.buttonText.classList.toggle('hidden', isLoading);
+            };
+
+            const highlightText = (text, scores) => {
+                const sentences = text.split(/(?<=[.!?])\s+/); 
+                let highlightedHtml = '';
+
+                sentences.forEach(sentence => {
+                    const avgScore = (scores.predictability_score + scores.uniformity_score + scores.generality_score) / 3;
+
+                    if (avgScore > 70) { 
+                        highlightedHtml += `<span class="highlight-ai">${sentence}</span> `;
+                    } else if (avgScore > 40) { 
+                        highlightedHtml += `<span class="highlight-risk">${sentence}</span> `;
+                    } else { 
+                        highlightedHtml += `${sentence} `;
+                    }
+                });
+                return highlightedHtml.trim();
+            };
+
+            el.detectButton.addEventListener('click', async () => {
+                const text = el.textInput.value.trim();
+
+                if (!text) { 
+                    el.resultContainer.classList.remove('hidden'); 
+                    el.summary.textContent = 'Silakan masukkan teks untuk dianalisis.'; 
+                    el.details.innerHTML = '';
+                    el.bar.style.width = '0%';
+                    el.bar.className = "h-4 rounded-full transition-all duration-500 bg-slate-700"; 
+                    return; 
+                }
+                setLoading(true);
+                el.resultContainer.classList.add('hidden');
+                
+                try {
+                    const response = await fetch("/.netlify/functions/ai-detector", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ text: text }),
+                    });
+                    const result = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(result.error || `Error ${response.status}: Gagal mendeteksi AI.`);
+                    }
+
+                    const { predictability_score, uniformity_score, generality_score, analysis_summary } = result;
+                    const overallAiLikelihood = Math.round((predictability_score + uniformity_score + generality_score) / 3);
+
+                    let summaryText, barClass;
+                    
+                    if (overallAiLikelihood > 75) {
+                        summaryText = `Sangat Mungkin Ditulis AI (${overallAiLikelihood}%)`;
+                        barClass = "h-4 rounded-full transition-all duration-500 bg-gradient-to-r from-red-500 to-orange-400";
+                    } else if (overallAiLikelihood > 40) {
+                        summaryText = `Kemungkinan Ditulis AI (${overallAiLikelihood}%)`;
+                        barClass = "h-4 rounded-full transition-all duration-500 bg-gradient-to-r from-amber-500 to-yellow-400";
+                    } else {
+                        summaryText = `Kemungkinan Ditulis Manusia (${100-overallAiLikelihood}%)`; 
+                        barClass = "h-4 rounded-full transition-all duration-500 bg-gradient-to-r from-emerald-500 to-teal-400";
+                    }
+
+                    el.resultContainer.classList.remove('hidden');
+                    el.summary.textContent = summaryText;
+                    el.bar.style.width = `${overallAiLikelihood}%`;
+                    el.bar.className = barClass;
+                    
+                    const highlightedContent = highlightText(text, result); 
+                    el.details.innerHTML = `<strong>Ringkasan Analisis AI:</strong> ${analysis_summary}<br/><br/>Teks yang dianalisis:<br/><div class="p-2 bg-slate-700 rounded mt-2">${highlightedContent}</div>`;
+
+                } catch(err) {
+                    el.resultContainer.classList.remove('hidden');
+                    el.summary.textContent = `Error: ${err.message}`;
+                    el.bar.style.width = '0%';
+                    el.bar.className = "h-4 rounded-full transition-all duration-500 bg-slate-700"; 
+                } finally { setLoading(false); } // <-- FIX INI! penutup finally
+            }); // <-- DAN INI! penutup addEventListener
+
+            el.clearButton.addEventListener('click', () => { 
+                el.textInput.value = ""; 
+                el.resultContainer.classList.add('hidden'); 
+                el.bar.style.width = '0%';
+                el.bar.className = "h-4 rounded-full transition-all duration-500 bg-slate-700"; 
+            });
+        };
+
+        // --- Humanizer App Logic ---
+        function initHumanizerApp() {
+            const el = {
+                humanizeButton: document.getElementById("humanize-button"),
+                input: document.getElementById("humanizer-input-text"),
+                output: document.getElementById("humanizer-output-text"),
+                clearButton: document.getElementById("humanizer-clear-button"),
+                copyButton: document.getElementById("humanizer-copy-button"),
+                copyText: document.getElementById("humanizer-copy-text"),
+                loader: document.getElementById("humanize-loader"),
+                buttonText: document.getElementById("humanize-button-text"),
+            };
+
+            if(!el.humanizeButton) return;
+
+            const setLoading = (isLoading) => {
+                el.humanizeButton.disabled = isLoading;
+                el.loader.classList.toggle('hidden', !isLoading);
+                el.buttonText.classList.toggle('hidden', isLoading);
+            };
+
+            el.humanizeButton.addEventListener('click', async () => {
+                const text = el.input.value.trim();
+
+                if (!text) { 
+                    el.output.innerHTML = '<span class="text-yellow-400">Silakan masukkan teks AI.</span>'; 
+                    return; 
+                }
+                setLoading(true);
+                el.output.innerHTML = '<span class="text-slate-500">Memproses...</span>';
+                
+                try {
+                    const response = await fetch("/.netlify/functions/humanize-text", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ text: text }),
+                    });
+                    const result = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(result.error || `Error ${response.status}: Gagal menghumanisasi teks.`);
+                    }
+                    
+                    el.output.innerText = result.humanized_text || "Tidak ada hasil humanisasi.";
+
+                } catch (err) {
+                    el.output.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`;
+                } finally { setLoading(false); }
+            });
+
+            el.clearButton.addEventListener('click', () => { el.input.value = ""; el.output.innerHTML = `<span class="text-slate-500">Hasil teks yang lebih natural akan muncul di sini...</span>`; });
+            el.copyButton.addEventListener('click', () => copyToClipboard(el.output, el.copyText));
+        };
+
+        // --- Text Corrector App Logic ---
+        function initTextCorrectorApp() {
+            const el = {
+                input: document.getElementById('text-corrector-input'),
+                correctButton: document.getElementById('correct-text-button'),
+                outputContainer: document.getElementById('text-corrector-result-container'),
+                output: document.getElementById('text-corrector-output'),
+                clearButton: document.getElementById('text-corrector-clear-button'),
+                copyButton: document.getElementById('text-corrector-copy-button'),
+                copyText: document.getElementById('text-corrector-copy-text'),
+                loader: document.getElementById('correct-text-loader'),
+                buttonText: document.getElementById('correct-text-button-text'),
+            };
+
+            if (!el.correctButton) return;
+
+            const setLoading = (isLoading) => {
+                el.correctButton.disabled = isLoading;
+                el.loader.classList.toggle('hidden', !isLoading);
+                el.buttonText.classList.toggle('hidden', isLoading);
+            };
+
+            el.correctButton.addEventListener('click', async () => {
+                const text = el.input.value.trim();
+
+                if (!text) {
+                    el.outputContainer.classList.remove('hidden');
+                    el.output.innerHTML = '<span class="text-yellow-400">Silakan masukkan teks untuk dikoreksi.</span>';
+                    return;
+                }
+
+                setLoading(true);
+                el.outputContainer.classList.remove('hidden');
+                el.output.innerHTML = '<span class="text-slate-500">Memproses koreksi...</span>';
+
+                try {
+                    const response = await fetch("/.netlify/functions/text-corrector", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ text: text }),
+                    });
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(result.error || `Error ${response.status}: Gagal mengoreksi teks.`);
+                    }
+
+                    el.output.innerText = result.corrected_text || "Tidak ada hasil koreksi.";
+
+                } catch (err) {
+                    el.output.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`;
+                } finally {
+                    setLoading(false);
+                }
+            });
+
+            el.clearButton.addEventListener('click', () => {
+                el.input.value = "";
+                el.output.innerHTML = `<span class="text-slate-500">Hasil koreksi akan muncul di sini...</span>`;
+                el.outputContainer.classList.add('hidden');
+            });
+
+            el.copyButton.addEventListener('click', () => copyToClipboard(el.output, el.copyText));
+        }
+
+        // --- Citation Generator App Logic ---
+        function initCitationGeneratorApp() {
+            const el = {
+                fileInput: document.getElementById('file-upload'),
+                fileNameDisplay: document.getElementById('file-name-display'),
+                generateButton: document.getElementById('generate-citation-button'),
+                outputContainer: document.getElementById('citation-result-container'),
+                output: document.getElementById('citation-output'),
+                clearButton: document.getElementById('citation-clear-button'),
+                copyButton: document.getElementById('citation-copy-button'),
+                copyText: document.getElementById('citation-copy-text'),
+                loader: document.getElementById('generate-citation-loader'),
+                buttonText: document.getElementById('generate-citation-button-text'),
+                typeButtons: document.querySelectorAll('.citation-type-button'),
+            };
+
+            if (!el.generateButton) return; 
+
+            let currentCitationType = 'jurnal'; // Default tipe
+            let uploadedFileBase64 = null;
+            let uploadedFileMimeType = null;
+
+            const setLoading = (isLoading) => {
+                el.generateButton.disabled = isLoading;
+                el.loader.classList.toggle('hidden', !isLoading);
+                el.buttonText.classList.toggle('hidden', isLoading);
+            };
+
+            const updateActiveTypeButton = (activeButton) => {
+                el.typeButtons.forEach(button => button.classList.remove('active'));
+                activeButton.classList.add('active');
+            };
+
+            // Event listener for file input change
+            el.fileInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    // Maximum file size check (5MB = 5 * 1024 * 1024 bytes)
+                    // PENTING: Validasi ini HARUS dilakukan di sini dan langsung menghentikan jika terlalu besar
+                    if (file.size > 5 * 1024 * 1024) { 
+                        alert('Ukuran file terlalu besar (maksimum 5MB). File skripsi/jurnal yang panjang seringkali melebihi batas ini. Silakan coba konversi dokumen Anda ke format TXT untuk mengurangi ukurannya, atau gunakan dokumen yang lebih singkat.');
+                        el.fileInput.value = ''; // Clear the input
+                        el.fileNameDisplay.classList.add('hidden');
+                        uploadedFileBase64 = null;
+                        uploadedFileMimeType = null;
+                        return; // PENTING: Langsung RETURN agar tidak memproses file yang terlalu besar
+                    }
+
+                    // Check file type
+                    if (!['application/pdf', 'text/plain'].includes(file.type)) {
+                        alert('Hanya file PDF atau TXT yang diizinkan.');
+                        el.fileInput.value = '';
+                        el.fileNameDisplay.classList.add('hidden');
+                        uploadedFileBase64 = null;
+                        uploadedFileMimeType = null;
+                        return;
+                    }
+
+                    el.fileNameDisplay.textContent = `File dipilih: ${file.name}`;
+                    el.fileNameDisplay.classList.remove('hidden');
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        uploadedFileBase64 = e.target.result.split(',')[1];
+                        uploadedFileMimeType = file.type;
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    el.fileNameDisplay.classList.add('hidden');
+                    el.fileNameDisplay.textContent = '';
+                    uploadedFileBase64 = null;
+                    uploadedFileMimeType = null;
+                }
+            });
+
+            el.typeButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    currentCitationType = button.dataset.type;
+                    updateActiveTypeButton(button);
+                });
+            });
+
+            el.generateButton.addEventListener('click', async () => {
+                let requestPayload = { type: currentCitationType };
+
+                if (uploadedFileBase64 && uploadedFileMimeType) {
+                    requestPayload.file = uploadedFileBase64;
+                    requestPayload.mimeType = uploadedFileMimeType;
+                } else {
+                    el.outputContainer.classList.remove('hidden');
+                    el.output.innerHTML = '<span class="text-yellow-400">Silakan unggah file PDF/TXT terlebih dahulu.</span>';
+                    return;
+                }
+
+                setLoading(true);
+                el.outputContainer.classList.remove('hidden');
+                el.output.innerHTML = '<span class="text-slate-500">Menganalisis dokumen dan membuat daftar pustaka...</span>';
+
+                try {
+                    const response = await fetch("/.netlify/functions/generate-citation", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(requestPayload),
+                    });
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        // Jika ada error dari server, pastikan ditampilkan
+                        throw new Error(result.error || `Error ${response.status}: Gagal membuat daftar pustaka.`);
+                    }
+
+                    if (result.citations && result.citations.length > 0) {
+                        // Pastikan output HTML diatur dengan benar agar copyToClipboard bisa berfungsi
+                        el.output.innerHTML = result.citations.map(citation => `<p>${citation}</p>`).join('');
+                    } else {
+                        el.output.innerHTML = '<span class="text-slate-500">Tidak dapat menghasilkan daftar pustaka. Pastikan dokumen valid dan dapat dibaca.</span>';
+                    }
+
+                } catch (err) {
+                    el.output.innerHTML = `<span class="text-red-400">Error: ${err.message}</span>`;
+                } finally {
+                    setLoading(false);
+                }
+            });
+
+            el.clearButton.addEventListener('click', () => {
+                el.output.innerHTML = `<span class="text-slate-500">Daftar pustaka akan muncul di sini...</span>`;
+                el.outputContainer.classList.add('hidden');
+                // Clear file input and its display
+                el.fileInput.value = ''; 
+                el.fileNameDisplay.classList.add('hidden');
+                uploadedFileBase64 = null;
+                uploadedFileMimeType = null;
+            });
+
+            el.copyButton.addEventListener('click', () => copyToClipboard(el.output, el.copyText));
+        }
+
+        // --- Call setupTextareaCounter for each textarea ---
+        setupTextareaCounter('paraphraser-original-text', 'paraphraser-word-count', 'paraphraser-char-count');
+        setupTextareaCounter('ai-detector-text', 'ai-detector-word-count', 'ai-detector-char-count');
+        setupTextareaCounter('humanizer-input-text', 'humanizer-word-count', 'humanizer-char-count');
+        setupTextareaCounter('text-corrector-input', 'text-corrector-word-count', 'text-corrector-char-count');
+        // setupTextareaCounter for citation-input is removed as the textarea is removed.
+
+        // Initialize all apps
+        initParafraseApp();
+        initAiDetectorApp();
+        initHumanizerApp();
+        initTextCorrectorApp();
+        initCitationGeneratorApp(); // Panggil fungsi inisialisasi untuk fitur baru
+
+        // Switch to the correct page ID on load
+        switchPage('page-paraphraser'); 
+    });
 </script>
 
 <script>
-    document.getElementById('current-year').textContent = new Date().getFullYear();
+    document.getElementById('current-year').textContent = new Date().getFullYear();
 </script>
 
 </body>

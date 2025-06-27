@@ -11,14 +11,22 @@ exports.handler = async function(event, context) {
         return { statusCode: 500, body: JSON.stringify({ error: 'Kunci API GEMINI_API_KEY belum diatur.' }) };
     }
 
+    let citations = []; // Initialize citations array here to always return it
+
     try {
-        const { file, mimeType, text, type } = JSON.parse(event.body); // Now expects 'file' and 'mimeType' OR 'text'
+        const { file, mimeType, text, type } = JSON.parse(event.body); 
         if (!type || (!file && !text)) {
-            return { statusCode: 400, body: JSON.stringify({ error: 'Tipe dokumen dan file/teks dokumen dibutuhkan.' }) };
+            citations.push("Error: Tipe dokumen dan file/teks dokumen dibutuhkan.");
+            return {
+                statusCode: 400,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ citations: citations, error: 'Tipe dokumen dan file/teks dokumen dibutuhkan.' })
+            };
         }
 
         let contents = [];
         let inputForPrompt = "";
+        let isBatchProcessingText = false; // Flag to indicate if multiple text entries are processed
 
         if (file && mimeType) {
             // If file is provided, add it as inlineData
@@ -30,12 +38,31 @@ exports.handler = async function(event, context) {
             });
             inputForPrompt = "Berikut adalah konten dokumen yang telah diunggah.";
         } else if (text) {
-            // If text is provided, add it as plain text
+            // If text is provided, handle potentially multiple entries
+            const rawEntries = text.split('\n\n').map(entry => entry.trim()).filter(entry => entry.length > 0);
+            if (rawEntries.length === 0) {
+                 citations.push("Error: Teks dokumen tidak ditemukan atau format tidak valid.");
+                 return {
+                    statusCode: 400,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ citations: citations, error: 'Teks dokumen tidak ditemukan atau format tidak valid.' })
+                };
+            }
+            
+            // If multiple entries, process them in a loop internally.
+            // Note: This internal loop structure means we CANNOT use 'continue' for the main function.
+            // Instead, we handle errors for each entry and collect them.
+            if (rawEntries.length > 1) {
+                isBatchProcessingText = true;
+            }
+
+            // For text input, the prompt needs to include the text directly.
+            // We'll wrap the loop around the AI call logic.
+            // For now, let's keep it simple by just passing the whole text and let AI handle multiple.
+            // If more granular control per entry is needed, this part needs a nested async loop.
+            // For simplicity and avoiding the `continue` issue, we'll send the whole text.
             contents.push({ text: text });
-            inputForPrompt = `Berikut adalah teks dokumen:
----
-${text}
----`;
+            inputForPrompt = `Berikut adalah teks dokumen yang perlu dianalisis dan diformat. Jika ada beberapa entri, harap format masing-masing secara terpisah.`;
         }
 
         let promptText = "";
@@ -85,7 +112,7 @@ ${text}
 
                 ${inputForPrompt}
             `;
-        } else { // Fallback, should not be reached if type is always sent
+        } else { 
             promptText = `${baseInstructions}
                 Format daftar pustaka dari informasi yang diberikan dalam gaya umum.
 
@@ -99,7 +126,7 @@ ${text}
         const googleApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
         
         const payload = {
-            contents: contents, // Use the dynamically built contents array
+            contents: contents, 
             generationConfig: {
                 temperature: 0.1, 
             },
@@ -121,45 +148,40 @@ ${text}
 
         if (data.promptFeedback && data.promptFeedback.blockReason) {
             console.error("Prompt diblokir oleh Safety Settings:", data.promptFeedback.blockReason);
-            citations.push(`Gagal menghasilkan sitasi. Konten mungkin melanggar kebijakan keamanan AI.`);
-            // Jika ada detail error dari AI (e.g., input terlalu panjang), sertakan
-            if (data.promptFeedback.blockReason === "OTHER" && data.promptFeedback.safetyRatings && data.promptFeedback.safetyRatings[0].probability === "HIGH") {
-                 citations.push(`(Kemungkinan karena dokumen terlalu panjang atau kompleks)`);
-            }
-            continue;
-        }
-        if (!apiResponse.ok || !data.candidates || !data.candidates[0] || !data.candidates[0].content || !data.candidates[0].content.parts[0]) {
+            citations.push(`Gagal menghasilkan sitasi. Konten mungkin melanggar kebijakan keamanan AI. Detail: ${data.promptFeedback.blockReason}.`);
+            // No 'continue' here, as we are not in a loop for the overall function.
+            // We just add error and let the function return.
+        } else if (!apiResponse.ok || !data.candidates || !data.candidates[0] || !data.candidates[0].content || !data.candidates[0].content.parts[0]) {
             console.error(`Error atau respons tidak valid dari Google API. Payload yang dikirim: ${JSON.stringify(payload).substring(0, 500)}...`, JSON.stringify(data, null, 2));
             citations.push(`Gagal menghasilkan sitasi. Pastikan dokumen valid (PDF/TXT) dan tidak terlalu besar/kompleks. (Error: ${data.error?.message || 'Respons tidak valid dari AI.'})`);
-            continue; 
-        }
+            // No 'continue' here
+        } else {
+            const rawAiText = data.candidates[0].content.parts[0].text;
+            
+            let cleanedCitation = rawAiText
+                .replace(/^[Ss]itasi:|Daftar Pustaka:|[\n\r]+/g, '') 
+                .replace(/(https?:\/\/[^\s]+)/g, '') 
+                .replace(/["'`]/g, '') 
+                .trim();
+            
+            cleanedCitation = cleanedCitation
+                .replace(/<\/?i>/g, '<i>') 
+                .replace(/<\/?em>/g, '<em>') 
+                .replace(/<i>\s*<\/i>/g, '') 
+                .replace(/<em>\s*<\/em>/g, '');
 
-        const rawAiText = data.candidates[0].content.parts[0].text;
-        
-        let cleanedCitation = rawAiText
-            .replace(/^[Ss]itasi:|Daftar Pustaka:|[\n\r]+/g, '') 
-            .replace(/(https?:\/\/[^\s]+)/g, '') 
-            .replace(/["'`]/g, '') 
-            .trim();
-        
-        cleanedCitation = cleanedCitation
-            .replace(/<\/?i>/g, '<i>') 
-            .replace(/<\/?em>/g, '<em>') 
-            .replace(/<i>\s*<\/i>/g, '') 
-            .replace(/<em>\s*<\/em>/g, '');
-
-        citations.push(cleanedCitation);
-        
-        // Handling for multiple citations from text input (if applicable)
-        if (text) {
-             // If original input was text, assume AI might give multiple results separated by newline.
-             // We'll split and push each line as a separate citation.
-             citations = cleanedCitation.split('\n').filter(c => c.trim().length > 0);
+            // If the original input was text, AI might return multiple citations separated by newlines.
+            // We split them and add as individual citations.
+            if (text) {
+                 citations = cleanedCitation.split('\n').filter(c => c.trim().length > 0);
+            } else { // For file input, we expect a single, possibly multi-line, citation output.
+                citations.push(cleanedCitation);
+            }
         }
 
     } catch (error) {
-        console.error('Error di dalam Netlify Function generate-citation:', error.message);
-        return { statusCode: 500, body: JSON.stringify({ error: error.message }) };
+        console.error('Error di dalam Netlify Function generate-citation (catch block):', error.message);
+        citations.push(`Terjadi kesalahan tak terduga di server: ${error.message}`);
     }
 
     return {

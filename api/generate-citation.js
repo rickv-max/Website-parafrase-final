@@ -24,32 +24,24 @@ exports.handler = async function(event, context) {
             };
         }
 
-        let modelContents = []; // Renamed to avoid confusion with the 'contents' property in payload
+        let partsForModel = []; // This array will hold all 'parts' for a single 'user' role
 
         if (file && mimeType) {
-            // Correct structure for inlineData (file input)
-            modelContents.push({
-                parts: [
-                    {
-                        inlineData: {
-                            data: file,
-                            mimeType: mimeType
-                        }
-                    }
-                ]
+            // Add inlineData part for the file
+            partsForModel.push({
+                inlineData: {
+                    data: file,
+                    mimeType: mimeType
+                }
             });
-        } else if (text) {
-            // Correct structure for text input
-            modelContents.push({
-                parts: [
-                    {
-                        text: text // For plain text input from textarea
-                    }
-                ]
-            });
-        }
+        } 
         
-        let promptText = "";
+        // Always add the prompt text. If 'text' is provided, it's part of the prompt.
+        // Otherwise, it's just the core formatting prompt.
+        let corePromptText = "";
+        if (text) { // If text was pasted, prepend it to the prompt for AI to analyze
+            corePromptText += `Berikut adalah teks dokumen yang perlu dianalisis dan diformat. Jika ada beberapa entri, harap format masing-masing secara terpisah:\n\n---\n${text}\n---\n\n`;
+        }
 
         const baseInstructions = `
             Anda adalah seorang spesialis daftar pustaka yang sangat teliti dan akurat dalam pemformatan.
@@ -66,7 +58,7 @@ exports.handler = async function(event, context) {
         `;
 
         if (type === 'jurnal') {
-            promptText = `${baseInstructions}
+            corePromptText += `${baseInstructions}
                 Format sitasi jurnal PERSIS seperti contoh ini, termasuk penggunaan tanda baca, spasi, dan kapitalisasi.
                 Perhatikan pembalikan nama penulis dan pemiringan judul jurnal.
 
@@ -74,7 +66,7 @@ exports.handler = async function(event, context) {
                 Ibrahim, A. (2004). Penyelesaian Sengketa Tanah Kawasan Hutan Negara Di Kabupaten Lumajang. <i>Jurnal Hukum Argumentum</i>, 3(2), Januari-Juni 2004. Sekolah Tinggi Ilmu Hukum Jenderal Sudirman, Lumajang.
             `;
         } else if (type === 'skripsi') {
-            promptText = `${baseInstructions}
+            corePromptText += `${baseInstructions}
                 Format sitasi skripsi PERSIS seperti contoh ini, termasuk penggunaan tanda baca, spasi, dan kapitalisasi.
                 Perhatikan pembalikan nama penulis dan pemiringan jenis dokumen.
 
@@ -82,7 +74,7 @@ exports.handler = async function(event, context) {
                 Jalil, A. (2007). Implementasi Asas Keterbukaan Dalam pembentukan Peraturan Daerah Di Kabupaten Lumajang. <i>Skripsi</i>. Sekolah Tinggi Ilmu Hukum Jenderal Sudirman Lumajang.
             `;
         } else if (type === 'makalah') {
-            promptText = `${baseInstructions}
+            corePromptText += `${baseInstructions}
                 Format sitasi makalah PERSIS seperti contoh ini, termasuk penggunaan tanda baca, spasi, dan kapitalisasi.
                 Perhatikan pembalikan nama penulis dan pemiringan jenis dokumen.
 
@@ -90,18 +82,23 @@ exports.handler = async function(event, context) {
                 Edward, F. (2002, September). Teknik Penyusunan Peraturan Perundang-undangan Tingkat Daerah. <i>Makalah</i>. Pendidikan dan Latihan Legal Drafting LAN, Jakarta.
             `;
         } else { 
-            promptText = `${baseInstructions}
+            corePromptText += `${baseInstructions}
                 Format daftar pustaka dari informasi yang diberikan dalam gaya umum.
             `;
         }
         
-        // Add the prompt text as the last part, also wrapped in 'parts'
-        modelContents.push({ parts: [{ text: promptText }] });
+        // Add the combined prompt text as a 'text' part
+        partsForModel.push({ text: corePromptText });
 
         const googleApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
         
         const payload = {
-            contents: modelContents, // Use the correctly structured modelContents
+            contents: [
+                {
+                    role: "user", // THIS IS THE CRUCIAL FIX: define the role for the parts
+                    parts: partsForModel // All parts (file + prompt) are now under one user role
+                }
+            ], 
             generationConfig: {
                 temperature: 0.1, 
             },
@@ -143,8 +140,8 @@ exports.handler = async function(event, context) {
                 .replace(/<em>\s*<\/em>/g, '');
 
             // For file input, we expect a single, possibly multi-line, citation output.
-            // For text input, AI might return multiple citations separated by newlines.
-            if (text) { // This condition is true if original input was from textarea
+            // For text input (if it's ever re-enabled or used for multiple entries), AI might return multiple citations.
+            if (text) { // This condition is true if original input was from textarea (though textarea is currently removed)
                  citations = cleanedCitation.split('\n').filter(c => c.trim().length > 0);
             } else { // This condition is true if original input was from file upload
                 citations.push(cleanedCitation);

@@ -69,7 +69,7 @@
                             <button class="mode-button col-span-2 sm:col-span-1 relative" data-mode="mahasiswa">Mahasiswa <span class="suggestion-badge">Saran</span></button>
                         </div>
                     </div>
-                    <div class="glassmorphism rounded-xl p-6 h-full flex-grow flex flex-col">
+                    <div class="glassmorphism rounded-xl p-6 h-full flex-grow flex-col">
                         <div class="flex justify-between items-center mb-4">
                             <h2 class="text-xl font-semibold text-slate-200">Teks Asli</h2>
                             <button id="paraphraser-clear-button" title="Bersihkan Teks" class="text-slate-400 hover:text-white transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
@@ -167,7 +167,7 @@
         <div class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4">
             <div class="w-full max-w-2xl text-center">
                 <h2 class="text-3xl font-bold text-slate-200">Generator Daftar Pustaka</h2>
-                <p class="text-slate-400 mt-2 mb-8">Masukkan link jurnal, skripsi, atau makalah, lalu pilih tipe dokumen untuk membuat daftar pustaka otomatis.</p>
+                <p class="text-slate-400 mt-2 mb-8">Masukkan informasi dokumen (link opsional) dan pilih tipe untuk membuat daftar pustaka otomatis.</p>
                 <div class="glassmorphism rounded-xl p-6 flex flex-col gap-4">
                     <div class="flex justify-center mb-4 gap-2">
                         <button class="citation-type-button mode-button active" data-type="jurnal">Jurnal</button>
@@ -175,7 +175,15 @@
                         <button class="citation-type-button mode-button" data-type="makalah">Makalah</button>
                     </div>
                     <div class="relative w-full">
-                        <textarea id="citation-input" class="custom-scrollbar w-full h-40 bg-slate-800/50 p-4 pr-10 rounded-lg text-slate-300 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition resize-y" placeholder="Masukkan satu atau beberapa link jurnal/skripsi/makalah (satu per baris)..."></textarea>
+                        <textarea id="citation-input" class="custom-scrollbar w-full h-40 bg-slate-800/50 p-4 pr-10 rounded-lg text-slate-300 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition resize-y" placeholder="Masukkan informasi berikut (satu entri per baris):
+- Link jurnal/skripsi/makalah (opsional)
+- Nama Penulis
+- Judul
+- Nama Jurnal/Institusi (jika relevan)
+- Detail lain seperti volume, nomor, tahun, lokasi, tanggal
+Contoh:
+https://jurnal.umsu.ac.id/index.php/legalata/article/download/3151/2878
+Fajaruddin, Efektivitas Undang-Undang Nomor 33 Tahun 2014 Tentang Jaminan Produk Halal Dalam Perlindungan Konsumen, DE LEGA LATA - Jurnal UMSU, 3(2), 204-216, 2018"></textarea>
                         <div class="text-right text-xs text-slate-500 mt-2">
                             <span id="citation-word-count">0</span> Kata / <span id="citation-char-count">0</span> Karakter
                         </div>
@@ -711,19 +719,19 @@
 
                 if (!links) {
                     el.outputContainer.classList.remove('hidden');
-                    el.output.innerHTML = '<span class="text-yellow-400">Silakan masukkan link.</span>';
+                    el.output.innerHTML = '<span class="text-yellow-400">Silakan masukkan informasi dokumen.</span>';
                     return;
                 }
 
                 setLoading(true);
                 el.outputContainer.classList.remove('hidden');
-                el.output.innerHTML = '<span class="text-slate-500">Menganalisis link dan membuat daftar pustaka...</span>';
+                el.output.innerHTML = '<span class="text-slate-500">Memproses informasi dan membuat daftar pustaka...</span>';
 
                 try {
                     const response = await fetch("/.netlify/functions/generate-citation", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ links: links, type: currentCitationType }),
+                        body: JSON.stringify({ links: links, type: currentCitationType }), // 'links' now refers to the raw text input
                     });
                     const result = await response.json();
 
@@ -734,7 +742,7 @@
                     if (result.citations && result.citations.length > 0) {
                         el.output.innerHTML = result.citations.map(citation => `<p>${citation}</p>`).join('');
                     } else {
-                        el.output.innerHTML = '<span class="text-slate-500">Tidak dapat menghasilkan daftar pustaka dari link yang diberikan. Pastikan link valid dan dapat diakses.</span>';
+                        el.output.innerHTML = '<span class="text-slate-500">Tidak dapat menghasilkan daftar pustaka. Pastikan informasi dokumen lengkap dan jelas.</span>';
                     }
 
                 } catch (err) {

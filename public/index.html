@@ -14,7 +14,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        body{font-family:'Inter',sans-serif;background-color:#0f172a}.glassmorphism{background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2)}textarea::placeholder{color:#94a3b8}.custom-scrollbar::-webkit-scrollbar{width:8px}.custom-scrollbar::-webkit-scrollbar-track{background:transparent}.custom-scrollbar::-webkit-scrollbar-thumb{background-color:#475569;border-radius:10px;border:2px solid transparent;background-clip:content-box}@keyframes spin{to{transform:rotate(360deg)}}.loader{animation:spin 1s linear infinite}
+        body{font-family:'Inter',sans-serif;background-color:#0f172a}.glassmorphism{background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2)}textarea::placeholder{color:#94a3b8}.custom-scrollbar::-webkit-scrollbar{width:8px}.custom-scrollbar::-webkit-scrollbar-track{background:transparent}.custom-scrollbar::-webkit-scrollbar-thumb{background-color:#475569;border-radius:10px;border:2px solid transparent;background-clip:content-contentbox}@keyframes spin{to{transform:rotate(360deg)}}.loader{animation:spin 1s linear infinite}
         .highlight-plagiat { background-color: rgba(192, 132, 252, 0.3); color: #e9d5ff; border-radius: 4px; padding: 2px 1px; }
         .highlight{background-color:rgba(99,102,241,0.3);color:#c7d2fe;border-radius:4px;padding:2px 1px;font-weight:500}
         .highlight-risk{background-color: rgba(251, 191, 36, 0.3); color: #fef3c7; border-radius: 4px; padding: 2px 1px; font-weight: 500;}
@@ -167,23 +167,32 @@
         <div class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4">
             <div class="w-full max-w-2xl text-center">
                 <h2 class="text-3xl font-bold text-slate-200">Generator Daftar Pustaka</h2>
-                <p class="text-slate-400 mt-2 mb-8">Masukkan informasi dokumen (link opsional) dan pilih tipe untuk membuat daftar pustaka otomatis.</p>
+                <p class="text-slate-400 mt-2 mb-8">Pilih tipe dokumen, lalu unggah file (PDF/TXT) atau tempel teks dokumen untuk membuat daftar pustaka otomatis.</p>
                 <div class="glassmorphism rounded-xl p-6 flex flex-col gap-4">
                     <div class="flex justify-center mb-4 gap-2">
                         <button class="citation-type-button mode-button active" data-type="jurnal">Jurnal</button>
                         <button class="citation-type-button mode-button" data-type="skripsi">Skripsi</button>
                         <button class="citation-type-button mode-button" data-type="makalah">Makalah</button>
                     </div>
+                    
+                    <div class="relative w-full text-left p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+                        <label for="file-upload" class="block text-slate-300 text-sm font-semibold mb-2">Unggah File (PDF/TXT):</label>
+                        <input type="file" id="file-upload" accept=".pdf,.txt" class="block w-full text-sm text-slate-400
+                            file:mr-4 file:py-2 file:px-4
+                            file:rounded-full file:border-0
+                            file:text-sm file:font-semibold
+                            file:bg-indigo-500 file:text-white
+                            hover:file:bg-indigo-600 transition-colors
+                        ">
+                        <p id="file-name-display" class="text-xs text-slate-500 mt-2 hidden"></p>
+                        <div class="text-slate-500 text-xs mt-4">
+                            Atau tempel teks dokumen di bawah (maks 2 entri, pisahkan dengan 2 baris kosong):
+                        </div>
+                    </div>
+
                     <div class="relative w-full">
-                        <textarea id="citation-input" class="custom-scrollbar w-full h-40 bg-slate-800/50 p-4 pr-10 rounded-lg text-slate-300 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition resize-y" placeholder="Masukkan informasi berikut (satu entri per baris):
-- Link jurnal/skripsi/makalah (opsional)
-- Nama Penulis
-- Judul
-- Nama Jurnal/Institusi (jika relevan)
-- Detail lain seperti volume, nomor, tahun, lokasi, tanggal
-Contoh:
-https://jurnal.umsu.ac.id/index.php/legalata/article/download/3151/2878
-Fajaruddin, Efektivitas Undang-Undang Nomor 33 Tahun 2014 Tentang Jaminan Produk Halal Dalam Perlindungan Konsumen, DE LEGA LATA - Jurnal UMSU, 3(2), 204-216, 2018"></textarea>
+                        <textarea id="citation-input" class="custom-scrollbar w-full h-40 bg-slate-800/50 p-4 pr-10 rounded-lg text-slate-300 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition resize-y" placeholder="Tempelkan seluruh teks dokumen di sini (opsional jika sudah unggah file).
+Untuk beberapa entri, pisahkan dengan DUA baris kosong."></textarea>
                         <div class="text-right text-xs text-slate-500 mt-2">
                             <span id="citation-word-count">0</span> Kata / <span id="citation-char-count">0</span> Karakter
                         </div>
@@ -680,7 +689,9 @@ Fajaruddin, Efektivitas Undang-Undang Nomor 33 Tahun 2014 Tentang Jaminan Produk
         // --- Citation Generator App Logic ---
         function initCitationGeneratorApp() {
             const el = {
-                input: document.getElementById('citation-input'),
+                fileInput: document.getElementById('file-upload'),
+                fileNameDisplay: document.getElementById('file-name-display'),
+                input: document.getElementById('citation-input'), // This will now hold raw text OR be empty if file is used
                 generateButton: document.getElementById('generate-citation-button'),
                 outputContainer: document.getElementById('citation-result-container'),
                 output: document.getElementById('citation-output'),
@@ -695,6 +706,8 @@ Fajaruddin, Efektivitas Undang-Undang Nomor 33 Tahun 2014 Tentang Jaminan Produk
             if (!el.generateButton) return; 
 
             let currentCitationType = 'jurnal'; // Default tipe
+            let uploadedFileBase64 = null;
+            let uploadedFileMimeType = null;
 
             const setLoading = (isLoading) => {
                 el.generateButton.disabled = isLoading;
@@ -707,6 +720,38 @@ Fajaruddin, Efektivitas Undang-Undang Nomor 33 Tahun 2014 Tentang Jaminan Produk
                 activeButton.classList.add('active');
             };
 
+            // Event listener for file input change
+            el.fileInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    // Maximum file size check (5MB = 5 * 1024 * 1024 bytes)
+                    if (file.size > 5 * 1024 * 1024) { 
+                        alert('Ukuran file terlalu besar. Maksimum 5MB.');
+                        el.fileInput.value = ''; // Clear the input
+                        el.fileNameDisplay.classList.add('hidden');
+                        uploadedFileBase64 = null;
+                        uploadedFileMimeType = null;
+                        return;
+                    }
+
+                    el.fileNameDisplay.textContent = `File dipilih: ${file.name}`;
+                    el.fileNameDisplay.classList.remove('hidden');
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        // Extract base64 string (remove 'data:mime/type;base64,')
+                        uploadedFileBase64 = e.target.result.split(',')[1];
+                        uploadedFileMimeType = file.type;
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    el.fileNameDisplay.classList.add('hidden');
+                    el.fileNameDisplay.textContent = '';
+                    uploadedFileBase64 = null;
+                    uploadedFileMimeType = null;
+                }
+            });
+
             el.typeButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     currentCitationType = button.dataset.type;
@@ -715,23 +760,32 @@ Fajaruddin, Efektivitas Undang-Undang Nomor 33 Tahun 2014 Tentang Jaminan Produk
             });
 
             el.generateButton.addEventListener('click', async () => {
-                const links = el.input.value.trim();
+                const textInputContent = el.input.value.trim();
 
-                if (!links) {
+                let requestPayload = { type: currentCitationType };
+
+                if (uploadedFileBase64 && uploadedFileMimeType) {
+                    requestPayload.file = uploadedFileBase64;
+                    requestPayload.mimeType = uploadedFileMimeType;
+                    // Optional: Clear text input if file is used
+                    el.input.value = ''; 
+                } else if (textInputContent) {
+                    requestPayload.text = textInputContent;
+                } else {
                     el.outputContainer.classList.remove('hidden');
-                    el.output.innerHTML = '<span class="text-yellow-400">Silakan masukkan informasi dokumen.</span>';
+                    el.output.innerHTML = '<span class="text-yellow-400">Silakan unggah file PDF/TXT atau tempel teks dokumen.</span>';
                     return;
                 }
 
                 setLoading(true);
                 el.outputContainer.classList.remove('hidden');
-                el.output.innerHTML = '<span class="text-slate-500">Memproses informasi dan membuat daftar pustaka...</span>';
+                el.output.innerHTML = '<span class="text-slate-500">Menganalisis dokumen dan membuat daftar pustaka...</span>';
 
                 try {
                     const response = await fetch("/.netlify/functions/generate-citation", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ links: links, type: currentCitationType }), // 'links' now refers to the raw text input
+                        body: JSON.stringify(requestPayload),
                     });
                     const result = await response.json();
 
@@ -756,6 +810,11 @@ Fajaruddin, Efektivitas Undang-Undang Nomor 33 Tahun 2014 Tentang Jaminan Produk
                 el.input.value = "";
                 el.output.innerHTML = `<span class="text-slate-500">Daftar pustaka akan muncul di sini...</span>`;
                 el.outputContainer.classList.add('hidden');
+                // Clear file input and its display
+                el.fileInput.value = ''; 
+                el.fileNameDisplay.classList.add('hidden');
+                uploadedFileBase64 = null;
+                uploadedFileMimeType = null;
             });
 
             el.copyButton.addEventListener('click', () => copyToClipboard(el.output, el.copyText));
@@ -766,7 +825,8 @@ Fajaruddin, Efektivitas Undang-Undang Nomor 33 Tahun 2014 Tentang Jaminan Produk
         setupTextareaCounter('ai-detector-text', 'ai-detector-word-count', 'ai-detector-char-count');
         setupTextareaCounter('humanizer-input-text', 'humanizer-word-count', 'humanizer-char-count');
         setupTextareaCounter('text-corrector-input', 'text-corrector-word-count', 'text-corrector-char-count');
-        setupTextareaCounter('citation-input', 'citation-word-count', 'citation-char-count'); // Tambahan baru untuk generator sitasi
+        // Note: citation-input word/char count will now apply to pasted text, not file uploads
+        setupTextareaCounter('citation-input', 'citation-word-count', 'citation-char-count'); 
 
         // Initialize all apps
         initParafraseApp();

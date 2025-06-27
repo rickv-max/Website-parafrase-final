@@ -167,7 +167,7 @@
         <div class="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-4">
             <div class="w-full max-w-2xl text-center">
                 <h2 class="text-3xl font-bold text-slate-200">Generator Daftar Pustaka</h2>
-                <p class="text-slate-400 mt-2 mb-8">Pilih tipe dokumen, lalu unggah file (PDF/TXT) atau tempel teks dokumen untuk membuat daftar pustaka otomatis.</p>
+                <p class="text-slate-400 mt-2 mb-8">Pilih tipe dokumen, lalu unggah file (PDF/TXT) untuk membuat daftar pustaka otomatis.</p>
                 <div class="glassmorphism rounded-xl p-6 flex flex-col gap-4">
                     <div class="flex justify-center mb-4 gap-2">
                         <button class="citation-type-button mode-button active" data-type="jurnal">Jurnal</button>
@@ -185,21 +185,8 @@
                             hover:file:bg-indigo-600 transition-colors
                         ">
                         <p id="file-name-display" class="text-xs text-slate-500 mt-2 hidden"></p>
-                        <div class="text-slate-500 text-xs mt-4">
-                            Atau tempel teks dokumen di bawah (maks 2 entri, pisahkan dengan 2 baris kosong):
-                        </div>
                     </div>
 
-                    <div class="relative w-full">
-                        <textarea id="citation-input" class="custom-scrollbar w-full h-40 bg-slate-800/50 p-4 pr-10 rounded-lg text-slate-300 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition resize-y" placeholder="Tempelkan seluruh teks dokumen di sini (opsional jika sudah unggah file).
-Untuk beberapa entri, pisahkan dengan DUA baris kosong."></textarea>
-                        <div class="text-right text-xs text-slate-500 mt-2">
-                            <span id="citation-word-count">0</span> Kata / <span id="citation-char-count">0</span> Karakter
-                        </div>
-                        <button id="citation-clear-button" title="Bersihkan Input" class="absolute bottom-4 right-4 text-slate-500 hover:text-white transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                        </button>
-                    </div>
                     <button id="generate-citation-button" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-3 px-6 rounded-full shadow-lg flex items-center justify-center gap-3">
                         <span id="generate-citation-button-text">Buat Daftar Pustaka</span>
                         <div id="generate-citation-loader" class="hidden loader w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
@@ -314,13 +301,14 @@ Untuk beberapa entri, pisahkan dengan DUA baris kosong."></textarea>
         }
 
         // --- Function to setup real-time word/character counter ---
+        // (Tidak lagi digunakan untuk citation-input karena sudah dihapus)
         function setupTextareaCounter(textareaId, wordCountId, charCountId) {
             const textarea = document.getElementById(textareaId);
             const wordCountSpan = document.getElementById(wordCountId);
             const charCountSpan = document.getElementById(charCountId);
 
             if (!textarea || !wordCountSpan || !charCountSpan) {
-                console.warn(`Elemen counter tidak ditemukan untuk ${textareaId}`);
+                // console.warn(`Elemen counter tidak ditemukan untuk ${textareaId}`); // Tidak lagi log warning ini karena memang dihapus
                 return;
             }
 
@@ -691,7 +679,7 @@ Untuk beberapa entri, pisahkan dengan DUA baris kosong."></textarea>
             const el = {
                 fileInput: document.getElementById('file-upload'),
                 fileNameDisplay: document.getElementById('file-name-display'),
-                input: document.getElementById('citation-input'), // This will now hold raw text OR be empty if file is used
+                // citation-input textarea removed, so no need for el.input
                 generateButton: document.getElementById('generate-citation-button'),
                 outputContainer: document.getElementById('citation-result-container'),
                 output: document.getElementById('citation-output'),
@@ -734,6 +722,16 @@ Untuk beberapa entri, pisahkan dengan DUA baris kosong."></textarea>
                         return;
                     }
 
+                    // Check file type
+                    if (!['application/pdf', 'text/plain'].includes(file.type)) {
+                        alert('Hanya file PDF atau TXT yang diizinkan.');
+                        el.fileInput.value = '';
+                        el.fileNameDisplay.classList.add('hidden');
+                        uploadedFileBase64 = null;
+                        uploadedFileMimeType = null;
+                        return;
+                    }
+
                     el.fileNameDisplay.textContent = `File dipilih: ${file.name}`;
                     el.fileNameDisplay.classList.remove('hidden');
 
@@ -760,20 +758,14 @@ Untuk beberapa entri, pisahkan dengan DUA baris kosong."></textarea>
             });
 
             el.generateButton.addEventListener('click', async () => {
-                const textInputContent = el.input.value.trim();
-
                 let requestPayload = { type: currentCitationType };
 
                 if (uploadedFileBase64 && uploadedFileMimeType) {
                     requestPayload.file = uploadedFileBase64;
                     requestPayload.mimeType = uploadedFileMimeType;
-                    // Optional: Clear text input if file is used
-                    el.input.value = ''; 
-                } else if (textInputContent) {
-                    requestPayload.text = textInputContent;
                 } else {
                     el.outputContainer.classList.remove('hidden');
-                    el.output.innerHTML = '<span class="text-yellow-400">Silakan unggah file PDF/TXT atau tempel teks dokumen.</span>';
+                    el.output.innerHTML = '<span class="text-yellow-400">Silakan unggah file PDF/TXT terlebih dahulu.</span>';
                     return;
                 }
 
@@ -796,7 +788,7 @@ Untuk beberapa entri, pisahkan dengan DUA baris kosong."></textarea>
                     if (result.citations && result.citations.length > 0) {
                         el.output.innerHTML = result.citations.map(citation => `<p>${citation}</p>`).join('');
                     } else {
-                        el.output.innerHTML = '<span class="text-slate-500">Tidak dapat menghasilkan daftar pustaka. Pastikan informasi dokumen lengkap dan jelas.</span>';
+                        el.output.innerHTML = '<span class="text-slate-500">Tidak dapat menghasilkan daftar pustaka. Pastikan dokumen valid dan dapat dibaca.</span>';
                     }
 
                 } catch (err) {
@@ -807,7 +799,6 @@ Untuk beberapa entri, pisahkan dengan DUA baris kosong."></textarea>
             });
 
             el.clearButton.addEventListener('click', () => {
-                el.input.value = "";
                 el.output.innerHTML = `<span class="text-slate-500">Daftar pustaka akan muncul di sini...</span>`;
                 el.outputContainer.classList.add('hidden');
                 // Clear file input and its display
@@ -825,8 +816,7 @@ Untuk beberapa entri, pisahkan dengan DUA baris kosong."></textarea>
         setupTextareaCounter('ai-detector-text', 'ai-detector-word-count', 'ai-detector-char-count');
         setupTextareaCounter('humanizer-input-text', 'humanizer-word-count', 'humanizer-char-count');
         setupTextareaCounter('text-corrector-input', 'text-corrector-word-count', 'text-corrector-char-count');
-        // Note: citation-input word/char count will now apply to pasted text, not file uploads
-        setupTextareaCounter('citation-input', 'citation-word-count', 'citation-char-count'); 
+        // setupTextareaCounter for citation-input is removed as the textarea is removed.
 
         // Initialize all apps
         initParafraseApp();

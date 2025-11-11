@@ -1,17 +1,26 @@
 'use strict';
 
-// Pakai fetch bawaan Node 18+. Kalau masih Node 16/17, fallback ke node-fetch.
+// Node 18+ punya global fetch; kalau tidak ada, fallback ke node-fetch.
 const fetch = globalThis.fetch || require('node-fetch');
+const { randomUUID } = require('crypto');
 
-const ALLOWED_MODELS = [
-  'gemini-2.5-flash',
-  'gemini-2.5-pro',
-  'gemini-2.0-flash'
-];
+const ALLOWED_MODELS = ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.0-flash'];
 
-/**
- * Pembersih hasil AI (versi kamu, sedikit dirapikan).
- */
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',                 // ganti ke domain spesifik kalau perlu
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+};
+
+function json(statusCode, data, extraHeaders = {}) {
+  return {
+    statusCode,
+    headers: { ...CORS_HEADERS, 'Content-Type': 'application/json', ...extraHeaders },
+    body: JSON.stringify(data)
+  };
+}
+
+/** Pembersih hasil AI */
 function cleanAiResponse(text) {
   let cleanedText = String(text || '').trim();
   cleanedText = cleanedText.replace(
@@ -22,47 +31,75 @@ function cleanAiResponse(text) {
   return cleanedText.trim();
 }
 
-/**
- * Simple retry untuk 429/503.
- */
+/** Retry sederhana untuk 429/503 */
 async function postToGemini(url, payload, retries = 1) {
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   });
-
   if (!res.ok && retries > 0 && (res.status === 429 || res.status === 503)) {
-    // backoff sederhana
     await new Promise(r => setTimeout(r, 600));
     return postToGemini(url, payload, retries - 1);
   }
   return res;
 }
 
-exports.handler = async function (event) {
+/** Bundel debug aman (tanpa bocorin key/Authorization) */
+function buildDebugBundle({ event, context, modelId, endpoint, statusFromUpstream, upstreamBody }) {
+  const requestId = (context && (context.requestId || context.awsRequestId)) || randomUUID();
+  const safeHeaders = {};
+  try {
+    const raw = event.headers || {};
+    for (const k of Object.keys(raw)) {
+      const key = k.toLowerCase();
+      if (key === 'authorization') continue;
+      // ambil header yang berguna aja
+      if (['origin','referer','user-agent','content-type'].includes(key)) {
+        safeHeaders[key] = raw[k];
+      }
+    }
+  } catch {}
+  return {
+    request_id: requestId,
+    server_time: new Date().toISOString(),
+    endpoint,
+    model_used: modelId,
+    http_method: event.httpMethod,
+    path: event.path,
+    status_upstream: statusFromUpstream,
+    headers_sample: safeHeaders,
+    upstream_preview: upstreamBody // ini body error dari Google (sudah aman, tidak memuat key)
+  };
+}
+
+exports.handler = async function (event, context) {
+  // Preflight untuk CORS
+  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS_HEADERS };
+
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: JSON.stringify({ error: 'Metode tidak diizinkan' }) };
+    return json(405, { error: 'Metode tidak diizinkan' });
   }
 
   const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
   if (!GEMINI_API_KEY) {
-    return { statusCode: 500, body: JSON.stringify({ error: 'Kunci API belum diatur' }) };
+    return json(500, { error: 'Kunci API belum diatur' });
   }
 
-  let body;
+  // Bisa nyalakan debug lewat body.debug === true
+  let body, DEBUG = false;
   try {
     body = JSON.parse(event.body || '{}');
+    DEBUG = Boolean(body?.debug);
   } catch {
-    return { statusCode: 400, body: JSON.stringify({ error: 'Body tidak valid (JSON)' }) };
+    return json(400, { error: 'Body tidak valid (JSON)' });
   }
 
   const { mode, text, model } = body || {};
   if (!mode || !text) {
-    return { statusCode: 400, body: JSON.stringify({ error: 'Mode dan teks dibutuhkan' }) };
+    return json(400, { error: 'Mode dan teks dibutuhkan' });
   }
 
-  // PROMPTS
   const prompts = {
     standard: `Tugas Anda adalah memparafrase teks berikut. Ubah struktur setiap kalimat secara signifikan dan ganti pilihan kata dengan sinonim yang relevan. Pastikan SEMUA makna dan detail informasi dari teks asli tetap utuh. JANGAN meringkas. HANYA berikan teks yang sudah diparafrase, tanpa kalimat pembuka, penjelasan, atau format tambahan.`,
     formal: `Anda adalah editor akademis. Parafrasekan teks berikut ke dalam gaya bahasa yang sangat formal dan objektif. Pertahankan semua detail informasi dengan presisi tinggi. HANYA berikan teks yang sudah diparafrase, tanpa kalimat pembuka, penjelasan, atau format tambahan.`,
@@ -77,55 +114,88 @@ exports.handler = async function (event) {
   const MODEL_ID = ALLOWED_MODELS.includes(requestedModel) ? requestedModel : DEFAULT_MODEL;
 
   const fullPrompt = `${instruction}\n\nTeks Asli untuk diparafrase:\n---\n${text}`;
-
-  const googleApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_ID}:generateContent?key=${GEMINI_API_KEY}`;
+  const endpoint =
+    `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_ID}:generateContent?key=${GEMINI_API_KEY}`;
 
   const payload = {
     contents: [{ role: 'user', parts: [{ text: fullPrompt }] }],
-    generationConfig: {
-      temperature: 0.1,
-      candidateCount: 1
-      // maxOutputTokens: 2048, // opsional
-    }
-    // safetySettings: [...] // opsional
+    generationConfig: { temperature: 0.1, candidateCount: 1 }
   };
 
   try {
-    const apiResponse = await postToGemini(googleApiUrl, payload, 1);
+    const apiResponse = await postToGemini(endpoint, payload, 1);
     const data = await apiResponse.json().catch(() => ({}));
 
     if (!apiResponse.ok) {
-      const rawMsg = data?.error?.message || data?.error || 'Request ke Gemini API gagal';
-      // Sanitasi agar key tidak pernah tampil jika API memantul balik pesan
-      const safeMsg = String(rawMsg).replace(new RegExp(GEMINI_API_KEY, 'g'), '[REDACTED_KEY]');
-      return { statusCode: apiResponse.status, body: JSON.stringify({ error: safeMsg }) };
+      const upstreamMsg = data?.error?.message || data?.error || 'Request ke Gemini API gagal';
+      const safeMsg = String(upstreamMsg).replace(new RegExp(GEMINI_API_KEY, 'g'), '[REDACTED_KEY]');
+
+      const debug = DEBUG
+        ? buildDebugBundle({
+            event, context,
+            modelId: MODEL_ID,
+            endpoint,
+            statusFromUpstream: apiResponse.status,
+            upstreamBody: data
+          })
+        : undefined;
+
+      // Tambahkan hint cepat berdasar status
+      const hint =
+        apiResponse.status === 401 || apiResponse.status === 403 ? 'Periksa API key & restrictions (IP/referrer) di Google AI Studio.' :
+        apiResponse.status === 404 ? 'Cek path endpoint atau MODEL_ID.' :
+        apiResponse.status === 405 ? 'Method harus POST ke Function.' :
+        apiResponse.status === 429 ? 'Rate limit. Coba ulang sebentar lagi.' :
+        apiResponse.status === 400 ? 'Payload tidak valid. Cek struktur JSON.' :
+        undefined;
+
+      return json(apiResponse.status, { error: safeMsg, hint, debug });
     }
 
     const parts = data?.candidates?.[0]?.content?.parts;
-    const rawText =
-      Array.isArray(parts)
-        ? parts.map(p => p?.text).filter(Boolean).join('\n').trim()
-        : '';
+    const rawText = Array.isArray(parts) ? parts.map(p => p?.text).filter(Boolean).join('\n').trim() : '';
 
     if (!rawText) {
-      // Bisa karena safety filter / kosong
       const reason = data?.candidates?.[0]?.finishReason || 'NO_CONTENT';
-      return { statusCode: 502, body: JSON.stringify({ error: `Tidak ada keluaran dari model (${reason}).` }) };
+      const debug = DEBUG
+        ? buildDebugBundle({
+            event, context,
+            modelId: MODEL_ID,
+            endpoint,
+            statusFromUpstream: apiResponse.status,
+            upstreamBody: data
+          })
+        : undefined;
+      return json(502, { error: `Tidak ada keluaran dari model (${reason}).`, debug });
     }
 
     const cleanedText = cleanAiResponse(rawText);
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({
-        model_used: MODEL_ID,
-        paraphrased_text: cleanedText
-      })
-    };
+    const headers = { 'X-Debug-Id': randomUUID(), 'X-Model-Used': MODEL_ID };
+    const resBody = { model_used: MODEL_ID, paraphrased_text: cleanedText };
+    if (DEBUG) {
+      resBody.debug = buildDebugBundle({
+        event, context,
+        modelId: MODEL_ID,
+        endpoint,
+        statusFromUpstream: 200,
+        upstreamBody: { ok: true }
+      });
+    }
+    return json(200, resBody, headers);
+
   } catch (e) {
-    // Jangan bocorkan key/log sensitif
-    const msg = (e && e.message) ? e.message.replace(new RegExp(GEMINI_API_KEY, 'g'), '[REDACTED_KEY]') : 'Unknown error';
-    console.error('Paraphrase function error:', msg);
-    return { statusCode: 500, body: JSON.stringify({ error: 'Terjadi kesalahan di server' }) };
+    const safe = (e && e.message) ? e.message : 'Unknown error';
+    console.error('Paraphrase function error:', safe);
+    const debug = DEBUG
+      ? buildDebugBundle({
+          event, context,
+          modelId: MODEL_ID,
+          endpoint,
+          statusFromUpstream: 500,
+          upstreamBody: { error: safe }
+        })
+      : undefined;
+    return json(500, { error: 'Terjadi kesalahan di server', debug });
   }
 };
